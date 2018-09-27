@@ -1,15 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import preventDrag from './Utilities/preventDrag';
+
 class ListItem extends React.Component {
   shouldComponentUpdate(nextProps) {
     const {
-      height, opacity, shadow, x, y, zIndex,
+      opacity, shadow, x, y, zIndex,
     } = this.props.style;
-    const { indexX, indexY } = this.props.data;
+    const { item, orderObject } = this.props.data;
+    const { width, height } = orderObject;
     const nextStyle = nextProps.style;
     const nextData = nextProps.data;
 
+    if (width !== nextStyle.width) {
+      return true;
+    }
     if (height !== nextStyle.height) {
       return true;
     }
@@ -28,15 +34,36 @@ class ListItem extends React.Component {
     if (zIndex !== nextStyle.zIndex) {
       return true;
     }
-    if (indexX !== nextData.indexX) {
-      return true;
-    }
-    if (indexY !== nextData.indexY) {
+    if (item.key !== nextData.item.key) {
       return true;
     }
 
     return false;
   }
+
+  handleSizeRef = (element) => {
+    if (element) {
+      const { data, updateSize } = this.props;
+      const {
+        item, orderObject, orderIndexX, orderIndexY,
+      } = data;
+      const { fixedWidth, fixedHeight } = item;
+      const { width, height } = orderObject;
+      const { offsetWidth, offsetHeight } = element;
+
+      if (
+        (!fixedWidth && offsetWidth && width !== offsetWidth)
+        || (!fixedHeight && offsetHeight && height !== offsetHeight)
+      ) {
+        updateSize({
+          orderIndexX,
+          orderIndexY,
+          width: offsetWidth,
+          height: offsetHeight,
+        });
+      }
+    }
+  };
 
   render() {
     const {
@@ -44,46 +71,46 @@ class ListItem extends React.Component {
     } = this.props;
 
     const {
-      width, height, opacity, shadow, x, y, zIndex,
+      opacity, shadow, x, y, zIndex,
     } = style;
-    const { item, coordinates } = data;
-
+    const { item, orderIndexX, orderIndexY } = data;
     const boxShadowString = `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${1.2 * shadow}px 0px`;
     const transformString = `translate3d(${x}px, ${y}px, 0)`;
+    const {
+      key, ItemComponent, itemProps, fixedWidth, fixedHeight,
+    } = item;
 
     return (
       <li
+        ref={this.handleSizeRef}
         className="rvdl-list-item"
-        data-coordinates={coordinates}
+        id={key}
+        key={key}
+        data-order-index-x={orderIndexX}
+        data-order-index-y={orderIndexY}
         data-x={x}
         data-y={y}
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
         style={{
           position: 'absolute',
-          zIndex,
           overflowX: 'hidden',
           overflowY: 'hidden',
+          zIndex,
           outline: 'none',
+          userSelect: 'none',
           boxSizing: 'border-box',
-          width,
-          height,
+          width: fixedWidth || 'auto',
+          height: fixedHeight || 'auto',
           opacity,
           background: 'white',
           boxShadow: boxShadowString,
           transform: transformString,
           ...ListItemStyles,
         }}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        onDragStart={preventDrag}
       >
-        <button
-          type="button"
-          onClick={() => {
-            console.log('test button');
-          }}
-          style={{ width: '100px', height: '100px', background: 'red' }}
-        >
-          {item.name}
-        </button>
+        {ItemComponent && <ItemComponent {...itemProps} />}
       </li>
     );
   }
@@ -91,8 +118,14 @@ class ListItem extends React.Component {
 
 ListItem.propTypes = {
   style: PropTypes.object.isRequired,
-  data: PropTypes.object.isRequired,
+  data: PropTypes.shape({
+    items: PropTypes.object,
+    orderObject: PropTypes.object,
+    orderIndexX: PropTypes.number,
+    orderIndexY: PropTypes.number,
+  }).isRequired,
   ListItemStyles: PropTypes.object,
+  updateSize: PropTypes.func.isRequired,
   handleMouseDown: PropTypes.func.isRequired,
   handleTouchStart: PropTypes.func.isRequired,
 };

@@ -4,44 +4,10 @@ import { deepEqual } from 'fast-equals';
 
 import List from './List';
 
-const getOrder = (items) => {
-  const order = [];
-  const keys = [];
-
-  items.forEach((itemY, indexY) => {
-    console.log(keys);
-    if (itemY && typeof itemY === 'object' && itemY.constructor === Array) {
-      const row = [];
-
-      itemY.forEach((itemX, indexX) => {
-        console.log(keys);
-        if (
-          itemX
-          && typeof itemX === 'object'
-          && (itemX.key !== null || itemX.key !== undefined)
-          && keys.indexOf(itemX.key) === -1
-        ) {
-          keys.push(itemX.key);
-          row.push(`${indexX},${indexY}`);
-        }
-      });
-
-      order.push(row);
-    } else if (
-      itemY
-      && typeof itemY === 'object'
-      && (itemY.key !== null || itemY.key !== undefined)
-      && keys.indexOf(itemY.key) === -1
-    ) {
-      keys.push(itemY.key);
-      order.push([`0,${indexY}`]);
-    }
-  });
-
-  console.log('getOrder', order);
-
-  return order;
-};
+import handleOrder from './OrderFunctions/handleOrder';
+import updatePositions from './OrderFunctions/updatePositions';
+import copyArray2d from './Utilities/copyArray2d';
+import preventDrag from './Utilities/preventDrag';
 
 class VirtualDraggableGrid extends React.Component {
   constructor(props) {
@@ -50,11 +16,11 @@ class VirtualDraggableGrid extends React.Component {
     const { items } = this.props;
 
     if (items && typeof items === 'object' && items.constructor === Array && items.length > 0) {
-      const order = getOrder(items);
-      const copyItems = [...items];
+      const order = handleOrder(items);
+      const itemsCopy = copyArray2d(items, true);
 
       this.state = {
-        items: copyItems,
+        items: itemsCopy,
         order,
       };
     } else {
@@ -71,12 +37,10 @@ class VirtualDraggableGrid extends React.Component {
       && items.constructor === Array
       && !deepEqual(state.items, items)
     ) {
-      const order = getOrder(items);
-      const copyItems = JSON.parse(JSON.stringify(items));
+      const order = handleOrder(items);
+      const itemsCopy = copyArray2d(items, true);
 
-      console.log('get derived', state.items, copyItems);
-
-      return { items: copyItems, order };
+      return { items: itemsCopy, order };
     }
 
     return null;
@@ -86,20 +50,50 @@ class VirtualDraggableGrid extends React.Component {
     this.setState({ order });
   };
 
+  updateSize = ({
+    orderIndexX, orderIndexY, width, height,
+  }) => {
+    this.setState((prevState) => {
+      const { order } = prevState;
+      const row = order[orderIndexY];
+
+      if (row) {
+        const orderObject = order[orderIndexX];
+
+        if (orderObject) {
+          const newOrder = copyArray2d(order, false);
+
+          const updatedOrder = updatePositions({
+            order: newOrder,
+            width,
+            height,
+            indexX: orderIndexX,
+            indexY: orderIndexY,
+          });
+
+          const newState = { ...prevState, order: updatedOrder };
+
+          return newState;
+        }
+      }
+
+      return null;
+    });
+  };
+
   updateItems = () => {
     const { items, order } = this.state;
     const newItems = [];
 
-    console.log('items', items, order);
-
     order.forEach((orderRow, orderIndexY) => {
-      orderRow.forEach((coordinate, orderIndexX) => {
-        const [itemIndexX, itemIndexY] = coordinate.split(',');
+      orderRow.forEach((orderObject, orderIndexX) => {
+        const {
+          itemIndexX, itemIndexY, width, height,
+        } = orderObject;
         const row = items[itemIndexY];
         const orderRowLen = orderRow.length;
         let item = null;
-
-        console.log(itemIndexX, itemIndexY, row, orderRow, orderRowLen);
+        let newItem = null;
 
         if (typeof row === 'object' && row.constructor === Array) {
           item = row[itemIndexX];
@@ -107,18 +101,22 @@ class VirtualDraggableGrid extends React.Component {
           item = row;
         }
 
+        // update estimatedWidth and estimatedHeight; if items object is passed back,
+        // it will have an accurate estimate for width and height
+        if (item.estimatedWidth !== width || item.estimatedHeight !== height) {
+          newItem = { ...item, estimatedWidth: width, estimatedHeight: height };
+        }
+
         if (orderRowLen === 1) {
-          newItems[orderIndexY] = item;
+          newItems[orderIndexY] = newItem || item;
         } else if (!newItems[orderIndexY]) {
           newItems[orderIndexY] = [];
-          newItems[orderIndexY][orderIndexX] = item;
+          newItems[orderIndexY][orderIndexX] = newItem || item;
         } else {
-          newItems[orderIndexY][orderIndexX] = item;
+          newItems[orderIndexY][orderIndexX] = newItem || item;
         }
       });
     });
-
-    console.log('updateItems 2', newItems);
 
     this.props.getItems(newItems);
   };
@@ -133,35 +131,35 @@ class VirtualDraggableGrid extends React.Component {
       springSettings,
     } = this.props;
     const { items, order } = this.state;
-    const rowWidth = 100;
-    const rowHeight = 100;
 
     if (items && typeof items === 'object' && items.constructor === Array && items.length > 0) {
       return (
         <div
           className="rvdl-list-wrapper"
           style={{
-            display: 'block',
             position: 'relative',
+            display: 'block',
+            userSelect: 'none',
             boxSizing: 'border-box',
             height: '100%',
             width: '100%',
             ...ListWrapperStyles,
           }}
+          onDragStart={preventDrag}
         >
           <List
             items={items}
             order={order}
             maxColCount={maxColCount}
             maxRowCount={maxRowCount}
-            rowWidth={rowWidth}
-            rowHeight={rowHeight}
             ListStyles={ListStyles}
             listItem={ListItemStyles}
             springSettings={springSettings}
             renderListItemChildren={this.renderListItemChildren}
+            updateSize={this.updateSize}
             updateOrder={this.updateOrder}
             updateItems={this.updateItems}
+            onDragStart={preventDrag}
           />
         </div>
       );

@@ -4,17 +4,25 @@ import { TransitionMotion, spring } from 'react-motion';
 
 import ListItem from './ListItem';
 
+import getMouseIndex from './OrderFunctions/getMouseIndex';
+import getOrderIndex from './OrderFunctions/getOrderIndex';
+import changeOrder from './OrderFunctions/changeOrder';
+import copyArray2d from './Utilities/copyArray2d';
+import preventDrag from './Utilities/preventDrag';
+
 class List extends React.Component {
   constructor(props) {
     super(props);
 
+    this.changing = false;
+
     this.state = {
       isPressed: false,
-      leftDeltaX: 0,
-      topDeltaY: 0,
-      mouseX: 0,
-      mouseY: 0,
-      pressedCoordinates: '',
+      pressedItemKey: '',
+      leftDeltaX: -1,
+      topDeltaY: -1,
+      mouseX: -1,
+      mouseY: -1,
     };
   }
 
@@ -34,107 +42,20 @@ class List extends React.Component {
     window.removeEventListener('touchend', this.handleTouchEnd);
   }
 
-  getOrderIndex = (coordinates) => {
-    const { order } = this.props;
-    let orderIndexX = -1;
-    let orderIndexY = -1;
-
-    // may want to consider optimization options in the future
-    order.forEach((row, indexY) => {
-      if (row) {
-        const indexX = row.indexOf(coordinates);
-
-        if (indexX > -1) {
-          orderIndexX = indexX;
-          orderIndexY = indexY;
-        }
-      }
-    });
-
-    return { orderIndexX, orderIndexY };
-  };
-
-  shiftUpDown = (order, toIndexX, toIndexY, shiftUp) => {
-    if (shiftUp) {
-      const row = order[toIndexY];
-    }
-  };
-
-  changeOrder = (fromIndexX, fromIndexY, toIndexX, toIndexY, direction) => {
-    const { order, maxRowCount, maxColCount } = this.props;
-    const newOrder = [...order];
-    const oldRow = newOrder[fromIndexY];
-
-    // maxRowCount and maxColCount defaults to 0 (falsy)
-
-    if (oldRow) {
-      const coordinates = oldRow[fromIndexX];
-
-      if (coordinates) {
-        const fromRow = newOrder[fromIndexY];
-
-        if (fromRow.length === 1) {
-          if (!maxColCount) {
-            newOrder.splice(fromIndexY, 1);
-
-          } else {
-            fromRow[fromIndexX] = null;
-          }
-        } else if (!maxColCount) {
-          fromRow.splice(fromIndexX, 1);
-        } else {
-          fromRow[fromIndexX] = null;
-        }
-
-        const toRow = newOrder[toIndexY];
-
-        if (!toRow) {
-          const newOrderLen = newOrder.length;
-          const maxIndexY = !maxRowCount ? newOrderLen : maxRowCount;
-          const indexY = toIndexY > maxIndexY ? maxIndexY : toIndexY;
-          const maxIndexX = maxColCount;
-          const indexX = toIndexX > maxIndexX ? maxIndexX : toIndexX;
-
-          if (!maxRowCount) {
-            newOrder[indexY] = [coordinates];
-          } else {
-            newOrder[indexY] = [];
-            newOrder[indexY][indexX] = coordinates;
-          }
-        } else if (maxRowCount && toRow[toIndexX]) {
-          if (direction === 'left' || direction === 'right') {
-            toRow.splice(toIndexX, 0, coordinates);
-          }
-        } else if (maxRowCount) {
-          toRow[toIndexX] = coordinates;
-        } else {
-          toRow.splice(toIndexX, 0, coordinates);
-        }
-
-        return newOrder;
-      }
-    }
-
-    return order;
-  };
-
-  clamp = (n, min, max) => Math.max(Math.min(Math.round(n), max), min);
-
-  handleClick = (event) => {
-    // event.preventDefault();
-    // event.stopPropagation();
-  };
-
+  // find liNode, get dataset information from it, and update state
   handleMouseDown = (event) => {
     const { pageX, pageY } = event;
     let { target } = event;
     let count = 0;
-    let liElement = null;
+    let liNode = null;
 
-    while (!liElement && count <= 10) {
+    // a child component of liNode may be clicked; use new react
+    // ref features to move up the parent chain, until liNode is found
+    // the count variable acts as a failsafe to prevent an infinite loops
+    while (!liNode && count <= 20) {
       if (target) {
         if (target.className === 'rvdl-list-item') {
-          liElement = target;
+          liNode = target;
         } else {
           target = target.parentElement;
         }
@@ -143,25 +64,33 @@ class List extends React.Component {
       count += 1;
     }
 
-    if (liElement) {
-      const { dataset } = liElement;
-      const { x, y, coordinates } = dataset;
+    if (liNode) {
+      const { id, dataset } = liNode;
+      const {
+        x, y, orderIndexX, orderIndexY,
+      } = dataset;
+      const orderIndexXInt = parseInt(orderIndexX, 10);
+      const orderIndexYInt = parseInt(orderIndexY, 10);
       const xFloat = parseFloat(x);
       const yFloat = parseFloat(y);
 
-      console.log('mouse down');
+      console.log('mouse down', 'x', pageX, xFloat, 'y', pageY, yFloat);
 
       this.setState({
         isPressed: true,
+        pressedItemKey: id,
+        pressedOrderIndexX: orderIndexXInt,
+        pressedOrderIndexY: orderIndexYInt,
         leftDeltaX: pageX - xFloat,
         topDeltaY: pageY - yFloat,
         mouseX: xFloat,
         mouseY: yFloat,
-        pressedCoordinates: coordinates,
       });
     }
   };
 
+  // redirect to handleMouseDown; event.preventDefault and return false
+  // helps to prevent window scroll while dragging
   handleTouchStart = (event) => {
     event.preventDefault();
 
@@ -172,58 +101,71 @@ class List extends React.Component {
 
   handleMouseMove = (event) => {
     if (this.state.isPressed) {
-      const { pageX, pageY } = event;
       const {
-        order, rowWidth, rowHeight, maxColCount, maxRowCount,
-      } = this.props;
-      const { leftDeltaX, topDeltaY, pressedCoordinates } = this.state;
-
-      const { orderIndexX, orderIndexY } = this.getOrderIndex(pressedCoordinates);
-
+        leftDeltaX, topDeltaY, pressedItemKey, pressedOrderIndexX, pressedOrderIndexY,
+      } = this.state;
+      const { order } = this.props;
+      const { pageX, pageY } = event;
       const mouseX = pageX - leftDeltaX;
       const mouseY = pageY - topDeltaY;
-      const unroundedIndexY = mouseY / rowHeight;
-      const unroundedIndexX = mouseX / rowWidth;
-      const currentIndexY = this.clamp(unroundedIndexY,
-        0,
-        !maxRowCount ? order.length : maxRowCount);
-      const row = order[currentIndexY];
-      const currentIndexX = this.clamp(
-        unroundedIndexX,
-        0,
-        row ? row.length : maxColCount,
-      );
-      const yAxis = currentIndexY - unroundedIndexY;
-      const xAxis = currentIndexX - unroundedIndexX;
-      let direction = null;
 
-      if (Math.abs(xAxis) >= Math.abs(yAxis)) {
-        if (xAxis >= 0) {
-          direction = 'left';
+      const { orderIndexX, orderIndexY } = getOrderIndex(order, pressedItemKey);
+      const { mouseIndexX, mouseIndexY } = getMouseIndex(order, mouseX, mouseY);
+
+      const yAxis = mouseIndexX - orderIndexX;
+      const xAxis = mouseIndexY - orderIndexY;
+      let side = null;
+
+      // figure out the side the pressed item is hovering over
+      if (Math.abs(yAxis) >= Math.abs(xAxis)) {
+        if (yAxis >= 0) {
+          side = 'left';
         } else {
-          direction = 'right';
+          side = 'right';
         }
-      } else if (yAxis >= 0) {
-        direction = 'top';
+      } else if (xAxis >= 0) {
+        side = 'top';
       } else {
-        direction = 'bottom';
+        side = 'bottom';
       }
 
-      if (orderIndexX !== currentIndexX || orderIndexY !== currentIndexY) {
-        const newOrder = this.changeOrder(
-          orderIndexX,
-          orderIndexY,
-          currentIndexX,
-          currentIndexY,
-          direction,
-        );
-        this.props.updateOrder(newOrder);
+      // if the pressed item is dragged to a new index,
+      // change that object's position in the 2d order array
+      if (
+        mouseIndexX > -1
+        && mouseIndexY > -1
+        && (orderIndexX !== mouseIndexX || orderIndexY !== mouseIndexY)
+      ) {
+        const orderObject = order[orderIndexY][orderIndexX];
+
+        console.log('mouse move', orderIndexX, orderIndexY, pressedOrderIndexX, pressedOrderIndexY);
+
+        if (pressedItemKey === orderObject.key) {
+          const { maxRowCount, maxColCount } = this.props;
+
+          const newOrder = copyArray2d(order);
+
+          const updatedOrder = changeOrder({
+            order: newOrder,
+            maxRowCount,
+            maxColCount,
+            fromIndexX: orderIndexX,
+            fromIndexY: orderIndexY,
+            toIndexX: mouseIndexX,
+            toIndexY: mouseIndexY,
+            side,
+          });
+
+          this.props.updateOrder(updatedOrder);
+        }
       }
 
       this.setState({ mouseX, mouseY });
     }
   };
 
+  // redirect to handleMouseMove; event.preventDefault and return false
+  // help to prevent window scroll while dragging
   handleTouchMove = (event) => {
     if (this.state.isPressed) {
       event.preventDefault();
@@ -236,20 +178,23 @@ class List extends React.Component {
     return true;
   };
 
+  // reset state and update items through updateItems callback
   handleMouseUp = () => {
     if (this.state.isPressed) {
       this.setState({
         isPressed: false,
+        pressedOrderIndexX: 0,
+        pressedOrderIndexY: 0,
         leftDeltaX: 0,
         topDeltaY: 0,
       });
-
-      console.log('mouse up');
 
       this.props.updateItems();
     }
   };
 
+  // redirect to handleMouseUp; event.preventDefault and return false
+  // help to prevent window scroll while dragging
   handleTouchEnd = (event) => {
     if (this.state.isPressed) {
       event.preventDefault();
@@ -262,28 +207,40 @@ class List extends React.Component {
     return true;
   };
 
-  handleStyles = (styles, coordinates, orderIndexX, orderIndexY) => {
-    const { items, springSettings, rowWidth, rowHeight } = this.props;
+  handleStyles = ({
+    styles, orderObject, orderIndexX, orderIndexY,
+  }) => {
+    const { items, springSettings } = this.props;
     const {
-      isPressed, pressedCoordinates, mouseX, mouseY,
+      isPressed, pressedItemKey, mouseX, mouseY,
     } = this.state;
-    const [itemIndexX, itemIndexY] = coordinates.split(',');
+
+    const { left, top } = orderObject;
+
+    const { itemIndexX, itemIndexY, height } = orderObject;
     const row = items[itemIndexY];
     let item = null;
 
     if (row && typeof row === 'object' && row.constructor === Array) {
-      item = items[itemIndexY][itemIndexX];
+      item = row[itemIndexX];
     } else {
-      item = items[itemIndexY];
+      item = row;
     }
+
+    console.log('hand style', left, top);
 
     styles.push({
       key: `key-${item.key}`,
-      data: { item, coordinates },
+      data: {
+        item,
+        orderObject,
+        orderIndexX,
+        orderIndexY,
+      },
       style: {
-        height: spring(rowHeight, springSettings),
+        height: spring(height, springSettings),
         opacity: spring(1, springSettings),
-        ...(isPressed && coordinates === pressedCoordinates
+        ...(isPressed && pressedItemKey === item.key
           ? {
             shadow: spring(16, springSettings),
             x: mouseX,
@@ -292,9 +249,9 @@ class List extends React.Component {
           }
           : {
             shadow: 0,
-            x: orderIndexX === -1 ? 0 : spring(orderIndexX * rowWidth, springSettings),
-            y: orderIndexY === -1 ? 0 : spring(orderIndexY * rowHeight, springSettings),
-            zIndex: isPressed ? 0 : spring(0, springSettings),
+            x: orderIndexX === -1 ? 0 : spring(left, springSettings),
+            y: orderIndexY === -1 ? 0 : spring(top, springSettings),
+            zIndex: isPressed ? 1 : spring(1, springSettings),
           }),
       },
     });
@@ -305,8 +262,13 @@ class List extends React.Component {
     const styles = [];
 
     order.forEach((orderRow, orderIndexY) => {
-      orderRow.forEach((coordinates, orderIndexX) => {
-        this.handleStyles(styles, coordinates, orderIndexX, orderIndexY);
+      orderRow.forEach((orderObject, orderIndexX) => {
+        this.handleStyles({
+          styles,
+          orderObject,
+          orderIndexX,
+          orderIndexY,
+        });
       });
     });
 
@@ -359,7 +321,7 @@ class List extends React.Component {
   };
 
   renderItem = ({ key, data, style }) => {
-    const { ListItemStyles } = this.props;
+    const { ListItemStyles, updateSize } = this.props;
 
     return (
       <ListItem
@@ -367,8 +329,10 @@ class List extends React.Component {
         style={style}
         data={data}
         ListItemStyles={ListItemStyles}
+        updateSize={updateSize}
         handleMouseDown={this.handleMouseDown}
         handleTouchStart={this.handleTouchStart}
+        onDragStart={preventDrag}
       />
     );
   };
@@ -382,6 +346,7 @@ class List extends React.Component {
         style={{
           position: 'absolute',
           display: 'flex',
+          userSelect: 'none',
           overflowX: 'hidden',
           overflowY: 'auto',
           outline: 'none',
@@ -390,6 +355,7 @@ class List extends React.Component {
           height: '100%',
           ...ListStyles,
         }}
+        onDragStart={preventDrag}
       >
         {styles.length > 0 && styles.map(this.renderItem)}
       </ul>
@@ -412,14 +378,13 @@ class List extends React.Component {
 List.propTypes = {
   items: PropTypes.array.isRequired,
   order: PropTypes.array.isRequired,
-  rowWidth: PropTypes.number.isRequired,
-  rowHeight: PropTypes.number.isRequired,
   maxColCount: PropTypes.number.isRequired,
   maxRowCount: PropTypes.number.isRequired,
   ListStyles: PropTypes.object,
   ListItemStyles: PropTypes.object,
   springSettings: PropTypes.shape({ stiffness: PropTypes.number, damping: PropTypes.number })
     .isRequired,
+  updateSize: PropTypes.func.isRequired,
   updateOrder: PropTypes.func.isRequired,
   updateItems: PropTypes.func.isRequired,
 };
