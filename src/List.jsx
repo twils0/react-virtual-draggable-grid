@@ -4,8 +4,8 @@ import { TransitionMotion, spring } from 'react-motion';
 
 import ListItem from './ListItem';
 
-import getMouseIndex from './OrderFunctions/getMouseIndex';
 import getOrderIndex from './OrderFunctions/getOrderIndex';
+import getMouseIndex from './OrderFunctions/getMouseIndex';
 import changeOrder from './OrderFunctions/changeOrder';
 import copyArray2d from './Utilities/copyArray2d';
 import preventDrag from './Utilities/preventDrag';
@@ -14,7 +14,11 @@ class List extends React.Component {
   constructor(props) {
     super(props);
 
-    this.changing = false;
+    this.cachedMouseX1 = -1;
+    this.cachedMouseY1 = -1;
+    this.cachedMouseX2 = -1;
+    this.cachedMouseY2 = -1;
+    this.cachedMouseTimeout = false;
 
     this.state = {
       isPressed: false,
@@ -67,20 +71,14 @@ class List extends React.Component {
     if (liNode) {
       const { id, dataset } = liNode;
       const {
-        x, y, orderIndexX, orderIndexY,
+        x, y,
       } = dataset;
-      const orderIndexXInt = parseInt(orderIndexX, 10);
-      const orderIndexYInt = parseInt(orderIndexY, 10);
       const xFloat = parseFloat(x);
       const yFloat = parseFloat(y);
-
-      console.log('mouse down', 'x', pageX, xFloat, 'y', pageY, yFloat);
 
       this.setState({
         isPressed: true,
         pressedItemKey: id,
-        pressedOrderIndexX: orderIndexXInt,
-        pressedOrderIndexY: orderIndexYInt,
         leftDeltaX: pageX - xFloat,
         topDeltaY: pageY - yFloat,
         mouseX: xFloat,
@@ -102,61 +100,58 @@ class List extends React.Component {
   handleMouseMove = (event) => {
     if (this.state.isPressed) {
       const {
-        leftDeltaX, topDeltaY, pressedItemKey, pressedOrderIndexX, pressedOrderIndexY,
+        leftDeltaX, topDeltaY, pressedItemKey,
       } = this.state;
       const { order } = this.props;
       const { pageX, pageY } = event;
       const mouseX = pageX - leftDeltaX;
       const mouseY = pageY - topDeltaY;
 
+      // need to use pressedItemKey to get order indexes to ensure the indexes
+      // correspond to the pressed item
       const { orderIndexX, orderIndexY } = getOrderIndex(order, pressedItemKey);
-      const { mouseIndexX, mouseIndexY } = getMouseIndex(order, mouseX, mouseY);
 
-      const yAxis = mouseIndexX - orderIndexX;
-      const xAxis = mouseIndexY - orderIndexY;
-      let side = null;
+      if (orderIndexX > -1 && orderIndexY > -1) {
+        const orderItemKey = order[orderIndexY][orderIndexX].key;
 
-      // figure out the side the pressed item is hovering over
-      if (Math.abs(yAxis) >= Math.abs(xAxis)) {
-        if (yAxis >= 0) {
-          side = 'left';
-        } else {
-          side = 'right';
-        }
-      } else if (xAxis >= 0) {
-        side = 'top';
-      } else {
-        side = 'bottom';
-      }
+        if (pressedItemKey === orderItemKey) {
+          const newOrder = copyArray2d(order, 0, false);
+          const { toIndexX, toIndexY } = getMouseIndex(newOrder, mouseX, mouseY);
 
-      // if the pressed item is dragged to a new index,
-      // change that object's position in the 2d order array
-      if (
-        mouseIndexX > -1
-        && mouseIndexY > -1
-        && (orderIndexX !== mouseIndexX || orderIndexY !== mouseIndexY)
-      ) {
-        const orderObject = order[orderIndexY][orderIndexX];
+          if (!this.cachedMouseTimeout) {
+            this.cachedMouseTimeout = true;
 
-        console.log('mouse move', orderIndexX, orderIndexY, pressedOrderIndexX, pressedOrderIndexY);
+            setTimeout(() => {
+              if (toIndexX === this.cachedMouseX2 && toIndexY === this.cachedMouseY2) {
+                this.cachedMouseX1 = -1;
+                this.cachedMouseY1 = -1;
+                this.cachedMouseX2 = -1;
+                this.cachedMouseY2 = -1;
+              }
+              this.cachedMouseTimeout = false;
+            }, 250);
+          }
 
-        if (pressedItemKey === orderObject.key) {
-          const { maxRowCount, maxColCount } = this.props;
+          if (toIndexX > -1
+            && toIndexY > -1
+            && (toIndexX !== this.cachedMouseX2 || toIndexY !== this.cachedMouseY2)
+            && (toIndexX !== orderIndexX || toIndexY !== orderIndexY)) {
+            this.cachedMouseX2 = this.cachedMouseX1;
+            this.cachedMouseY2 = this.cachedMouseY1;
+            this.cachedMouseX1 = toIndexX;
+            this.cachedMouseY1 = toIndexY;
 
-          const newOrder = copyArray2d(order);
+            const updatedOrder = changeOrder({
+              order,
+              newOrder,
+              fromIndexX: orderIndexX,
+              fromIndexY: orderIndexY,
+              toIndexX,
+              toIndexY,
+            });
 
-          const updatedOrder = changeOrder({
-            order: newOrder,
-            maxRowCount,
-            maxColCount,
-            fromIndexX: orderIndexX,
-            fromIndexY: orderIndexY,
-            toIndexX: mouseIndexX,
-            toIndexY: mouseIndexY,
-            side,
-          });
-
-          this.props.updateOrder(updatedOrder);
+            this.props.updateOrder(updatedOrder);
+          }
         }
       }
 
@@ -181,10 +176,14 @@ class List extends React.Component {
   // reset state and update items through updateItems callback
   handleMouseUp = () => {
     if (this.state.isPressed) {
+      this.cachedMouseX1 = -1;
+      this.cachedMouseY1 = -1;
+      this.cachedMouseX2 = -1;
+      this.cachedMouseY2 = -1;
+
       this.setState({
         isPressed: false,
-        pressedOrderIndexX: 0,
-        pressedOrderIndexY: 0,
+        pressedItemKey: '',
         leftDeltaX: 0,
         topDeltaY: 0,
       });
@@ -215,22 +214,20 @@ class List extends React.Component {
       isPressed, pressedItemKey, mouseX, mouseY,
     } = this.state;
 
-    const { left, top } = orderObject;
-
-    const { itemIndexX, itemIndexY, height } = orderObject;
+    const {
+      itemIndexX, itemIndexY, height, left, top,
+    } = orderObject;
     const row = items[itemIndexY];
     let item = null;
 
-    if (row && typeof row === 'object' && row.constructor === Array) {
+    if (row && Array.isArray(row)) {
       item = row[itemIndexX];
     } else {
       item = row;
     }
 
-    console.log('hand style', left, top);
-
     styles.push({
-      key: `key-${item.key}`,
+      key: `key-${item ? item.key : `${orderIndexX},${orderIndexY}`}`,
       data: {
         item,
         orderObject,
@@ -240,7 +237,7 @@ class List extends React.Component {
       style: {
         height: spring(height, springSettings),
         opacity: spring(1, springSettings),
-        ...(isPressed && pressedItemKey === item.key
+        ...(item && isPressed && pressedItemKey === item.key
           ? {
             shadow: spring(16, springSettings),
             x: mouseX,
@@ -347,7 +344,8 @@ class List extends React.Component {
           position: 'absolute',
           display: 'flex',
           userSelect: 'none',
-          overflowX: 'hidden',
+          MozUserSelect: 'none',
+          overflowX: 'auto',
           overflowY: 'auto',
           outline: 'none',
           background: 'transparent',
@@ -378,8 +376,6 @@ class List extends React.Component {
 List.propTypes = {
   items: PropTypes.array.isRequired,
   order: PropTypes.array.isRequired,
-  maxColCount: PropTypes.number.isRequired,
-  maxRowCount: PropTypes.number.isRequired,
   ListStyles: PropTypes.object,
   ListItemStyles: PropTypes.object,
   springSettings: PropTypes.shape({ stiffness: PropTypes.number, damping: PropTypes.number })

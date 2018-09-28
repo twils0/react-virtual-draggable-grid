@@ -1,13 +1,14 @@
 import handlePosition from './handlePosition';
+import getOrderIndex from './getOrderIndex';
 
-const handleOrder = (items) => {
+const handleOrder = ({ items, order }) => {
   const keys = [];
-  const order = [];
+  const newOrder = [];
 
   items.forEach((itemY, indexY) => {
-    if (itemY && typeof itemY === 'object' && itemY.constructor === Array) {
+    if (itemY && Array.isArray(itemY)) {
       const row = [];
-      order.push(row);
+      newOrder.push(row);
 
       // test if item exists, is an object, and has a key that's
       // not already been used
@@ -22,30 +23,43 @@ const handleOrder = (items) => {
           const {
             key, fixedWidth, fixedHeight, estimatedWidth, estimatedHeight,
           } = itemX;
+          let orderWidth = null;
+          let orderHeight = null;
 
-          // use either fixedWidth, estimatedWidth, or the default value: 100
-          const width = fixedWidth || estimatedWidth || 100;
-          const height = fixedHeight || estimatedHeight || 100;
+          if (order) {
+            const { orderIndexX, orderIndexY } = getOrderIndex(order, key);
+            const orderRow = order[orderIndexY];
 
-          // location of the top left corner of the item
-          const { left, top } = handlePosition({
-            order,
-            width,
-            height,
-            indexX,
-            indexY,
-          });
+            if (orderRow) {
+              const orderObject = orderRow[orderIndexX];
 
-          keys.push(key);
-          row.push({
+              if (orderObject) {
+                orderWidth = orderObject.width;
+                orderHeight = orderObject.height;
+              }
+            }
+          }
+
+          // use either fixed size, cached order object size,
+          // estimated size, or the default value: 100
+          const width = fixedWidth || orderWidth || estimatedWidth || 100;
+          const height = fixedHeight || orderHeight || estimatedHeight || 100;
+          const orderObject = {
             key,
             itemIndexX: indexX,
             itemIndexY: indexY,
             width,
             height,
-            left,
-            top,
-          });
+          };
+
+          row.push(orderObject);
+
+          // location of the top left corner of the item
+          const { left, top } = handlePosition({ order: newOrder, indexX, indexY });
+
+          keys.push(key);
+          orderObject.left = left;
+          orderObject.top = top;
         }
       });
 
@@ -61,35 +75,45 @@ const handleOrder = (items) => {
       const {
         key, fixedWidth, fixedHeight, estimatedWidth, estimatedHeight,
       } = itemY;
+      let orderWidth = null;
+      let orderHeight = null;
+
+      if (order) {
+        const { orderIndexX, orderIndexY } = getOrderIndex(order, key);
+        const orderRow = order[orderIndexY];
+
+        if (orderRow) {
+          const orderObject = orderRow[orderIndexX];
+
+          if (orderObject) {
+            orderWidth = orderObject.width;
+            orderHeight = orderObject.height;
+          }
+        }
+      }
 
       // use either fixedWidth, estimatedWidth, or the default value: 100
-      const width = fixedWidth || estimatedWidth || 100;
-      const height = fixedHeight || estimatedHeight || 100;
-
-      const { left, top } = handlePosition({
-        order,
+      const width = fixedWidth || orderWidth || estimatedWidth || 100;
+      const height = fixedHeight || orderHeight || estimatedHeight || 100;
+      const orderObject = {
+        key,
+        itemIndexX: 0,
+        itemIndexY: indexY,
         width,
         height,
-        indexX: 0,
-        indexY,
-      });
+      };
+
+      newOrder.push([orderObject]);
+
+      const { left, top } = handlePosition({ order: newOrder, indexX: 0, indexY });
 
       keys.push(key);
-      order.push([
-        {
-          key,
-          itemIndexX: 0,
-          itemIndexY: indexY,
-          width,
-          height,
-          left,
-          top,
-        },
-      ]);
+      orderObject.left = left;
+      orderObject.top = top;
     }
   });
 
-  return order;
+  return newOrder;
 };
 
 export default handleOrder;

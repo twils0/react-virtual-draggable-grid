@@ -1,41 +1,58 @@
 // get the index over which a pressed item is hovering
 const getMouseIndex = (order, mouseX, mouseY) => {
-  let mouseIndexX = -1;
-  let mouseIndexY = -1;
-  const orderLen = order.length - 1;
+  let toIndexX = -1;
+  let toIndexY = -1;
+  const orderLen = order.length;
 
-  order.forEach((row, indexY) => {
-    const rowLen = row.length - 1;
+  for (let iY = 0; iY < orderLen && toIndexX === -1 && toIndexY === -1; iY += 1) {
+    const rowLen = order[iY].length;
 
-    row.forEach((orderObject, indexX) => {
+    for (let iX = 0; iX < rowLen && toIndexX === -1 && toIndexY === -1; iX += 1) {
+      const orderObject = order[iY][iX];
       const {
         left, top, width, height,
       } = orderObject;
       const right = left + width;
       const bottom = top + height;
-      // check if mouse is hovering between an item's left and right or top and bottom position
-      // or above or to the left of the grid
-      const xBool = mouseIndexX === -1 && ((mouseX > left && mouseX < right) || (indexX === 0 && mouseX <= 0));
-      const yBool = mouseIndexY === -1 && ((mouseY > top && mouseY < bottom) || (indexY === 0 && mouseY <= 0));
 
-      if (xBool) {
-        mouseIndexX = indexX;
-        // if an item is hovering to the right of a row
-        // add it to the end of that row
-      } else if (indexX === rowLen && mouseX >= right) {
-        mouseIndexX = rowLen + 1;
-      }
-      if (yBool) {
-        mouseIndexY = indexY;
-        // if an item is hovering below the last row
-        // add a new row and add it to that row
-      } else if (indexY === orderLen && mouseY >= bottom) {
-        mouseIndexY = orderLen + 1;
-      }
-    });
-  });
+      // if hovering to the left of the grid
+      const leftBool = iX === 0 && mouseX < 0;
+      // if hovering to the right of the grid
+      const rightBool = iX === rowLen - 1 && mouseX >= right;
+      // boolean to check if hovering between left and right
+      const leftRightBool = mouseX >= left && mouseX < right;
 
-  return { mouseIndexX, mouseIndexY };
+      // if hovering above the grid
+      const topBool = iY === 0 && mouseY <= 0;
+      // if hovering below the grid
+      const bottomBool = iY === orderLen - 1 && mouseY >= bottom;
+      // boolean to check if hovering between top and bottom
+      const topBottomBool = mouseY >= top && mouseY < bottom;
+
+      if (leftRightBool) {
+        toIndexX = iX;
+      } else if (leftBool) {
+        toIndexX = 0;
+      } else if (rightBool) {
+        toIndexX = rowLen;
+      }
+
+      if (topBottomBool) {
+        toIndexY = iY;
+      } else if (topBool) {
+        toIndexY = 0;
+      } else if (bottomBool) {
+        toIndexY = orderLen;
+      }
+
+      if (toIndexX === -1 || toIndexY === -1) {
+        toIndexX = -1;
+        toIndexY = -1;
+      }
+    }
+  }
+
+  return { toIndexX, toIndexY };
 };
 
 export default getMouseIndex;

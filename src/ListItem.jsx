@@ -47,7 +47,7 @@ class ListItem extends React.Component {
       const {
         item, orderObject, orderIndexX, orderIndexY,
       } = data;
-      const { fixedWidth, fixedHeight } = item;
+      const { fixedWidth, fixedHeight } = item || {};
       const { width, height } = orderObject;
       const { offsetWidth, offsetHeight } = element;
 
@@ -73,12 +73,12 @@ class ListItem extends React.Component {
     const {
       opacity, shadow, x, y, zIndex,
     } = style;
-    const { item, orderIndexX, orderIndexY } = data;
+    const { item } = data;
     const boxShadowString = `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${1.2 * shadow}px 0px`;
     const transformString = `translate3d(${x}px, ${y}px, 0)`;
     const {
       key, ItemComponent, itemProps, fixedWidth, fixedHeight,
-    } = item;
+    } = item || {};
 
     return (
       <li
@@ -86,8 +86,6 @@ class ListItem extends React.Component {
         className="rvdl-list-item"
         id={key}
         key={key}
-        data-order-index-x={orderIndexX}
-        data-order-index-y={orderIndexY}
         data-x={x}
         data-y={y}
         style={{
@@ -97,6 +95,7 @@ class ListItem extends React.Component {
           zIndex,
           outline: 'none',
           userSelect: 'none',
+          MozUserSelect: 'none',
           boxSizing: 'border-box',
           width: fixedWidth || 'auto',
           height: fixedHeight || 'auto',
@@ -110,7 +109,7 @@ class ListItem extends React.Component {
         onTouchStart={handleTouchStart}
         onDragStart={preventDrag}
       >
-        {ItemComponent && <ItemComponent {...itemProps} />}
+        {item && ItemComponent && <ItemComponent {...itemProps} />}
       </li>
     );
   }

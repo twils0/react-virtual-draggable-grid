@@ -3,7 +3,7 @@ const getOrderIndex = (order, itemKey) => {
   let orderIndexY = -1;
   const orderLen = order.length;
 
-  // may want to consider optimization options in the future
+  // may want to consider optimizing in the future
   for (let iY = 0; iY < orderLen && orderIndexY === -1; iY += 1) {
     const row = order[iY];
     const rowLen = row.length;

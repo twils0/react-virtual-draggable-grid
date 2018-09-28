@@ -15,9 +15,9 @@ class VirtualDraggableGrid extends React.Component {
 
     const { items } = this.props;
 
-    if (items && typeof items === 'object' && items.constructor === Array && items.length > 0) {
-      const order = handleOrder(items);
-      const itemsCopy = copyArray2d(items, true);
+    if (items && Array.isArray(items) && items.length > 0) {
+      const itemsCopy = copyArray2d(items, 0, true);
+      const order = handleOrder({ items: itemsCopy });
 
       this.state = {
         items: itemsCopy,
@@ -31,16 +31,16 @@ class VirtualDraggableGrid extends React.Component {
   static getDerivedStateFromProps(props, state) {
     const { items } = props;
 
-    if (
-      items
-      && typeof items === 'object'
-      && items.constructor === Array
-      && !deepEqual(state.items, items)
-    ) {
-      const order = handleOrder(items);
-      const itemsCopy = copyArray2d(items, true);
+    if (items && Array.isArray(items) && !deepEqual(state.items, items)) {
+      const { order } = state;
+      const itemsCopy = copyArray2d(items, 0, true);
 
-      return { items: itemsCopy, order };
+      const newOrder = handleOrder({
+        items: itemsCopy,
+        order,
+      });
+
+      return { items: itemsCopy, order: newOrder };
     }
 
     return null;
@@ -55,18 +55,17 @@ class VirtualDraggableGrid extends React.Component {
   }) => {
     this.setState((prevState) => {
       const { order } = prevState;
-      const row = order[orderIndexY];
+      const orderRow = order[orderIndexY];
 
-      if (row) {
-        const orderObject = order[orderIndexX];
+      if (orderRow) {
+        const orderObject = orderRow[orderIndexX];
 
         if (orderObject) {
-          const newOrder = copyArray2d(order, false);
+          const newOrder = copyArray2d(order, orderIndexY, false);
+          newOrder[orderIndexY][orderIndexX] = { ...orderObject, width, height };
 
           const updatedOrder = updatePositions({
             order: newOrder,
-            width,
-            height,
             indexX: orderIndexX,
             indexY: orderIndexY,
           });
@@ -87,33 +86,24 @@ class VirtualDraggableGrid extends React.Component {
 
     order.forEach((orderRow, orderIndexY) => {
       orderRow.forEach((orderObject, orderIndexX) => {
-        const {
-          itemIndexX, itemIndexY, width, height,
-        } = orderObject;
+        const { itemIndexX, itemIndexY } = orderObject;
         const row = items[itemIndexY];
         const orderRowLen = orderRow.length;
         let item = null;
-        let newItem = null;
 
-        if (typeof row === 'object' && row.constructor === Array) {
+        if (row && Array.isArray(row)) {
           item = row[itemIndexX];
         } else {
           item = row;
         }
 
-        // update estimatedWidth and estimatedHeight; if items object is passed back,
-        // it will have an accurate estimate for width and height
-        if (item.estimatedWidth !== width || item.estimatedHeight !== height) {
-          newItem = { ...item, estimatedWidth: width, estimatedHeight: height };
-        }
-
         if (orderRowLen === 1) {
-          newItems[orderIndexY] = newItem || item;
+          newItems[orderIndexY] = item;
         } else if (!newItems[orderIndexY]) {
           newItems[orderIndexY] = [];
-          newItems[orderIndexY][orderIndexX] = newItem || item;
+          newItems[orderIndexY][orderIndexX] = item;
         } else {
-          newItems[orderIndexY][orderIndexX] = newItem || item;
+          newItems[orderIndexY][orderIndexX] = item;
         }
       });
     });
@@ -123,16 +113,11 @@ class VirtualDraggableGrid extends React.Component {
 
   render() {
     const {
-      maxColCount,
-      maxRowCount,
-      ListWrapperStyles,
-      ListStyles,
-      ListItemStyles,
-      springSettings,
+      ListWrapperStyles, ListStyles, ListItemStyles, springSettings,
     } = this.props;
     const { items, order } = this.state;
 
-    if (items && typeof items === 'object' && items.constructor === Array && items.length > 0) {
+    if (items && Array.isArray(items) && items.length > 0) {
       return (
         <div
           className="rvdl-list-wrapper"
@@ -140,6 +125,7 @@ class VirtualDraggableGrid extends React.Component {
             position: 'relative',
             display: 'block',
             userSelect: 'none',
+            MozUserSelect: 'none',
             boxSizing: 'border-box',
             height: '100%',
             width: '100%',
@@ -150,8 +136,6 @@ class VirtualDraggableGrid extends React.Component {
           <List
             items={items}
             order={order}
-            maxColCount={maxColCount}
-            maxRowCount={maxRowCount}
             ListStyles={ListStyles}
             listItem={ListItemStyles}
             springSettings={springSettings}
@@ -170,8 +154,6 @@ class VirtualDraggableGrid extends React.Component {
 
 VirtualDraggableGrid.propTypes = {
   items: PropTypes.array,
-  maxColCount: PropTypes.number,
-  maxRowCount: PropTypes.number,
   ListWrapperStyles: PropTypes.object,
   ListStyles: PropTypes.object,
   ListItemStyles: PropTypes.object,
@@ -181,8 +163,6 @@ VirtualDraggableGrid.propTypes = {
 
 VirtualDraggableGrid.defaultProps = {
   items: [],
-  maxColCount: 0,
-  maxRowCount: 0,
   ListWrapperStyles: {},
   ListStyles: {},
   ListItemStyles: {},

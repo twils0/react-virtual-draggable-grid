@@ -39,18 +39,18 @@ class TestApp extends React.Component {
         {
           key: 'start-0',
           ItemComponent: TestComp,
-          itemProps: { name: 'AAA', style: { width: 50, height: 200 } },
+          itemProps: { name: 'AAA', style: { userSelect: 'none', width: 50, height: 200 } },
         },
         {
           key: 'start-1',
           ItemComponent: TestComp,
-          itemProps: { name: 'BBB', style: { width: 100, height: 120 } },
+          itemProps: { name: 'BBB', style: { userSelect: 'none', width: 100, height: 120 } },
         },
       ],
       {
         key: 'start-2',
         ItemComponent: TestComp,
-        itemProps: { name: 'CCC', style: { width: 50, height: 60 } },
+        itemProps: { name: 'CCC', style: { userSelect: 'none', width: 50, height: 60 } },
       },
     ];
 
@@ -64,7 +64,7 @@ class TestApp extends React.Component {
 
   render() {
     return (
-      <div style={{ width: '100%', height: '100%' }}>
+      <div style={{ width: '50%', height: '50%' }}>
         <button
           type="button"
           style={{ width: 100, height: 100 }}
@@ -78,7 +78,10 @@ class TestApp extends React.Component {
               ItemComponent: TestComp,
               itemProps: {
                 name: `new-item-${this.clicked}`,
-                style: { width: 50 + 2 * this.clicked, height: 50 + 2 * this.clicked },
+                style: {
+                  width: `${50 + 2 * this.clicked}px`,
+                  height: `${50 + 2 * this.clicked}px`,
+                },
               },
             });
 
@@ -103,8 +106,6 @@ class TestApp extends React.Component {
         </button>
         <VirtualDraggableGrid
           items={this.state.items}
-          // maxColCount={10}
-          // maxRowCount={10}
           ListItemStyles={{ background: 'green' }}
           getItems={this.getItems}
         />

@@ -1,68 +1,32 @@
 import updatePositions from './updatePositions';
 
-// order must be copied before it is passed to this function
 const changeOrder = ({
-  order,
-  maxRowCount,
-  maxColCount,
-  fromIndexX,
-  fromIndexY,
-  toIndexX,
-  toIndexY,
-  side,
+  order, newOrder, fromIndexX, fromIndexY, toIndexX, toIndexY,
 }) => {
-  const fromRow = order[fromIndexY];
+  const fromRow = newOrder[fromIndexY];
 
   if (fromRow) {
     const orderObject = fromRow[fromIndexX];
 
     if (orderObject) {
-      const newFromRow = order[fromIndexY];
-
-      if (newFromRow.length === 1) {
-        if (!maxColCount) {
-          order.splice(fromIndexY, 1);
-        } else {
-          newFromRow[fromIndexX] = null;
-        }
-      } else if (!maxColCount) {
-        newFromRow.splice(fromIndexX, 1);
+      if (fromRow.length === 1) {
+        newOrder.splice(fromIndexY, 1);
       } else {
-        newFromRow[fromIndexX] = null;
+        fromRow.splice(fromIndexX, 1);
       }
 
-      const toRow = order[toIndexY];
-
-      if (!toRow) {
-        // maxRowCount and maxColCount props default to 0 (falsy)
-        const orderLen = order.length;
-        const maxIndexY = !maxRowCount ? orderLen : maxRowCount;
-        const limitedIndexY = toIndexY > maxIndexY ? maxIndexY : toIndexY;
-        const maxIndexX = maxColCount;
-        const limitedIndexX = toIndexX > maxIndexX ? maxIndexX : toIndexX;
-
-        if (!maxRowCount) {
-          order[limitedIndexY] = [orderObject]; // eslint-disable-line
-        } else {
-          order[limitedIndexY] = []; // eslint-disable-line
-          order[limitedIndexY][limitedIndexX] = orderObject; // eslint-disable-line
-        }
-      } else if (maxRowCount && toRow[toIndexX]) {
-        // may eventually shift components up and down
-        if (side === 'left' || side === 'right') {
-          toRow.splice(toIndexX, 0, orderObject);
-        }
-      } else if (maxRowCount) {
-        toRow[toIndexX] = orderObject;
-      } else {
-        toRow.splice(toIndexX, 0, orderObject);
-      }
-
-      const { width, height } = orderObject;
+      const toRow = newOrder[toIndexY];
       let indexX = 0;
       let indexY = 0;
 
-      console.log('order', order);
+      if (!toRow) {
+        const orderLen = newOrder.length;
+        const limitedIndexY = orderLen || toIndexY;
+
+        newOrder[limitedIndexY] = [orderObject]; // eslint-disable-line
+      } else {
+        toRow.splice(toIndexX, 0, orderObject);
+      }
 
       if (fromIndexX >= toIndexX) {
         indexX = toIndexX;
@@ -74,14 +38,9 @@ const changeOrder = ({
       } else {
         indexY = fromIndexY;
       }
-      console.log('from', fromIndexX, fromIndexY);
-      console.log('to', toIndexX, toIndexY);
-      console.log('index', indexX, indexY);
 
       const updatedOrder = updatePositions({
-        order,
-        width,
-        height,
+        order: newOrder,
         indexX,
         indexY,
       });
