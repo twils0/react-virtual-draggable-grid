@@ -39,7 +39,7 @@ class TestApp extends React.Component {
         {
           key: 'start-0',
           ItemComponent: TestComp,
-          itemProps: { name: 'AAA', style: { userSelect: 'none', width: 50, height: 200 } },
+          itemProps: { name: 'AAA', style: { userSelect: 'none', width: 100, height: 200 } },
         },
         {
           key: 'start-1',
@@ -50,7 +50,7 @@ class TestApp extends React.Component {
       {
         key: 'start-2',
         ItemComponent: TestComp,
-        itemProps: { name: 'CCC', style: { userSelect: 'none', width: 50, height: 60 } },
+        itemProps: { name: 'CCC', style: { userSelect: 'none', width: 200, height: 60 } },
       },
     ];
 
@@ -64,7 +64,7 @@ class TestApp extends React.Component {
 
   render() {
     return (
-      <div style={{ width: '50%', height: '50%' }}>
+      <div style={{ width: '75%', height: '75%' }}>
         <button
           type="button"
           style={{ width: 100, height: 100 }}
@@ -106,7 +106,7 @@ class TestApp extends React.Component {
         </button>
         <VirtualDraggableGrid
           items={this.state.items}
-          ListItemStyles={{ background: 'green' }}
+          ListWrapperStyles={{ margin: 50 }}
           getItems={this.getItems}
         />
       </div>

@@ -55,7 +55,11 @@ const handleOrder = ({ items, order }) => {
           row.push(orderObject);
 
           // location of the top left corner of the item
-          const { left, top } = handlePosition({ order: newOrder, indexX, indexY });
+          const { left, top } = handlePosition({
+            order: newOrder,
+            orderIndexX: indexX,
+            orderIndexY: indexY,
+          });
 
           keys.push(key);
           orderObject.left = left;
@@ -105,7 +109,11 @@ const handleOrder = ({ items, order }) => {
 
       newOrder.push([orderObject]);
 
-      const { left, top } = handlePosition({ order: newOrder, indexX: 0, indexY });
+      const { left, top } = handlePosition({
+        order: newOrder,
+        orderIndexX: 0,
+        orderIndexY: indexY,
+      });
 
       keys.push(key);
       orderObject.left = left;

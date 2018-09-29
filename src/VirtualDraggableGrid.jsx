@@ -66,8 +66,8 @@ class VirtualDraggableGrid extends React.Component {
 
           const updatedOrder = updatePositions({
             order: newOrder,
-            indexX: orderIndexX,
-            indexY: orderIndexY,
+            orderIndexX,
+            orderIndexY,
           });
 
           const newState = { ...prevState, order: updatedOrder };

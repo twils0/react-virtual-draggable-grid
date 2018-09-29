@@ -7,6 +7,7 @@ import ListItem from './ListItem';
 import getOrderIndex from './OrderFunctions/getOrderIndex';
 import getMouseIndex from './OrderFunctions/getMouseIndex';
 import changeOrder from './OrderFunctions/changeOrder';
+import findMaxPosition from './OrderFunctions/findMaxPosition';
 import copyArray2d from './Utilities/copyArray2d';
 import preventDrag from './Utilities/preventDrag';
 
@@ -14,13 +15,21 @@ class List extends React.Component {
   constructor(props) {
     super(props);
 
+    this.cachedMouseTimeout = false;
     this.cachedMouseX1 = -1;
     this.cachedMouseY1 = -1;
     this.cachedMouseX2 = -1;
     this.cachedMouseY2 = -1;
-    this.cachedMouseTimeout = false;
 
     this.state = {
+      containerWidth: -1,
+      containerHeight: -1,
+      scrollLeft: -1,
+      scrollTop: -1,
+      // scrollWidth: -1,
+      // scrollHeight: -1,
+      // scrollIndexX: 0,
+      // scrollIndexY: 0,
       isPressed: false,
       pressedItemKey: '',
       leftDeltaX: -1,
@@ -108,7 +117,7 @@ class List extends React.Component {
       const mouseY = pageY - topDeltaY;
 
       // need to use pressedItemKey to get order indexes to ensure the indexes
-      // correspond to the pressed item
+      // correspond to the pressed item, even as order changes
       const { orderIndexX, orderIndexY } = getOrderIndex(order, pressedItemKey);
 
       if (orderIndexX > -1 && orderIndexY > -1) {
@@ -118,24 +127,11 @@ class List extends React.Component {
           const newOrder = copyArray2d(order, 0, false);
           const { toIndexX, toIndexY } = getMouseIndex(newOrder, mouseX, mouseY);
 
-          if (!this.cachedMouseTimeout) {
-            this.cachedMouseTimeout = true;
-
-            setTimeout(() => {
-              if (toIndexX === this.cachedMouseX2 && toIndexY === this.cachedMouseY2) {
-                this.cachedMouseX1 = -1;
-                this.cachedMouseY1 = -1;
-                this.cachedMouseX2 = -1;
-                this.cachedMouseY2 = -1;
-              }
-              this.cachedMouseTimeout = false;
-            }, 250);
-          }
-
           if (toIndexX > -1
-            && toIndexY > -1
-            && (toIndexX !== this.cachedMouseX2 || toIndexY !== this.cachedMouseY2)
-            && (toIndexX !== orderIndexX || toIndexY !== orderIndexY)) {
+              && toIndexY > -1
+              && (toIndexX !== this.cachedMouseX1 || toIndexY !== this.cachedMouseY1)
+              && (toIndexX !== this.cachedMouseX2 || toIndexY !== this.cachedMouseY2)
+              && (toIndexX !== orderIndexX || toIndexY !== orderIndexY)) {
             this.cachedMouseX2 = this.cachedMouseX1;
             this.cachedMouseY2 = this.cachedMouseY1;
             this.cachedMouseX1 = toIndexX;
@@ -152,6 +148,18 @@ class List extends React.Component {
 
             this.props.updateOrder(updatedOrder);
           }
+        }
+
+        if (!this.cachedMouseTimeout) {
+          const time = 300;
+          this.cachedMouseTimeout = true;
+          setTimeout(() => {
+            this.cachedMouseX2 = -1;
+            this.cachedMouseY2 = -1;
+
+
+            this.cachedMouseTimeout = false;
+          }, time);
         }
       }
 
@@ -181,9 +189,9 @@ class List extends React.Component {
       this.cachedMouseX2 = -1;
       this.cachedMouseY2 = -1;
 
+      // lastItemKey remains to avoid virtual fade out before it's off screen
       this.setState({
         isPressed: false,
-        pressedItemKey: '',
         leftDeltaX: 0,
         topDeltaY: 0,
       });
@@ -206,6 +214,41 @@ class List extends React.Component {
     return true;
   };
 
+  willEnter = (item) => {
+    let x = 0;
+    let y = 0;
+    let zIndex = 0;
+    const { style } = item;
+
+    if (typeof style.x === 'object') {
+      x = style.x.val;
+    }
+    if (typeof style.y === 'object') {
+      y = style.y.val;
+    }
+    if (style.zIndex) {
+      ({ zIndex } = style);
+    }
+
+    return {
+      opacity: 0,
+      x,
+      y,
+      zIndex,
+    };
+  };
+
+  willLeave = (item) => {
+    const { springSettings } = this.props;
+    const { style } = item;
+
+    return {
+      opacity: spring(0, springSettings),
+      x: style.x,
+      y: style.y,
+    };
+  };
+
   handleStyles = ({
     styles, orderObject, orderIndexX, orderIndexY,
   }) => {
@@ -215,7 +258,7 @@ class List extends React.Component {
     } = this.state;
 
     const {
-      itemIndexX, itemIndexY, height, left, top,
+      itemIndexX, itemIndexY, left, top,
     } = orderObject;
     const row = items[itemIndexY];
     let item = null;
@@ -227,7 +270,7 @@ class List extends React.Component {
     }
 
     styles.push({
-      key: `key-${item ? item.key : `${orderIndexX},${orderIndexY}`}`,
+      key: `key-${item.key}`,
       data: {
         item,
         orderObject,
@@ -235,7 +278,6 @@ class List extends React.Component {
         orderIndexY,
       },
       style: {
-        height: spring(height, springSettings),
         opacity: spring(1, springSettings),
         ...(item && isPressed && pressedItemKey === item.key
           ? {
@@ -256,66 +298,131 @@ class List extends React.Component {
 
   generateStyles = () => {
     const { order } = this.props;
+    const {
+      pressedItemKey, scrollLeft, scrollTop, containerWidth, containerHeight,
+    } = this.state;
     const styles = [];
+    const leeway = 0.5;
+    const scrollBuffer = 100;
+    const leftCutoff = scrollLeft * leeway - scrollBuffer;
+    const rightCutoff = (scrollLeft + containerWidth) * (1 + leeway) + scrollBuffer;
+    const topCutoff = scrollTop * leeway - scrollBuffer;
+    const bottomCutoff = (scrollTop + containerHeight) * (1 + leeway) + scrollBuffer;
 
     order.forEach((orderRow, orderIndexY) => {
       orderRow.forEach((orderObject, orderIndexX) => {
-        this.handleStyles({
-          styles,
-          orderObject,
-          orderIndexX,
-          orderIndexY,
-        });
+        const {
+          left, top, width, height,
+        } = orderObject;
+        const right = left + width;
+        const bottom = top + height;
+
+        // render items within cutoff and the
+        // current or last pressed item
+        if ((left >= leftCutoff
+          && top >= topCutoff
+          && right <= rightCutoff
+          && bottom <= bottomCutoff)
+         || orderObject.key === pressedItemKey) {
+          this.handleStyles({
+            styles,
+            orderObject,
+            orderIndexX,
+            orderIndexY,
+          });
+        }
       });
     });
 
     return styles;
   };
 
-  willEnter = (item) => {
-    let x = 0;
-    let y = 0;
-    let zIndex = 0;
-    const { style } = item;
 
-    if (typeof style.x === 'object') {
-      x = style.x.val;
-    }
-    if (typeof style.y === 'object') {
-      y = style.y.val;
-    }
-    if (style.zIndex) {
-      ({ zIndex } = style);
-    }
+  listSizeRef = (element) => {
+    if (element) {
+      const { offsetWidth, offsetHeight } = element;
+      const update = {};
 
-    return {
-      height: 0,
-      marginTop: 0,
-      marginBottom: 0,
-      paddingTop: 0,
-      paddingBottom: 0,
-      opacity: 0,
-      shadow: 0,
-      x,
-      y,
-      zIndex,
-    };
+      if (offsetWidth && this.width !== offsetWidth) {
+        update.containerWidth = offsetWidth;
+      }
+
+      if (offsetHeight && this.height !== offsetHeight
+      ) {
+        update.containerHeight = offsetHeight;
+      }
+
+      this.setState({ ...update });
+    }
   };
 
-  willLeave = (item) => {
-    const { springSettings } = this.props;
-    const { style } = item;
+  /*
+  handleVirtualization = (scrollLeft, scrollTop) => {
+    const { order } = this.props;
+    const { scrollIndexX, scrollIndexY } = this.state;
+    const leeway = 0.7;
+    const startingBuffer = 100;
+    const left = scrollLeft * leeway - startingBuffer;
+    const top = scrollTop * leeway - startingBuffer;
+    let orderIndexX = -1;
+    let orderIndexY = -1;
+    if (left > 0 || top > 0) {
+      ({ orderIndexX, orderIndexY } = findPosition({
+        order,
+        left: left > 0 ? left : 0,
+        top: top > 0 ? top : 0,
+      }));
+    }
 
-    return {
-      height: spring(0, springSettings),
-      marginBottom: spring(0, springSettings),
-      paddingTop: spring(0, springSettings),
-      paddingBottom: spring(0, springSettings),
-      opacity: spring(0, springSettings),
-      x: style.x,
-      y: style.y,
-    };
-  };
+    if (orderIndexX > -1 && orderIndexY > -1
+      && (orderIndexX !== scrollIndexX || orderIndexY !== scrollIndexY)) {
+      updatePositions({ order, orderIndexX, orderIndexY });
+
+      this.setState({ scrollIndexX: orderIndexX, scrollIndexY: orderIndexY });
+    }
+  }
+  */
+
+  handleScroll = (event) => {
+    if (event && event.target) {
+      const {
+        offsetWidth,
+        offsetHeight,
+        scrollLeft,
+        scrollTop,
+        // scrollWidth,
+        // scrollHeight,
+      } = event.target;
+
+      const update = {};
+      if (offsetWidth && this.width !== offsetWidth) {
+        update.containerWidth = offsetWidth;
+      }
+      if (offsetHeight && this.height !== offsetHeight) {
+        update.containerHeight = offsetHeight;
+      }
+      if (scrollLeft && this.state.scrollLeft !== scrollLeft) {
+        update.scrollLeft = scrollLeft;
+      }
+      if (scrollTop && this.state.scrollTop !== scrollTop) {
+        update.scrollTop = scrollTop;
+      }
+      /*
+      if (scrollWidth && this.scrollWidth !== scrollWidth) {
+        update.scrollWidth = scrollWidth;
+      }
+      if (scrollHeight && this.scrollHeight !== scrollHeight) {
+        update.scrollHeight = scrollHeight;
+      }
+      */
+
+      // this.handleVirtualization(scrollLeft, scrollTop);
+
+      if (Object.keys(update).length > 0) {
+        this.setState({ ...update });
+      }
+    }
+  }
 
   renderItem = ({ key, data, style }) => {
     const { ListItemStyles, updateSize } = this.props;
@@ -334,15 +441,16 @@ class List extends React.Component {
     );
   };
 
-  renderListMotion = (styles) => {
-    const { ListStyles } = this.props;
+  renderList = (styles) => {
+    const { order, ListStyles } = this.props;
+
+    const { maxRight, maxBottom } = findMaxPosition(order);
 
     return (
-      <ul
-        className="rvdl-list"
+      <div
+        ref={this.listSizeRef}
         style={{
           position: 'absolute',
-          display: 'flex',
           userSelect: 'none',
           MozUserSelect: 'none',
           overflowX: 'auto',
@@ -354,9 +462,22 @@ class List extends React.Component {
           ...ListStyles,
         }}
         onDragStart={preventDrag}
+        onScroll={this.handleScroll}
       >
-        {styles.length > 0 && styles.map(this.renderItem)}
-      </ul>
+        <ul
+          className="rvdl-list"
+          style={{
+            position: 'absolute',
+            userSelect: 'none',
+            MozUserSelect: 'none',
+            width: maxRight,
+            height: maxBottom,
+          }}
+          onDragStart={preventDrag}
+        >
+          {styles.length > 0 && styles.map(this.renderItem)}
+        </ul>
+      </div>
     );
   };
 
@@ -367,7 +488,7 @@ class List extends React.Component {
         willEnter={this.willEnter}
         willLeave={this.willLeave}
       >
-        {this.renderListMotion}
+        {this.renderList}
       </TransitionMotion>
     );
   }

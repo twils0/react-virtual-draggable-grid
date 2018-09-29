@@ -13,21 +13,23 @@ const getMouseIndex = (order, mouseX, mouseY) => {
         left, top, width, height,
       } = orderObject;
       const right = left + width;
+      const widthLeeway = width * 0.1;
       const bottom = top + height;
+      const heightLeeway = height * 0.1;
 
       // if hovering to the left of the grid
       const leftBool = iX === 0 && mouseX < 0;
       // if hovering to the right of the grid
       const rightBool = iX === rowLen - 1 && mouseX >= right;
       // boolean to check if hovering between left and right
-      const leftRightBool = mouseX >= left && mouseX < right;
+      const leftRightBool = mouseX >= left + widthLeeway && mouseX < right - widthLeeway;
 
       // if hovering above the grid
       const topBool = iY === 0 && mouseY <= 0;
       // if hovering below the grid
       const bottomBool = iY === orderLen - 1 && mouseY >= bottom;
       // boolean to check if hovering between top and bottom
-      const topBottomBool = mouseY >= top && mouseY < bottom;
+      const topBottomBool = mouseY >= top + heightLeeway && mouseY < bottom - heightLeeway;
 
       if (leftRightBool) {
         toIndexX = iX;

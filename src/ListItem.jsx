@@ -41,13 +41,13 @@ class ListItem extends React.Component {
     return false;
   }
 
-  handleSizeRef = (element) => {
+  listItemSizeRef = (element) => {
     if (element) {
       const { data, updateSize } = this.props;
       const {
         item, orderObject, orderIndexX, orderIndexY,
       } = data;
-      const { fixedWidth, fixedHeight } = item || {};
+      const { fixedWidth, fixedHeight } = item;
       const { width, height } = orderObject;
       const { offsetWidth, offsetHeight } = element;
 
@@ -78,11 +78,11 @@ class ListItem extends React.Component {
     const transformString = `translate3d(${x}px, ${y}px, 0)`;
     const {
       key, ItemComponent, itemProps, fixedWidth, fixedHeight,
-    } = item || {};
+    } = item;
 
     return (
       <li
-        ref={this.handleSizeRef}
+        ref={this.listItemSizeRef}
         className="rvdl-list-item"
         id={key}
         key={key}
@@ -92,7 +92,7 @@ class ListItem extends React.Component {
           position: 'absolute',
           overflowX: 'hidden',
           overflowY: 'hidden',
-          zIndex,
+          zIndex: Number.isNaN(zIndex) ? 1 : zIndex,
           outline: 'none',
           userSelect: 'none',
           MozUserSelect: 'none',

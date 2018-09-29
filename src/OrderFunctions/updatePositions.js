@@ -1,13 +1,19 @@
 import handlePosition from './handlePosition';
 
-const updatePositions = ({ order, indexX, indexY }) => {
-  for (let iY = indexY; iY < order.length; iY += 1) {
-    for (let iX = indexX; iX < order[iY].length; iX += 1) {
-      const orderObject = order[iY][iX];
+const updatePositions = ({ order, orderIndexX, orderIndexY }) => {
+  for (let iY = orderIndexY; iY < order.length; iY += 1) {
+    const orderRow = order[iY];
 
-      const { left, top } = handlePosition({ order, indexX: iX, indexY: iY });
+    if (orderRow) {
+      for (let iX = orderIndexX; iX < orderRow.length; iX += 1) {
+        const orderObject = order[iY][iX];
 
-      order[iY][iX] = { ...orderObject, left, top }; // eslint-disable-line
+        if (orderObject) {
+          const { left, top } = handlePosition({ order, orderIndexX: iX, orderIndexY: iY });
+
+          order[iY][iX] = { ...orderObject, left, top }; // eslint-disable-line
+        }
+      }
     }
   }
 

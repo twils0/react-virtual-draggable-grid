@@ -1,25 +1,25 @@
 const handlePosition = ({
-  order, indexX, indexY, leftBound, rightBound,
+  order, orderIndexX, orderIndexY, leftBound, rightBound,
 }) => {
   let left = -1;
   let top = -1;
   const recursiveCall = typeof leftBound === 'number' || typeof rightBound === 'number';
 
-  const currentRow = order[indexY];
+  const currentRow = order[orderIndexY];
 
   if (currentRow) {
     const currentRowLen = currentRow.length - 1;
-    const limitedIndexX = indexX > currentRowLen ? currentRowLen : indexX;
+    const limitedIndexX = orderIndexX > currentRowLen ? currentRowLen : orderIndexX;
     const currentObject = currentRow[limitedIndexX];
 
-    if (!recursiveCall && limitedIndexX === 0 && indexY === 0) {
+    if (!recursiveCall && limitedIndexX === 0 && orderIndexY === 0) {
       return {
         left: 0,
         top: 0,
       };
     }
 
-    const upRow = order[indexY - 1];
+    const upRow = order[orderIndexY - 1];
     const leftObject = currentRow[limitedIndexX - 1];
     const leftPosRight = leftObject ? leftObject.left + leftObject.width : 0;
 
@@ -45,8 +45,8 @@ const handlePosition = ({
       if (upPosBottom === -1) {
         const result = handlePosition({
           order,
-          indexX: limitedIndexX,
-          indexY: indexY - 1,
+          orderIndexX: limitedIndexX,
+          orderIndexY: orderIndexY - 1,
           leftBound: currentPosLeft,
           rightBound: currentPosRight,
         });

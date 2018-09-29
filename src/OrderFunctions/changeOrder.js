@@ -16,8 +16,8 @@ const changeOrder = ({
       }
 
       const toRow = newOrder[toIndexY];
-      let indexX = 0;
-      let indexY = 0;
+      let orderIndexX = 0;
+      let orderIndexY = 0;
 
       if (!toRow) {
         const orderLen = newOrder.length;
@@ -29,20 +29,20 @@ const changeOrder = ({
       }
 
       if (fromIndexX >= toIndexX) {
-        indexX = toIndexX;
+        orderIndexX = toIndexX;
       } else {
-        indexX = fromIndexX;
+        orderIndexX = fromIndexX;
       }
       if (fromIndexY >= toIndexY) {
-        indexY = toIndexY;
+        orderIndexY = toIndexY;
       } else {
-        indexY = fromIndexY;
+        orderIndexY = fromIndexY;
       }
 
       const updatedOrder = updatePositions({
         order: newOrder,
-        indexX,
-        indexY,
+        orderIndexX,
+        orderIndexY,
       });
 
       return updatedOrder;
