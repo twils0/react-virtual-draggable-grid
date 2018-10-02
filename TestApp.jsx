@@ -33,26 +33,25 @@ TestComp.defaultProps = {
 class TestApp extends React.Component {
   constructor(props) {
     super(props);
+    const x = 5;
+    const y = 4;
 
-    const items = [
-      [
-        {
-          key: 'start-0',
+    const items = [];
+
+    for (let iY = 0; iY <= y; iY += 1) {
+      const row = [];
+      items.push(row);
+      for (let iX = 0; iX <= x; iX += 1) {
+        row.push({
+          key: `start-${iX}${iY}`,
           ItemComponent: TestComp,
-          itemProps: { name: 'AAA', style: { userSelect: 'none', width: 100, height: 200 } },
-        },
-        {
-          key: 'start-1',
-          ItemComponent: TestComp,
-          itemProps: { name: 'BBB', style: { userSelect: 'none', width: 100, height: 120 } },
-        },
-      ],
-      {
-        key: 'start-2',
-        ItemComponent: TestComp,
-        itemProps: { name: 'CCC', style: { userSelect: 'none', width: 200, height: 60 } },
-      },
-    ];
+          itemProps: {
+            name: `start-${iX}${iY}`,
+            style: { userSelect: 'none', width: 100 + iX * 10, height: 200 + iY * 10 },
+          },
+        });
+      }
+    }
 
     this.clicked = 0;
     this.state = { items };
@@ -71,7 +70,8 @@ class TestApp extends React.Component {
           onClick={() => {
             this.clicked += 1;
             const { items } = this.state;
-            const arr = items[0];
+            const arr = [...items[0]];
+            items[0] = arr;
 
             arr.push({
               key: `new-${this.clicked}`,
@@ -95,7 +95,8 @@ class TestApp extends React.Component {
           style={{ width: 100, height: 100 }}
           onClick={() => {
             const { items } = this.state;
-            const arr = items[0];
+            const arr = [...items[0]];
+            items[0] = arr;
 
             arr.pop();
 

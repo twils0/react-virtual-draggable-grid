@@ -1,8 +1,10 @@
 import updatePositions from './updatePositions';
+import updateKeys from './updateKeys';
 
 const changeOrder = ({
-  order, newOrder, fromIndexX, fromIndexY, toIndexX, toIndexY,
+  order, keys, fromIndexX, fromIndexY, toIndexX, toIndexY,
 }) => {
+  const newOrder = [...order];
   const fromRow = newOrder[fromIndexY];
 
   if (fromRow) {
@@ -20,12 +22,15 @@ const changeOrder = ({
       let orderIndexY = 0;
 
       if (!toRow) {
-        const orderLen = newOrder.length;
-        const limitedIndexY = orderLen || toIndexY;
+        const newOrderLen = newOrder.length;
 
-        newOrder[limitedIndexY] = [orderObject]; // eslint-disable-line
+        newOrder[newOrderLen] = [orderObject];
       } else {
-        toRow.splice(toIndexX, 0, orderObject);
+        const newToRow = [...toRow];
+
+        newToRow.splice(toIndexX, 0, orderObject);
+
+        newOrder[toIndexY] = newToRow;
       }
 
       if (fromIndexX >= toIndexX) {
@@ -45,11 +50,20 @@ const changeOrder = ({
         orderIndexY,
       });
 
-      return updatedOrder;
+      const updatedKeys = updateKeys({
+        order: newOrder,
+        keys,
+        fromIndexX,
+        fromIndexY,
+        toIndexX,
+        toIndexY,
+      });
+
+      return { order: updatedOrder, keys: updatedKeys };
     }
   }
 
-  return order;
+  return null;
 };
 
 export default changeOrder;

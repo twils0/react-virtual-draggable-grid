@@ -44,9 +44,7 @@ class ListItem extends React.Component {
   listItemSizeRef = (element) => {
     if (element) {
       const { data, updateSize } = this.props;
-      const {
-        item, orderObject, orderIndexX, orderIndexY,
-      } = data;
+      const { item, orderObject } = data;
       const { fixedWidth, fixedHeight } = item;
       const { width, height } = orderObject;
       const { offsetWidth, offsetHeight } = element;
@@ -55,9 +53,10 @@ class ListItem extends React.Component {
         (!fixedWidth && offsetWidth && width !== offsetWidth)
         || (!fixedHeight && offsetHeight && height !== offsetHeight)
       ) {
+        const { key } = orderObject;
+
         updateSize({
-          orderIndexX,
-          orderIndexY,
+          key,
           width: offsetWidth,
           height: offsetHeight,
         });

@@ -1,12 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { deepEqual } from 'fast-equals';
 
 import List from './List';
 
-import handleOrder from './OrderFunctions/handleOrder';
-import updatePositions from './OrderFunctions/updatePositions';
-import copyArray2d from './Utilities/copyArray2d';
+import handleOrder from './Functions/handleOrder';
+import updatePositions from './Functions/updatePositions';
+import testItemsUpdate from './Functions/testItemsUpdate';
 import preventDrag from './Utilities/preventDrag';
 
 class VirtualDraggableGrid extends React.Component {
@@ -16,12 +15,11 @@ class VirtualDraggableGrid extends React.Component {
     const { items } = this.props;
 
     if (items && Array.isArray(items) && items.length > 0) {
-      const itemsCopy = copyArray2d(items, 0, true);
-      const order = handleOrder({ items: itemsCopy });
+      const { order, keys } = handleOrder({ items });
 
       this.state = {
-        items: itemsCopy,
         order,
+        keys,
       };
     } else {
       this.state = {};
@@ -30,50 +28,58 @@ class VirtualDraggableGrid extends React.Component {
 
   static getDerivedStateFromProps(props, state) {
     const { items } = props;
+    const { order, keys } = state;
 
-    if (items && Array.isArray(items) && !deepEqual(state.items, items)) {
-      const { order } = state;
-      const itemsCopy = copyArray2d(items, 0, true);
-
-      const newOrder = handleOrder({
-        items: itemsCopy,
+    if (
+      items
+      && Array.isArray(items)
+      && items.length > 0
+      && testItemsUpdate({ items, order, keys })
+    ) {
+      const orderKeysObject = handleOrder({
+        items,
         order,
+        keys,
       });
 
-      return { items: itemsCopy, order: newOrder };
+      return orderKeysObject;
     }
 
     return null;
   }
 
-  updateOrder = (order) => {
-    this.setState({ order });
+  updateOrderKeys = ({ order, keys }) => {
+    this.setState({ order, keys });
   };
 
-  updateSize = ({
-    orderIndexX, orderIndexY, width, height,
-  }) => {
+  updateSize = ({ key, width, height }) => {
     this.setState((prevState) => {
-      const { order } = prevState;
-      const orderRow = order[orderIndexY];
+      const { order, keys } = prevState;
+      const indexObject = keys[key];
 
-      if (orderRow) {
-        const orderObject = orderRow[orderIndexX];
+      if (indexObject) {
+        const { x, y } = indexObject;
+        const orderRow = order[y];
 
-        if (orderObject) {
-          const newOrder = copyArray2d(order, orderIndexY, false);
-          newOrder[orderIndexY][orderIndexX] = { ...orderObject, width, height };
+        if (orderRow) {
+          const orderObject = orderRow[x];
 
-          const updatedOrder = updatePositions({
-            order: newOrder,
-            orderIndexX,
-            orderIndexY,
-          });
+          if (orderObject) {
+            order[y][x] = { ...orderObject, width, height };
 
-          const newState = { ...prevState, order: updatedOrder };
+            const updatedOrder = updatePositions({
+              order,
+              orderIndexX: x,
+              orderIndexY: y,
+            });
 
-          return newState;
+            const newState = { ...prevState, order: updatedOrder };
+
+            return newState;
+          }
         }
+      } else {
+        console.log('no size update', key);
       }
 
       return null;
@@ -81,20 +87,22 @@ class VirtualDraggableGrid extends React.Component {
   };
 
   updateItems = () => {
-    const { items, order } = this.state;
+    const { items } = this.props;
+    const { order } = this.state;
     const newItems = [];
 
     order.forEach((orderRow, orderIndexY) => {
+      const orderRowLen = orderRow.length;
+
       orderRow.forEach((orderObject, orderIndexX) => {
         const { itemIndexX, itemIndexY } = orderObject;
-        const row = items[itemIndexY];
-        const orderRowLen = orderRow.length;
+        const itemRow = items[itemIndexY];
         let item = null;
 
-        if (row && Array.isArray(row)) {
-          item = row[itemIndexX];
+        if (itemRow && Array.isArray(itemRow)) {
+          item = itemRow[itemIndexX];
         } else {
-          item = row;
+          item = itemRow;
         }
 
         if (orderRowLen === 1) {
@@ -113,9 +121,9 @@ class VirtualDraggableGrid extends React.Component {
 
   render() {
     const {
-      ListWrapperStyles, ListStyles, ListItemStyles, springSettings,
+      items, ListWrapperStyles, ListStyles, ListItemStyles, springSettings,
     } = this.props;
-    const { items, order } = this.state;
+    const { order, keys } = this.state;
 
     if (items && Array.isArray(items) && items.length > 0) {
       return (
@@ -136,12 +144,13 @@ class VirtualDraggableGrid extends React.Component {
           <List
             items={items}
             order={order}
+            keys={keys}
             ListStyles={ListStyles}
             listItem={ListItemStyles}
             springSettings={springSettings}
             renderListItemChildren={this.renderListItemChildren}
             updateSize={this.updateSize}
-            updateOrder={this.updateOrder}
+            updateOrderKeys={this.updateOrderKeys}
             updateItems={this.updateItems}
             onDragStart={preventDrag}
           />
