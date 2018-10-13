@@ -1,14 +1,25 @@
 import updatePositions from './updatePositions';
-import updateKeys from './updateKeys';
 
 const changeOrder = ({
-  order, keys, fromIndexX, fromIndexY, toIndexX, toIndexY,
+  order,
+  keys,
+  fixedRows,
+  fixedColumns,
+  fixedWidthAll,
+  fixedHeightAll,
+  gutterX,
+  gutterY,
+  fromIndexX,
+  fromIndexY,
+  toIndexX,
+  toIndexY,
 }) => {
   const newOrder = [...order];
-  const fromRow = newOrder[fromIndexY];
+  const fromRow = newOrder[fromIndexY] && [...newOrder[fromIndexY]];
+  newOrder[fromIndexY] = fromRow;
 
   if (fromRow) {
-    const orderObject = fromRow[fromIndexX];
+    const orderObject = { ...fromRow[fromIndexX] };
 
     if (orderObject) {
       if (fromRow.length === 1) {
@@ -18,8 +29,6 @@ const changeOrder = ({
       }
 
       const toRow = newOrder[toIndexY];
-      let orderIndexX = 0;
-      let orderIndexY = 0;
 
       if (!toRow) {
         const newOrderLen = newOrder.length;
@@ -33,33 +42,23 @@ const changeOrder = ({
         newOrder[toIndexY] = newToRow;
       }
 
-      if (fromIndexX >= toIndexX) {
-        orderIndexX = toIndexX;
-      } else {
-        orderIndexX = fromIndexX;
-      }
-      if (fromIndexY >= toIndexY) {
-        orderIndexY = toIndexY;
-      } else {
-        orderIndexY = fromIndexY;
-      }
+      const lowestX = fromIndexX >= toIndexX ? toIndexX : fromIndexX;
+      const lowestY = fromIndexY >= toIndexY ? toIndexY : fromIndexY;
 
-      const updatedOrder = updatePositions({
-        order: newOrder,
-        orderIndexX,
-        orderIndexY,
-      });
-
-      const updatedKeys = updateKeys({
+      const orderKeysObject = updatePositions({
         order: newOrder,
         keys,
-        fromIndexX,
-        fromIndexY,
-        toIndexX,
-        toIndexY,
+        fixedRows,
+        fixedColumns,
+        fixedWidthAll,
+        fixedHeightAll,
+        orderX: lowestX,
+        orderY: lowestY,
+        gutterX,
+        gutterY,
       });
 
-      return { order: updatedOrder, keys: updatedKeys };
+      return orderKeysObject;
     }
   }
 

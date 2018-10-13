@@ -1,7 +1,7 @@
 {
   "name": "react-virtual-draggable-grid",
-  "version": "0.1.0",
-  "description": "virtual, draggable list component built with react-virtualized and react-motion",
+  "version": "0.6.0",
+  "description": "virtual, draggable grid component",
   "repository": {
     "type": "git",
     "url": "https://github.com/twils0/react-virtual-draggable-grid"
@@ -16,6 +16,7 @@
   "scripts": {
     "webpack": "webpack --progress --colors --mode production",
     "dev": "webpack-dev-server --mode development --open",
+    "prod": "webpack-dev-server --mode production --open",
     "test": "jest",
     "test_coverage": "jest -- --coverage",
     "test_watch": "jest --watch"
@@ -30,12 +31,11 @@
       "<rootDir>/node_modules"
     ],
     "setupTestFrameworkScriptFile": "<rootDir>/setupTests.js",
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
     "transform": {
       "\\.(jsx?)$": "babel-jest"
-    },
-    "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/app/src/__mocks__/mockFile.js",
-      "\\.(css|less)$": "<rootDir>/app/src/__mocks__/mockStyle.js"
     }
   },
   "devDependencies": {
@@ -78,11 +78,9 @@
     "webpack-dev-server": "^3.1.5"
   },
   "dependencies": {
-    "fast-equals": "^1.6.0",
     "prop-types": "^15.6.2",
     "react": "^16.5.1",
     "react-dom": "^16.5.1",
-    "react-hot-loader": "^4.3.8",
-    "react-motion": "^0.5.2"
+    "react-hot-loader": "^4.3.8"
   }
 }

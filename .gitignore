@@ -1,2 +1,4 @@
 node_modules/
-app/bin
+bin/
+coverage/
+src/tests/__snapshots__/

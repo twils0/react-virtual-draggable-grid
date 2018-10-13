@@ -1,40 +1,35 @@
 const handleOrderObject = ({
-  order, keys, item, indexX, indexY,
+  keys, item, indexX, indexY, fixedWidthAll, fixedHeightAll,
 }) => {
-  const indexObject = keys && keys[item.key];
   let orderObject = null;
 
   if (
     item
     && typeof item === 'object'
     && typeof item.ItemComponent === 'function'
-    && (item.key !== null || item.key !== undefined)
+    && item.key
+    && typeof item.key === 'string'
   ) {
-    if (indexObject) {
-      const { x, y } = indexObject;
-      const orderRow = order[y];
-
-      if (orderRow) {
-        orderObject = orderRow[x];
-      }
-    }
+    orderObject = keys && keys[item.key] ? { ...keys[item.key] } : null;
 
     if (orderObject) {
-      orderObject.itemIndexX = indexX;
-      orderObject.itemIndexY = indexY;
+      orderObject.itemX = indexX;
+      orderObject.itemY = indexY;
     } else {
       const {
         key, fixedWidth, fixedHeight, estimatedWidth, estimatedHeight,
       } = item;
 
       // use either fixed size, estimated size, or the default value: 100
-      const width = fixedWidth || estimatedWidth || 100;
-      const height = fixedHeight || estimatedHeight || 100;
+      const width = fixedWidthAll || fixedWidth || estimatedWidth || 100;
+      const height = fixedHeightAll || fixedHeight || estimatedHeight || 100;
 
       orderObject = {
         key,
-        itemIndexX: indexX,
-        itemIndexY: indexY,
+        itemX: indexX,
+        itemY: indexY,
+        orderX: indexX,
+        orderY: indexY,
         width,
         height,
       };

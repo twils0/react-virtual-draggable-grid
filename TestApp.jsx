@@ -3,53 +3,82 @@ import PropTypes from 'prop-types';
 
 import VirtualDraggableGrid from './src/VirtualDraggableGrid';
 
-const TestComp = props => (
-  <div
-    style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignText: 'center',
-      userSelect: 'none',
-      width: '50px',
-      height: '50px',
-      backgroundColor: 'lightblue',
-      border: '1px solid black',
-      ...props.style,
-    }}
-  >
-    {`Test ${props.name}`}
-  </div>
-);
+const TestComp = (props) => {
+  const { styles, name } = props;
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignText: 'center',
+        userSelect: 'none',
+        width: '50px',
+        height: '50px',
+        backgroundColor: 'lightblue',
+        border: '1px solid black',
+        ...styles,
+      }}
+    >
+      <a id="test-test" href="http://localhost:8080">{`Test Link ${name}`}</a>
+      <button
+        type="button"
+        style={{
+          alignSelf: 'center',
+          width: '60%',
+          height: '50%',
+          boxSizing: 'border-box',
+        }}
+        onClick={() => console.log('test click', name)}
+      >
+        {`Test Button
+        ${name}`}
+      </button>
+    </div>
+  );
+};
 
 TestComp.propTypes = {
-  style: PropTypes.object,
+  styles: PropTypes.object,
   name: PropTypes.string.isRequired,
 };
 
 TestComp.defaultProps = {
-  style: {},
+  styles: {},
 };
 
 class TestApp extends React.Component {
   constructor(props) {
     super(props);
-    const x = 5;
-    const y = 4;
+    const x = 100;
+    const y = 100;
 
     const items = [];
+    let count = 0;
 
     for (let iY = 0; iY <= y; iY += 1) {
       const row = [];
       items.push(row);
       for (let iX = 0; iX <= x; iX += 1) {
+        const width = iX % 2 ? 200 : 100;
+        const height = iY % 2 ? 200 : 100;
         row.push({
-          key: `start-${iX}${iY}`,
+          key: `start-${count}`,
           ItemComponent: TestComp,
+          fixedWidth: width,
+          fixedHeight: height + 10,
           itemProps: {
-            name: `start-${iX}${iY}`,
-            style: { userSelect: 'none', width: 100 + iX * 10, height: 200 + iY * 10 },
+            name: `start-${count}`,
+            styles: {
+              userSelect: 'none',
+              width,
+              height,
+            },
           },
         });
+
+        count += 1;
       }
     }
 
@@ -59,6 +88,10 @@ class TestApp extends React.Component {
 
   getItems = (newItems) => {
     this.setState({ items: newItems });
+  };
+
+  getVisibleItems = (items) => {
+    console.log(items.length);
   };
 
   render() {
@@ -78,9 +111,9 @@ class TestApp extends React.Component {
               ItemComponent: TestComp,
               itemProps: {
                 name: `new-item-${this.clicked}`,
-                style: {
-                  width: `${50 + 2 * this.clicked}px`,
-                  height: `${50 + 2 * this.clicked}px`,
+                styles: {
+                  width: `${50 + 5 * this.clicked}px`,
+                  height: `${50 + 5 * this.clicked}px`,
                 },
               },
             });
@@ -107,8 +140,16 @@ class TestApp extends React.Component {
         </button>
         <VirtualDraggableGrid
           items={this.state.items}
-          ListWrapperStyles={{ margin: 50 }}
+          fixedRows
+          // fixedColumns
+          // fixedWidthAll={100}
+          fixedHeightAll={100}
+          // gutterX={15}
+          gutterY={25}
+          noDragElements={['button', 'a']}
+          WrapperStyles={{ margin: 20 }}
           getItems={this.getItems}
+          // getVisibleItems={this.getVisibleItems}
         />
       </div>
     );

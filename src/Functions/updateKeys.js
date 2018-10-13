@@ -9,15 +9,16 @@ const updateKeys = ({
     for (let iX = fromX; iX < fromRow.length; iX += 1) {
       const orderObject = fromRow[iX];
 
-      newKeys[orderObject.key] = { x: iX, y: fromIndexY };
+      newKeys[orderObject.key] = orderObject;
     }
   } else {
     for (let iY = fromIndexY - 1; iY < order.length; iY += 1) {
       const row = order[iY];
+
       for (let iX = fromX; iX < row.length; iX += 1) {
         const orderObject = row[iX];
 
-        newKeys[orderObject.key] = { x: iX, y: iY };
+        newKeys[orderObject.key] = orderObject;
       }
     }
   }
@@ -28,7 +29,7 @@ const updateKeys = ({
   for (let iX = toX; iX < toRow.length; iX += 1) {
     const orderObject = toRow[iX];
 
-    newKeys[orderObject.key] = { x: iX, y: toIndexY };
+    newKeys[orderObject.key] = orderObject;
   }
 
   return newKeys;

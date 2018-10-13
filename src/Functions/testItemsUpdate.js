@@ -2,35 +2,23 @@ const testItemsUpdate = ({ items, order, keys }) => {
   if (!order || !keys) {
     return true;
   }
+
   const keysLen = Object.keys(keys).length;
   let count = 0;
 
-  const someBoolItems = items.some((itemY, indexY) => {
-    if (itemY && Array.isArray(itemY)) {
-      const someBoolRow = itemY.some((itemX, indexX) => {
-        if (itemX && itemX.key) {
-          const indexObject = keys[itemX.key];
-
-          if (!indexObject) {
-            return true;
-          }
-
-          const { x, y } = indexObject;
-          const orderRow = order[y];
-
-          if (!orderRow) {
-            return true;
-          }
-
-          const orderObject = orderRow[x];
+  const someBoolItems = items.some((itemsRow, indexY) => {
+    if (itemsRow && Array.isArray(itemsRow)) {
+      const someBoolRow = itemsRow.some((item, indexX) => {
+        if (item && item.key && typeof item.key === 'string') {
+          const orderObject = keys[item.key];
 
           if (!orderObject) {
             return true;
           }
 
-          const { itemIndexX, itemIndexY } = orderObject;
+          const { itemX, itemY } = orderObject;
 
-          if (itemIndexX !== indexX || itemIndexY !== indexY) {
+          if (itemX !== indexX || itemY !== indexY) {
             return true;
           }
 
@@ -43,29 +31,16 @@ const testItemsUpdate = ({ items, order, keys }) => {
       return someBoolRow;
     }
 
-    if (itemY && itemY.key) {
-      const indexObject = keys[itemY.key];
-
-      if (!indexObject) {
-        return true;
-      }
-
-      const { x, y } = indexObject;
-      const orderRow = order[y];
-
-      if (!orderRow) {
-        return true;
-      }
-
-      const orderObject = orderRow[x];
+    if (itemsRow && itemsRow.key) {
+      const orderObject = keys[itemsRow.key];
 
       if (!orderObject) {
         return true;
       }
 
-      const { itemIndexX, itemIndexY } = orderObject;
+      const { itemX, itemY } = orderObject;
 
-      if (itemIndexX !== 0 || itemIndexY !== indexY) {
+      if (itemX !== 0 || itemY !== indexY) {
         return true;
       }
 
@@ -75,7 +50,7 @@ const testItemsUpdate = ({ items, order, keys }) => {
     return false;
   });
 
-  if (count !== keysLen) {
+  if (!someBoolItems && count !== keysLen) {
     return true;
   }
 

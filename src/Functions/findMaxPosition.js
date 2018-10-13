@@ -1,17 +1,28 @@
-const findMaxPosition = (order) => {
+const findMaxPosition = ({
+  order, fixedWidthAll, fixedHeightAll, gutterX, gutterY,
+}) => {
   let maxRight = -1;
   let maxBottom = -1;
-  const orderLen = order.length;
 
-  order.forEach((row, indexY) => {
-    const { left, width } = row[row.length - 1];
-    const right = left + width;
+  if (fixedHeightAll) {
+    maxBottom = order.length * (fixedHeightAll + gutterY) - gutterY;
+  }
 
-    if (right > maxRight) {
-      maxRight = right;
+  order.forEach((row) => {
+    const rowLen = row.length;
+
+    if (fixedWidthAll) {
+      maxRight = rowLen * (fixedWidthAll + gutterX) - gutterX;
+    } else {
+      const { left, width } = row[rowLen - 1];
+      const right = left + width;
+
+      if (right > maxRight) {
+        maxRight = right;
+      }
     }
 
-    if (indexY === orderLen) {
+    if (!fixedHeightAll) {
       row.forEach((orderObject) => {
         const { top, height } = orderObject;
         const bottom = top + height;

@@ -8,7 +8,6 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const rootDir = path.resolve(__dirname);
-// const srcDir = path.resolve(__dirname, 'src');
 const binDir = path.resolve(__dirname, 'bin');
 const nodeModDir = path.resolve(__dirname, 'node_modules');
 
@@ -74,7 +73,7 @@ const config = {
     ],
   },
   plugins: [
-    new CleanWebpackPlugin(['app/bin']),
+    new CleanWebpackPlugin([binDir]),
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
