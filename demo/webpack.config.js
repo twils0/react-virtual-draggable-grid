@@ -34,6 +34,10 @@ const config = {
         exclude: /node_modules/,
         use: 'babel-loader',
       },
+      {
+        test: /\.html$/,
+        loader: 'html-loader',
+      },
     ],
   },
   optimization: {
@@ -67,7 +71,7 @@ const config = {
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({
-      template: path.resolve(rootDir, 'index.html'),
+      template: path.resolve(rootDir, './src/index.html'),
     }),
   ],
 };

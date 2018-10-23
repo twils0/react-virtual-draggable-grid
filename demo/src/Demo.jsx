@@ -36,8 +36,8 @@ class Demo extends React.Component {
 
     this.count = 0;
 
-    const x = 11;
-    const y = 11;
+    const x = 10;
+    const y = 10;
 
     this.state = {
       items: [],
