@@ -1,13 +1,7 @@
-// get the index over which a pressed item is hovering
+// get the order 2D array x and y index over which a pressed
+// item is hovering
 const getMouseIndex = ({
-  order,
-  visibleOrder,
-  mouseX,
-  mouseY,
-  gutterX,
-  gutterY,
-  fixedWidthAll,
-  fixedHeightAll,
+  order, visibleOrder, mouseX, mouseY,
 }) => {
   let toIndexX = -1;
   let toIndexY = -1;
@@ -15,11 +9,9 @@ const getMouseIndex = ({
 
   visibleOrder.some((orderObject) => {
     const {
-      width, height, orderX, orderY,
+      left, top, width, height, orderX, orderY,
     } = orderObject;
     const rowLen = order[orderY].length;
-    const left = fixedWidthAll ? orderX * (fixedWidthAll + gutterX) : orderObject.left;
-    const top = fixedHeightAll ? orderY * (fixedHeightAll + gutterY) : orderObject.top;
 
     // determine x-axis movement from the center of
     // the pressed item's width
@@ -33,18 +25,18 @@ const getMouseIndex = ({
     const bottom = top + height;
     const heightLeeway = height * 0.1;
 
-    // if hovering to the left of the grid
+    // hovering to the left of the grid
     const leftBool = orderX === 0 && centeredX < 0;
-    // if hovering to the right of the grid
+    // hovering to the right of the grid
     const rightBool = orderX === rowLen - 1 && centeredX >= right;
-    // boolean to check if hovering between left and right
+    // hovering between left and right
     const leftRightBool = centeredX >= left + widthLeeway && centeredX < right - widthLeeway;
 
-    // if hovering above the grid
+    // hovering above the grid
     const topBool = orderY === 0 && centeredY <= 0;
-    // if hovering below the grid
+    // hovering below the grid
     const bottomBool = orderY === orderLen - 1 && centeredY >= bottom;
-    // boolean to check if hovering between top and bottom
+    // hovering between top and bottom
     const topBottomBool = centeredY >= top + heightLeeway && centeredY < bottom - heightLeeway;
 
     if (leftRightBool) {

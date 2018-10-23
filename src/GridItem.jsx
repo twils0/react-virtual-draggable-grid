@@ -4,44 +4,24 @@ import PropTypes from 'prop-types';
 import preventDrag from './Utilities/preventDrag';
 
 class GridItem extends React.Component {
-  constructor(props) {
-    super(props);
-
-    const { width, height } = this.props.data;
-
-    if (width) {
-      this.width = width;
-    }
-    if (height) {
-      this.height = height;
-    }
-
-    this.gridItemRef = React.createRef();
-  }
-
-  componentDidMount() {
-    const { data, fixedWidthAll, fixedHeightAll } = this.props;
-    const { item } = data;
-    const { fixedWidth, fixedHeight } = item;
-
-    if ((!fixedWidthAll && !fixedWidth) || (!fixedHeight && !fixedHeightAll)) {
-      this.updateGridItemSize();
-    }
-  }
-
+  // prevent unnecessary re-renders; there could be many GridItem
+  // components rendered at one time
   shouldComponentUpdate(nextProps) {
-    const { x, y } = this.props.style;
-    const { item, width, height } = this.props.data;
+    const {
+      isPressed, wasPressed, width, height, x, y,
+    } = this.props.style;
     const nextStyle = nextProps.style;
-    const nextData = nextProps.data;
 
-    if (item.key !== nextData.item.key) {
+    if (isPressed !== nextStyle.isPressed) {
       return true;
     }
-    if (width !== nextData.width) {
+    if (wasPressed !== nextStyle.wasPressed) {
       return true;
     }
-    if (height !== nextData.height) {
+    if (width !== nextStyle.width) {
+      return true;
+    }
+    if (height !== nextStyle.height) {
       return true;
     }
     if (x !== nextStyle.x) {
@@ -50,47 +30,17 @@ class GridItem extends React.Component {
     if (y !== nextStyle.y) {
       return true;
     }
-
-    return true;
-  }
-
-  componentDidUpdate() {
-    const { data, fixedWidthAll, fixedHeightAll } = this.props;
-    const { item } = data;
-    const { fixedWidth, fixedHeight } = item;
-
-    if ((!fixedWidthAll && !fixedWidth) || (!fixedHeight && !fixedHeightAll)) {
-      this.updateGridItemSize();
+    if (this.props.data.itemsBool !== nextProps.data.itemsBool) {
+      return true;
     }
+
+    return false;
   }
-
-  updateGridItemSize = () => {
-    if (this.gridItemRef && this.gridItemRef.current) {
-      const { offsetWidth, offsetHeight } = this.gridItemRef.current;
-
-      if (offsetWidth !== this.width || offsetHeight !== this.height) {
-        const { data } = this.props;
-        const { item } = data;
-        const { key } = item;
-
-        this.width = offsetWidth;
-        this.height = offsetHeight;
-
-        this.props.updateSize({
-          key,
-          width: offsetWidth,
-          height: offsetHeight,
-        });
-      }
-    }
-  };
 
   render() {
     const {
       style,
       data,
-      fixedWidthAll,
-      fixedHeightAll,
       transitionDuration,
       transitionTimingFunction,
       transitionDelay,
@@ -106,40 +56,48 @@ class GridItem extends React.Component {
       handleMouseDown,
       handleTouchStart,
     } = this.props;
-    const { x, y } = style;
-    const { item, isPressed, wasPressed } = data;
     const {
-      key, ItemComponent, itemProps, fixedWidth, fixedHeight,
-    } = item;
+      isPressed, wasPressed, width, height, x, y,
+    } = style;
+    const { item } = data;
+    const { key, ItemComponent, itemProps } = item;
 
     const transitionSetup = `${transitionDuration} ${transitionTimingFunction} ${transitionDelay}`;
     const transitionPressed = `box-shadow ${transitionSetup},
     width ${transitionSetup},
     height ${transitionSetup}`;
+    // transform transition disrupts the dragging process;
+    // only add transform to transition when GridItem is not pressed
     const transition = isPressed
       ? transitionPressed
       : `transform ${transitionSetup},
       ${transitionPressed}`;
 
+    // pressed GridItems, while both pressed and returning to their position,
+    // should hover over other items
     const zIndexAtRest = wasPressed ? 98 : 1;
     const zIndex = isPressed ? 99 : zIndexAtRest;
     const shadow = isPressed ? shadowMultiple : 0;
-    const boxShadow = `${shadow * shadowHRatio}px ${shadow * shadowVRatio}px ${shadowBlur
-      || shadow * shadowBlurRatio}px ${shadowSpread || shadow * shadowSpreadRatio}px ${shadowColor}`;
+    const boxShadow = `${shadow * shadowHRatio}px
+    ${shadow * shadowVRatio}px
+    ${typeof shadowBlur === 'number' ? shadowBlur : shadow * shadowBlurRatio}px
+    ${typeof shadowSpread === 'number' ? shadowSpread : shadow * shadowSpreadRatio}px
+    ${shadowColor}`;
     const transform = `translate3d(${x}px, ${y}px, 0)`;
+    // let the browser know that transform is going to be working overtime
+    const willChange = 'transform';
 
+    // key prop excluded for grid items to allow for easy updates
+    // when external changes are made to itemProps and ItemComponent
     return (
       <li
         id={key}
-        key={key}
         className="rvdl-grid-item"
-        ref={this.gridItemRef}
         data-x={x}
         data-y={y}
         style={{
           overflowX: 'hidden',
           overflowY: 'hidden',
-          outline: 'none',
           userSelect: 'none',
           MozUserSelect: 'none',
           boxSizing: 'border-box',
@@ -148,8 +106,8 @@ class GridItem extends React.Component {
           background: 'transparent',
           ...GridItemStyles,
           position: 'absolute',
-          width: fixedWidthAll || fixedWidth || 'auto',
-          height: fixedHeightAll || fixedHeight || 'auto',
+          width,
+          height,
           MozTransition: transition,
           WebkitTransition: transition,
           msTransition: transition,
@@ -160,6 +118,13 @@ class GridItem extends React.Component {
           MozTransform: transform,
           msTransform: transform,
           transform,
+          willChange,
+          WebkitBackfaceVisibility: 'hidden',
+          MozBackfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden',
+          WebkitPerspective: 1000,
+          MozPerspective: 1000,
+          perspective: 1000,
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}

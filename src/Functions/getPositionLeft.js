@@ -1,3 +1,5 @@
+// get the left position of an orderObject, by recursively checking
+// the left position and width of the orderObject to the left
 const getPositionLeft = ({
   order, orderX, orderY, gutterX,
 }) => {

@@ -1,6 +1,6 @@
 {
   "name": "react-virtual-draggable-grid",
-  "version": "0.6.0",
+  "version": "0.7.0-alpha",
   "description": "virtual, draggable grid component",
   "repository": {
     "type": "git",
@@ -12,75 +12,37 @@
     "url": "https://github.com/twils0/react-virtual-draggable-grid/issues"
   },
   "homepage": "https://github.com/twils0/react-virtual-draggable-grid#readme",
-  "main": "app/index.jsx",
+  "main": "bin/react-virtual-draggable-grid.min.js",
   "scripts": {
-    "webpack": "webpack --progress --colors --mode production",
-    "dev": "webpack-dev-server --mode development --open",
-    "prod": "webpack-dev-server --mode production --open",
-    "test": "jest",
-    "test_coverage": "jest -- --coverage",
-    "test_watch": "jest --watch"
-  },
-  "jest": {
-    "verbose": true,
-    "testEnvironment": "jsdom",
-    "roots": [
-      "<rootDir>"
-    ],
-    "modulePaths": [
-      "<rootDir>/node_modules"
-    ],
-    "setupTestFrameworkScriptFile": "<rootDir>/setupTests.js",
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
-    ],
-    "transform": {
-      "\\.(jsx?)$": "babel-jest"
-    }
+    "webpack": "webpack --progress --colors --mode production"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.6",
-    "babel-jest": "^23.4.2",
-    "babel-loader": "^7.1.5",
-    "babel-plugin-dynamic-import-node": "^2.0.0",
-    "babel-plugin-styled-components": "^1.5.1",
-    "babel-plugin-syntax-dynamic-import": "^6.18.0",
-    "babel-plugin-transform-react-jsx-source": "^6.22.0",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
-    "babel-preset-stage-1": "^6.24.1",
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-transform-react-jsx-source": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-eslint": "^10.0.1",
+    "babel-loader": "^8.0.0",
+    "babel-plugin-dynamic-import-node": "^2.2.0",
     "clean-webpack-plugin": "^0.1.19",
-    "css-loader": "^1.0.0",
-    "enzyme": "^3.4.1",
-    "enzyme-adapter-react-16": "^1.2.0",
-    "enzyme-to-json": "^3.3.4",
+    "enzyme": "^3.7.0",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-babel": "^5.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
-    "eslint-plugin-prettier": "^2.6.2",
     "eslint-plugin-react": "^7.11.1",
-    "html-loader": "^0.5.5",
-    "html-webpack-plugin": "^3.2.0",
-    "jest": "^23.5.0",
-    "mini-css-extract-plugin": "^0.4.1",
-    "style-loader": "^0.22.1",
-    "uglifyjs-webpack-plugin": "^1.3.0",
-    "url-loader": "^1.1.0",
+    "react": "^16.5.2",
+    "uglifyjs-webpack-plugin": "^2.0.1",
     "webpack": "^4.16.5",
-    "webpack-bundle-analyzer": "^2.13.1",
-    "webpack-cli": "^3.1.0",
-    "webpack-dev-middleware": "^3.1.3",
-    "webpack-dev-server": "^3.1.5"
+    "webpack-bundle-analyzer": "^3.0.2",
+    "webpack-cli": "^3.1.0"
   },
-  "dependencies": {
+  "peerDependencies": {
     "prop-types": "^15.6.2",
-    "react": "^16.5.1",
-    "react-dom": "^16.5.1",
-    "react-hot-loader": "^4.3.8"
-  }
+    "react": "^16.3.0"
+  },
+  "dependencies": {}
 }

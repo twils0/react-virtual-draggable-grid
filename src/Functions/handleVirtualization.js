@@ -1,3 +1,4 @@
+// generate an array of orderObjects to render
 const handleVirtualization = ({
   order,
   scrollLeft,
@@ -7,10 +8,6 @@ const handleVirtualization = ({
   leeway,
   scrollBufferX,
   scrollBufferY,
-  gutterX,
-  gutterY,
-  fixedWidthAll,
-  fixedHeightAll,
 }) => {
   const visibleOrder = [];
 
@@ -22,25 +19,27 @@ const handleVirtualization = ({
   const scrollRight = cleanedScrollLeft + cleanedContainerWidth;
   const scrollBottom = cleanedScrollTop + cleanedContainerHeight;
 
-  const leftCutoff = cleanedScrollLeft - containerWidth * leeway - scrollBufferX;
-  const topCutoff = cleanedScrollTop - containerHeight * leeway - scrollBufferY;
-
-  const rightCutoff = scrollRight + containerWidth * leeway + scrollBufferX;
-  const bottomCutoff = scrollBottom + containerHeight * leeway + scrollBufferY;
-
   if (scrollRight > 0 && scrollBottom > 0) {
+    const leftCutoff = cleanedScrollLeft - containerWidth * leeway - scrollBufferX;
+    const topCutoff = cleanedScrollTop - containerHeight * leeway - scrollBufferY;
+    const rightCutoff = scrollRight + containerWidth * leeway + scrollBufferX;
+    const bottomCutoff = scrollBottom + containerHeight * leeway + scrollBufferY;
+
+    // bottomBool is used to stop the first (y) for loop, after it is certain
+    // that orderObjects at higher indexes will not meet the bottomCutoff
     let bottomBool = true;
 
     for (let iY = 0; iY < order.length && bottomBool; iY += 1) {
       const orderRow = order[iY];
+      // rightBool is used to stop the second (x) for loop, after it is certain
+      // that orderObjects at higher indexes will not meet the rightCutoff
       let rightBool = true;
 
       for (let iX = 0; iX < orderRow.length && rightBool; iX += 1) {
         const orderObject = orderRow[iX];
-        const { width, height } = orderObject;
-        const left = fixedWidthAll && fixedHeightAll ? iX * (fixedWidthAll + gutterX) : orderObject.left;
-        const top = fixedWidthAll && fixedHeightAll ? iY * (fixedHeightAll + gutterY) : orderObject.top;
-
+        const {
+          left, top, width, height,
+        } = orderObject;
         const right = left + width;
         const bottom = top + height;
 

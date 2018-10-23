@@ -1,7 +1,5 @@
 import handleVirtualization from '../handleVirtualization';
 
-// also tests handlePositions and handleKeys
-
 const order = [
   [
     {
@@ -56,13 +54,8 @@ const order = [
   ],
 ];
 
-const keys = {
-  'test-0': { orderX: 0, orderY: 0 },
-  'test-1': { orderX: 1, orderY: 0 },
-  'test-2': { orderX: 0, orderY: 1 },
-  'test-3': { orderX: 1, orderY: 1 },
-  'test-4': { orderX: 0, orderY: 2 },
-};
+const defaultVisibleOrder = [];
+order.forEach(row => row.forEach(orderObject => defaultVisibleOrder.push(orderObject)));
 
 describe('handleVirtualization', () => {
   it('handleVirtualization executes correctly, no visibleOrder', () => {
@@ -70,16 +63,33 @@ describe('handleVirtualization', () => {
     const scrollTop = 0;
     const containerWidth = 0;
     const containerHeight = 0;
+    const leeway = 0;
+    const scrollBufferX = 0;
+    const scrollBufferY = 0;
+    const gutterX = 0;
+    const gutterY = 0;
+    const fixedRows = null;
+    const fixedColumns = null;
+    const fixedWidthAll = null;
+    const fixedHeightAll = null;
 
     const visibleOrder = [];
 
     const result = handleVirtualization({
       order,
-      keys,
       scrollLeft,
       scrollTop,
       containerWidth,
       containerHeight,
+      leeway,
+      scrollBufferX,
+      scrollBufferY,
+      gutterX,
+      gutterY,
+      fixedRows,
+      fixedColumns,
+      fixedWidthAll,
+      fixedHeightAll,
     });
 
     expect(result).toEqual(visibleOrder);
@@ -90,16 +100,33 @@ describe('handleVirtualization', () => {
     const scrollTop = 1000;
     const containerWidth = 0;
     const containerHeight = 0;
+    const leeway = 0;
+    const scrollBufferX = 0;
+    const scrollBufferY = 0;
+    const gutterX = 0;
+    const gutterY = 0;
+    const fixedRows = null;
+    const fixedColumns = null;
+    const fixedWidthAll = null;
+    const fixedHeightAll = null;
 
     const visibleOrder = [];
 
     const result = handleVirtualization({
       order,
-      keys,
       scrollLeft,
       scrollTop,
       containerWidth,
       containerHeight,
+      leeway,
+      scrollBufferX,
+      scrollBufferY,
+      gutterX,
+      gutterY,
+      fixedRows,
+      fixedColumns,
+      fixedWidthAll,
+      fixedHeightAll,
     });
 
     expect(result).toEqual(visibleOrder);
@@ -111,19 +138,21 @@ describe('handleVirtualization', () => {
     const containerWidth = 300;
     const containerHeight = 200;
     const leeway = 0;
-    const scrollBuffer = 0;
+    const scrollBufferX = 0;
+    const scrollBufferY = 0;
 
-    const visibleOrder = [keys[order[0][0].key], keys[order[0][1].key]];
+    const visibleOrder = [...defaultVisibleOrder];
+    visibleOrder.splice(2, 3);
 
     const result = handleVirtualization({
       order,
-      keys,
       scrollLeft,
       scrollTop,
       containerWidth,
       containerHeight,
       leeway,
-      scrollBuffer,
+      scrollBufferX,
+      scrollBufferY,
     });
 
     expect(result).toEqual(visibleOrder);
@@ -135,44 +164,47 @@ describe('handleVirtualization', () => {
     const containerWidth = 600;
     const containerHeight = 490;
     const leeway = 0.1;
-    const scrollBuffer = 0;
+    const scrollBufferX = 0;
+    const scrollBufferY = 0;
 
-    const visibleOrder = Object.values(keys);
+    const visibleOrder = [...defaultVisibleOrder];
     visibleOrder.splice(3, 2);
 
     const result = handleVirtualization({
       order,
-      keys,
       scrollLeft,
       scrollTop,
       containerWidth,
       containerHeight,
       leeway,
-      scrollBuffer,
+      scrollBufferX,
+      scrollBufferY,
     });
 
     expect(result).toEqual(visibleOrder);
   });
 
-  it('handleVirtualization executes correctly, test scrollBuffer', () => {
-    const scrollLeft = 500;
-    const scrollTop = 500;
-    const containerWidth = 0;
-    const containerHeight = 0;
+  it('handleVirtualization executes correctly, test scrollBufferX and scrollBufferY', () => {
+    const scrollLeft = 0;
+    const scrollTop = 0;
+    const containerWidth = 200;
+    const containerHeight = 200;
     const leeway = 0;
-    const scrollBuffer = 500;
+    const scrollBufferX = 300;
+    const scrollBufferY = 300;
 
-    const visibleOrder = Object.values(keys);
+    const visibleOrder = [...defaultVisibleOrder];
+    visibleOrder.splice(3, 2);
 
     const result = handleVirtualization({
       order,
-      keys,
       scrollLeft,
       scrollTop,
       containerWidth,
       containerHeight,
       leeway,
-      scrollBuffer,
+      scrollBufferX,
+      scrollBufferY,
     });
 
     expect(result).toEqual(visibleOrder);

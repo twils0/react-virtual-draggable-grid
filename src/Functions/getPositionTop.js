@@ -1,3 +1,6 @@
+// get the top position of an orderObject, by recursively checking
+// the top position and the height of any orderObjects directly above;
+// basically, a gravity effect toward the top of the screen
 const getPositionTop = ({
   order, orderX, orderY, gutterY, leftBound, rightBound,
 }) => {

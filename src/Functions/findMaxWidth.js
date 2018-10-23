@@ -1,3 +1,5 @@
+// find the max width value at a certain index
+// across all the arrays within the order 2D array
 const findMaxWidth = ({ order, indexX }) => {
   let maxWidth = -1;
 

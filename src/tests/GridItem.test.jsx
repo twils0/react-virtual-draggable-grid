@@ -42,42 +42,39 @@ const itemProps = { test: 'prop' };
 
 const defaultProps = {
   style: {
-    opacity: 1,
-    shadow: 0,
+    isPressed: false,
+    wasPressed: false,
+    width: 200,
+    height: 250,
     x: 100,
     y: 100,
-    zIndex: 1,
   },
   data: {
     item: { key, ItemComponent: TestComp, itemProps },
-    orderObject: { key, width: 200, height: 200 },
+    itemsBool: false,
   },
+  fixedWidthAll: null,
+  fixedHeightAll: null,
+  transitionDuration: '0.3s',
+  transitionTimingFunction: 'ease',
+  transitionDelay: '0.2s',
+  shadowMultiple: 16,
+  shadowHRatio: 1,
+  shadowVRatio: 1,
+  shadowBlur: null,
+  shadowBlurRatio: 1.2,
+  shadowSpread: null,
+  shadowSpreadRatio: 0,
+  shadowColor: 'rgba(0, 0, 0, 0.2)',
   GridItemStyles: {},
-  updateSize: jest.fn(),
   handleMouseDown: jest.fn(),
   handleTouchStart: jest.fn(),
 };
 
 describe('GridItem', () => {
   afterEach(() => {
-    defaultProps.updateSize.mockReset();
     defaultProps.handleMouseDown.mockReset();
     defaultProps.handleTouchStart.mockReset();
-  });
-
-  it('renders correctly and componentDidUpdate executes correctly', () => {
-    const wrapper = shallowComponent(defaultProps, { disableLifecycleMethods: true });
-    const instance = wrapper.instance();
-    const instanceProps = instance.props;
-
-    instance.updateGridItemSize = jest.fn();
-
-    instance.componentDidMount();
-    instance.componentDidUpdate();
-
-    expect(instanceProps).toEqual(defaultProps);
-    expect(wrapper).toMatchSnapshot();
-    expect(instance.updateGridItemSize).toHaveBeenCalledTimes(2);
   });
 
   it('shouldComponentUpdate executes correctly, all props are the same', () => {
@@ -91,7 +88,109 @@ describe('GridItem', () => {
     expect(result).toEqual(false);
   });
 
-  it('shouldComponentUpdate executes correctly, different prop', () => {
+  it('shouldComponentUpdate executes correctly, different isPressed prop', () => {
+    const wrapper = shallowComponent(defaultProps);
+    const instance = wrapper.instance();
+    const instanceProps = instance.props;
+
+    const result = instance.shouldComponentUpdate({
+      ...defaultProps,
+      style: {
+        ...defaultProps.style,
+        isPressed: true,
+      },
+    });
+
+    expect(instanceProps).toEqual(defaultProps);
+    expect(result).toEqual(true);
+  });
+
+  it('shouldComponentUpdate executes correctly, different wasPressed prop', () => {
+    const wrapper = shallowComponent(defaultProps);
+    const instance = wrapper.instance();
+    const instanceProps = instance.props;
+
+    const result = instance.shouldComponentUpdate({
+      ...defaultProps,
+      style: {
+        ...defaultProps.style,
+        wasPressed: true,
+      },
+    });
+
+    expect(instanceProps).toEqual(defaultProps);
+    expect(result).toEqual(true);
+  });
+
+  it('shouldComponentUpdate executes correctly, different width prop', () => {
+    const wrapper = shallowComponent(defaultProps);
+    const instance = wrapper.instance();
+    const instanceProps = instance.props;
+
+    const result = instance.shouldComponentUpdate({
+      ...defaultProps,
+      style: {
+        ...defaultProps.style,
+        width: 300,
+      },
+    });
+
+    expect(instanceProps).toEqual(defaultProps);
+    expect(result).toEqual(true);
+  });
+
+  it('shouldComponentUpdate executes correctly, different height prop', () => {
+    const wrapper = shallowComponent(defaultProps);
+    const instance = wrapper.instance();
+    const instanceProps = instance.props;
+
+    const result = instance.shouldComponentUpdate({
+      ...defaultProps,
+      style: {
+        ...defaultProps.style,
+        height: 300,
+      },
+    });
+
+    expect(instanceProps).toEqual(defaultProps);
+    expect(result).toEqual(true);
+  });
+
+  it('shouldComponentUpdate executes correctly, different x prop', () => {
+    const wrapper = shallowComponent(defaultProps);
+    const instance = wrapper.instance();
+    const instanceProps = instance.props;
+
+    const result = instance.shouldComponentUpdate({
+      ...defaultProps,
+      style: {
+        ...defaultProps.style,
+        x: 300,
+      },
+    });
+
+    expect(instanceProps).toEqual(defaultProps);
+    expect(result).toEqual(true);
+  });
+
+  it('shouldComponentUpdate executes correctly, different y prop', () => {
+    const wrapper = shallowComponent(defaultProps);
+    const instance = wrapper.instance();
+    const instanceProps = instance.props;
+
+    const result = instance.shouldComponentUpdate({
+      ...defaultProps,
+      style: {
+        ...defaultProps.style,
+        y: 300,
+      },
+    });
+
+    expect(instanceProps).toEqual(defaultProps);
+    expect(result).toEqual(true);
+  });
+
+  it('shouldComponentUpdate executes correctly, different itemsBool prop', () => {
     const wrapper = shallowComponent(defaultProps);
     const instance = wrapper.instance();
     const instanceProps = instance.props;
@@ -100,35 +199,11 @@ describe('GridItem', () => {
       ...defaultProps,
       data: {
         ...defaultProps.data,
-        orderObject: {
-          ...defaultProps.data.orderObject,
-          width: 300,
-        },
+        itemsBool: true,
       },
     });
 
     expect(instanceProps).toEqual(defaultProps);
     expect(result).toEqual(true);
-  });
-
-  it('updateGridItemSize executes correctly', () => {
-    const offsetWidth = 300;
-    const offsetHeight = 300;
-
-    const wrapper = shallowComponent(defaultProps);
-    const instance = wrapper.instance();
-    const instanceProps = instance.props;
-
-    instance.gridItemRef = { current: { offsetWidth, offsetHeight } };
-
-    instance.updateGridItemSize();
-
-    expect(instanceProps).toEqual(defaultProps);
-    expect(defaultProps.updateSize).toHaveBeenCalledTimes(1);
-    expect(defaultProps.updateSize).toBeCalledWith({
-      key,
-      width: offsetWidth,
-      height: offsetHeight,
-    });
   });
 });

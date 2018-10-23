@@ -1,4 +1,4 @@
-node_modules/
-bin/
-coverage/
-src/tests/__snapshots__/
+node_modules
+bin
+coverage
+__snapshots__

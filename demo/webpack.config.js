@@ -1,19 +1,18 @@
 const webpack = require('webpack');
 const path = require('path');
 
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const rootDir = path.resolve(__dirname);
-const binDir = path.resolve(__dirname, 'bin');
-const srcDir = path.resolve(__dirname, 'src');
 const nodeModDir = path.resolve(__dirname, 'node_modules');
+const appSrcDir = path.resolve(__dirname, '../src');
 
 const config = {
-  entry: [path.resolve(srcDir, 'VirtualDraggableGrid.jsx')],
+  entry: [path.resolve(rootDir, 'index.jsx')],
   output: {
-    path: binDir,
-    filename: 'react-virtual-draggable-grid.min.js',
+    path: rootDir,
+    filename: 'react-virtual-draggable-grid-demo.min.js',
     libraryTarget: 'umd',
     library: 'default',
   },
@@ -24,30 +23,10 @@ const config = {
     inline: true,
   },
   resolve: {
-    modules: [rootDir, nodeModDir],
+    modules: [rootDir, appSrcDir, nodeModDir],
     extensions: ['.js', '.jsx'],
   },
   target: 'web',
-  externals: {
-    'prop-types': {
-      commonjs: 'prop-types',
-      commonjs2: 'prop-types',
-      amd: 'prop-types',
-      root: 'PropTypes',
-    },
-    react: {
-      commonjs: 'react',
-      commonjs2: 'react',
-      amd: 'react',
-      root: 'React',
-    },
-    'react-dom': {
-      commonjs: 'react-dom',
-      commonjs2: 'react-dom',
-      amd: 'react-dom',
-      root: 'ReactDOM',
-    },
-  },
   module: {
     rules: [
       {
@@ -64,11 +43,12 @@ const config = {
         vendors: {
           test: /[\\/]node_modules[\\/]/,
           name: 'vendors',
+          filename: 'vendors-demo.min.js',
           chunks: 'all',
         },
       },
     },
-    minimize: true,
+    // minimize: true,
     minimizer: [
       new UglifyJsPlugin({
         cache: true,
@@ -83,9 +63,12 @@ const config = {
     ],
   },
   plugins: [
-    new CleanWebpackPlugin([binDir]),
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.NamedModulesPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
+    new HtmlWebpackPlugin({
+      template: path.resolve(rootDir, 'index.html'),
+    }),
   ],
 };
 

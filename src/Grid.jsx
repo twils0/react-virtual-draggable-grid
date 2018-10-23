@@ -15,26 +15,19 @@ class Grid extends React.Component {
 
     this.gridRef = React.createRef();
 
-    // avoid calling setState too many times, which throws maximum update depth error;
-    // error is thrown after 50 updates
-    this.resizeChunkSize = Math.max(100, Math.ceil(Object.keys(this.props.keys).length / 50));
-    this.resizeIncriment = 0;
-
+    this.updatingOrder = false;
     this.updateTime = null;
     this.prevMouseX = -1;
     this.prevMouseY = -1;
 
     this.state = {
       visibleOrder: [],
-      orderBool: false, // eslint-disable-line react/no-unused-state
       containerWidth: -1,
       containerHeight: -1,
       scrollLeft: -1,
       scrollTop: -1,
-      prevContainerWidth: -1, // eslint-disable-line react/no-unused-state
-      prevContainerHeight: -1, // eslint-disable-line react/no-unused-state
-      prevScrollLeft: -1, // eslint-disable-line react/no-unused-state
-      prevScrollTop: -1, // eslint-disable-line react/no-unused-state
+      prevScrollLeft: -1,
+      prevScrollTop: -1,
       isPressed: false,
       pressedItemKey: '',
       prevPressedItemKey: '',
@@ -45,130 +38,137 @@ class Grid extends React.Component {
     };
   }
 
-  static getDerivedStateFromProps(props, state) {
+  // process move and release events anywhere in the window;
+  // resize grid when window resizes
+  componentDidMount() {
+    window.addEventListener('mousemove', this.handleMouseMove);
+    window.addEventListener('touchmove', this.handleTouchMove, false);
+    window.addEventListener('mouseup', this.handleMouseUp);
+    window.addEventListener('touchend', this.handleTouchEnd, false);
+    window.addEventListener('resize', this.updateGridSize);
+
+    this.updateGridSize();
+  }
+
+  // resize grid on update
+  componentDidUpdate(prevProps, prevState) {
+    const { itemsBool } = this.props;
     const {
-      scrollUpdateX, scrollUpdateY, initialSizeBool, itemsBool, sizeBool,
-    } = props;
+      containerWidth,
+      containerHeight,
+      prevScrollLeft,
+      prevScrollTop,
+    } = this.state;
+
+    this.updateGridSize();
+
+    // check for updates to the items 1D or 2D array,
+    // container width and height, and scroll left and top;
+    // call handleUpdate only when an update occurs
+    if (
+      itemsBool
+      || containerWidth !== prevState.containerWidth
+      || containerHeight !== prevState.containerHeight
+      || prevScrollLeft !== prevState.prevScrollLeft
+      || prevScrollTop !== prevState.prevScrollTop) {
+      if (itemsBool) {
+        this.props.handleItemsBool();
+      }
+
+      this.handleUpdate();
+    }
+  }
+
+  // remove event listeners when unmounting
+  componentWillUnmount() {
+    window.removeEventListener('mousemove', this.handleMouseMove);
+    window.removeEventListener('touchmove', this.handleTouchMove);
+    window.removeEventListener('mouseup', this.handleMouseUp);
+    window.removeEventListener('touchend', this.handleTouchEnd);
+    window.removeEventListener('resize', this.updateGridSize);
+  }
+
+  // call handleVirtualization to render visible and buffer grid items;
+  // provide visible and buffer grid items to getVisibleItems callback
+  handleUpdate = () => {
     const {
-      orderBool,
+      items,
+      order,
+      keys,
+      leeway,
+      scrollBufferX,
+      scrollBufferY,
+      getVisibleItems,
+    } = this.props;
+    const {
       containerWidth,
       containerHeight,
       scrollLeft,
       scrollTop,
-      prevContainerWidth,
-      prevContainerHeight,
-      prevScrollLeft,
-      prevScrollTop,
-    } = state;
-    const update = {};
+    } = this.state;
 
-    if (containerWidth !== prevContainerWidth) {
-      update.prevContainerWidth = containerWidth;
-    }
-    if (containerHeight !== prevContainerHeight) {
-      update.prevContainerHeight = containerHeight;
-    }
-    if (scrollLeft !== prevScrollLeft && Math.abs(scrollLeft - prevScrollLeft) > scrollUpdateX) {
-      update.prevScrollLeft = scrollLeft;
-    }
-    if (scrollTop !== prevScrollTop && Math.abs(scrollTop - prevScrollTop) > scrollUpdateY) {
-      update.prevScrollTop = scrollTop;
-    }
-    if (orderBool) {
-      update.orderBool = false;
-    }
+    // get only the orderObjects corresponding to visible grid items and
+    // a limited number of unseen grid items, as a buffer for scrolling
+    const visibleOrder = handleVirtualization({
+      order,
+      keys,
+      containerWidth,
+      containerHeight,
+      scrollLeft,
+      scrollTop,
+      leeway,
+      scrollBufferX,
+      scrollBufferY,
+    });
 
-    if (!initialSizeBool && (itemsBool || sizeBool || Object.keys(update).length > 0)) {
-      const {
-        order,
-        keys,
-        leeway,
-        scrollBufferX,
-        scrollBufferY,
-        gutterX,
-        gutterY,
-        fixedWidthAll,
-        fixedHeightAll,
-      } = props;
+    if (
+      typeof getVisibleItems === 'function'
+        && items
+        && items.length > 0
+        && visibleOrder
+        && visibleOrder.length > 0
+    ) {
+      const visibleItems = visibleOrder.map(
+        ({ itemX, itemY }) => (Array.isArray(items[itemY]) ? items[itemY][itemX] : items[itemY]),
+      );
 
-      if (itemsBool) {
-        props.toggleItemsBool();
-      }
-      if (sizeBool) {
-        props.toggleSizeBool();
-      }
-
-      const visibleOrder = handleVirtualization({
-        order,
-        keys,
-        containerWidth,
-        containerHeight,
-        scrollLeft,
-        scrollTop,
-        leeway,
-        scrollBufferX,
-        scrollBufferY,
-        gutterX,
-        gutterY,
-        fixedWidthAll,
-        fixedHeightAll,
-      });
-
-      return { ...update, visibleOrder };
+      // callback returning current visibleItems, when visibleOrder changes
+      getVisibleItems(visibleItems);
     }
 
-    return null;
-  }
-
-  componentDidMount() {
-    if (this.state.visibleOrder.length === 0) {
-      window.addEventListener('mousemove', this.handleMouseMove);
-      window.addEventListener('touchmove', this.handleTouchMove, false);
-      window.addEventListener('mouseup', this.handleMouseUp);
-      window.addEventListener('touchend', this.handleTouchEnd, false);
-
-      window.addEventListener('resize', this.updateGridSize);
-
-      this.updateGridSize();
-    }
-  }
-
-  componentDidUpdate() {
-    if (!this.props.initialSizeBool) {
-      this.updateGridSize();
-    }
-  }
-
-  componentWillUnmount() {
-    if (!this.state.visibleOrder.length === 0) {
-      window.removeEventListener('mousemove', this.handleMouseMove);
-      window.removeEventListener('touchmove', this.handleTouchMove);
-      window.removeEventListener('mouseup', this.handleMouseUp);
-      window.removeEventListener('touchend', this.handleTouchEnd);
-
-      window.addEventListener('resize', this.updateGridSize);
-    }
+    this.setState({ visibleOrder });
   }
 
   // find liNode, get dataset information from it, and update state
   handleMouseDown = (event) => {
-    const { noDragIds, noDragElements } = this.props;
+    const {
+      onlyDragElements, onlyDragIds, noDragElements, noDragIds,
+    } = this.props;
     let liNode = null;
     let { target } = event;
-    const clickedComponent = target.nodeName.toLowerCase();
+    const clickedElement = target.nodeName.toLowerCase();
     const clickedId = target.id;
+    const onlyDragElementsLen = onlyDragElements.length;
+    const onlyDragIdsLen = onlyDragIds.length;
 
-    // if onlyDrag array greater than 0, include only
-    // components included in onlyDrag arrays;
-    // comignore if component included in one of the
-    // noDrag arrays;
-    if (noDragIds.indexOf(clickedId) === -1 && noDragElements.indexOf(clickedComponent) === -1) {
+    // only allow drag on elements named in the onlyDragElements arry
+    // and on elements with an id contained in the onlyDragIds array,
+    // otherwise, prevent drag on elements named in the noDragElements array
+    // and elements with an id contained in the noDragIds array
+    if ((onlyDragElementsLen > 0
+    && onlyDragElements.indexOf(clickedElement) > -1)
+    || (onlyDragIdsLen > 0
+    && onlyDragIds.indexOf(clickedId) === -1)
+    || (onlyDragElementsLen === 0
+    && onlyDragIdsLen === 0
+    && noDragElements.indexOf(clickedElement) === -1
+    && noDragIds.indexOf(clickedId) === -1)
+    ) {
       let count = 0;
 
       // a child component of liNode may be clicked; use React ref
-      // to move up the parent chain, until liNode is found
-      // the count variable acts as a failsafe to prevent an
-      // infinite loop
+      // to move up the parent chain, until liNode is found;
+      // count acts as a failsafe
       while (!liNode && count <= 20) {
         if (target) {
           if (target.className === 'rvdl-grid-item') {
@@ -201,7 +201,7 @@ class Grid extends React.Component {
   };
 
   // redirect to handleMouseDown; event.preventDefault and return false
-  // helps to prevent window scroll while dragging
+  // help to prevent window scroll while dragging
   handleTouchStart = (event) => {
     event.preventDefault();
 
@@ -210,26 +210,36 @@ class Grid extends React.Component {
     return false;
   };
 
-  updateOrder = async ({ pressedItemKey, mouseX, mouseY }) => {
+  // update the order 2D array, to change the position of items
+  updateOrder = ({ pressedItemKey, mouseX, mouseY }) => {
     const { keys } = this.props;
     const orderObject = keys[pressedItemKey];
 
     if (orderObject) {
-      const {
-        order, gutterX, gutterY, fixedWidthAll, fixedHeightAll,
-      } = this.props;
+      const { order } = this.props;
       const { visibleOrder } = this.state;
       const { orderX, orderY } = orderObject;
 
       const { toIndexX, toIndexY } = getMouseIndex({
-        order, visibleOrder, mouseX, mouseY, gutterX, gutterY, fixedWidthAll, fixedHeightAll,
+        order,
+        visibleOrder,
+        mouseX,
+        mouseY,
       });
 
       if (toIndexX > -1 && toIndexY > -1 && (toIndexX !== orderX || toIndexY !== orderY)) {
         const {
-          fixedRows, fixedColumns,
+          fixedRows,
+          fixedColumns,
+          fixedWidthAll,
+          fixedHeightAll,
+          gutterX,
+          gutterY,
         } = this.props;
 
+        // changeOrder handles the actual repositioning;
+        // it updates only the orderObjects it must,
+        // based on the to and from indexes
         const orderKeysObject = changeOrder({
           order,
           keys,
@@ -246,22 +256,24 @@ class Grid extends React.Component {
         });
 
         if (orderKeysObject) {
+          // callback to update state on VirtualDraggableGrid component
           this.props.updateOrderKeys(orderKeysObject);
 
-          this.setState({ orderBool: true }); // eslint-disable-line react/no-unused-state
+          this.handleUpdate();
         }
       }
     }
-  }
+  };
 
+  // update x and y position of currently pressed item, allowing the user
+  // to drag the item around the screen; call updateOrder periodicatlly
+  // to reposition grid items
   handleMouseMove = (event) => {
     const { isPressed, pressedItemKey } = this.state;
 
     if (isPressed && pressedItemKey) {
       const { mouseUpdateTime, mouseUpdateX, mouseUpdateY } = this.props;
-      const {
-        leftDeltaX, topDeltaY,
-      } = this.state;
+      const { leftDeltaX, topDeltaY } = this.state;
       const { pageX, pageY } = event;
       const mouseX = pageX - leftDeltaX;
       const mouseY = pageY - topDeltaY;
@@ -269,20 +281,30 @@ class Grid extends React.Component {
 
       this.setState({ mouseX, mouseY });
 
-      if (currentTime - this.updateTime > mouseUpdateTime
+      // block new updates until the previous update has finished;
+      // limit the number of calls to updateOrder, using a minimum time
+      // interval and a minimum x or y distance traveled by the mouse
+      if (
+        !this.updatingOrder
+        && currentTime - this.updateTime > mouseUpdateTime
         && (Math.abs(mouseX - this.prevMouseX) > mouseUpdateX
-        || Math.abs(mouseY - this.prevMouseY) > mouseUpdateY)) {
+        || Math.abs(mouseY - this.prevMouseY) > mouseUpdateY)
+      ) {
+        this.updatingOrder = true;
+
         this.updateOrder({ pressedItemKey, mouseX, mouseY });
 
         this.updateTime = new Date();
         this.prevMouseX = mouseX;
         this.prevMouseY = mouseY;
+
+        this.updatingOrder = false;
       }
     }
   };
 
   // redirect to handleMouseMove; event.preventDefault and
-  // return false help to prevent window scroll while dragging
+  // return false to help prevent window scroll while dragging
   handleTouchMove = (event) => {
     if (this.state.isPressed) {
       event.preventDefault();
@@ -295,12 +317,14 @@ class Grid extends React.Component {
     return true;
   };
 
-  // reset state and update items through updateItems callback
+  // reset state and update the items 1D or 2D array
   handleMouseUp = () => {
     if (this.state.isPressed) {
       const { pressedItemKey } = this.state;
-      // lastItemKey remains, to avoid virtual fade
-      // out before item moves off screen
+      // prevPressedItemKey prevents an item from disappearing
+      // when moving off-screen after release, out of the purview of
+      // the visibleOrder array, and sets a higher zIndex for an item
+      // returning to its position, allowing it to float above resting items
       this.setState({
         isPressed: false,
         leftDeltaX: 0,
@@ -326,11 +350,12 @@ class Grid extends React.Component {
     return true;
   };
 
+  // keep track of the scroll positions of the grid
   handleScroll = (event) => {
     if (event && event.target) {
-      const {
-        scrollLeft, scrollTop,
-      } = event.target;
+      const { scrollLeft, scrollTop } = event.target;
+      const { scrollUpdateX, scrollUpdateY } = this.props;
+      const { prevScrollLeft, prevScrollTop } = this.state;
       const update = {};
 
       if (scrollLeft > -1 && this.state.scrollLeft !== scrollLeft) {
@@ -339,6 +364,12 @@ class Grid extends React.Component {
       if (scrollTop > -1 && this.state.scrollTop !== scrollTop) {
         update.scrollTop = scrollTop;
       }
+      if (Math.abs(scrollLeft - prevScrollLeft) > scrollUpdateX) {
+        update.prevScrollLeft = scrollLeft;
+      }
+      if (Math.abs(scrollTop - prevScrollTop) > scrollUpdateY) {
+        update.prevScrollTop = scrollTop;
+      }
 
       if (Object.keys(update).length > 0) {
         this.setState({ ...update });
@@ -346,6 +377,7 @@ class Grid extends React.Component {
     }
   };
 
+  // keep track of the size of the grid
   updateGridSize = () => {
     if (this.gridRef && this.gridRef.current) {
       const { containerWidth, containerHeight } = this.state;
@@ -366,110 +398,76 @@ class Grid extends React.Component {
     }
   };
 
-  handleSizing = () => {
-    const { keys, items } = this.props;
-    const resizeArray = [];
-    const keysArray = Object.keys(keys);
-    const start = this.resizeIncriment * this.resizeChunkSize;
-    const end = start + this.resizeChunkSize;
-    const limitedEnd = end < keysArray.length ? end : keysArray.length - 1;
-
-    for (let i = start; i <= limitedEnd; i += 1) {
-      const orderObject = keys[keysArray[i]];
-      const {
-        itemX, itemY, width, height,
-      } = orderObject;
-      const item = items[itemY][itemX];
-
-      resizeArray.push(this.renderItem({
-        key: item.key, data: { item, width, height }, style: {},
-      }));
-    }
-
-    this.props.getResizeChunk(end);
-
-    this.resizeIncriment += 1;
-
-    return resizeArray;
-  }
-
+  // use an item object and an orderObject to produce a style object
   handleStyle = ({ styles, orderObject }) => {
-    const {
-      items, fixedWidthAll, fixedHeightAll, gutterX, gutterY,
-    } = this.props;
+    const { items, itemsBool } = this.props;
     const {
       pressedItemKey, prevPressedItemKey, mouseX, mouseY,
     } = this.state;
 
     const {
-      key, itemX, itemY, orderX, orderY, left, top, width, height,
+      key, itemX, itemY, left, top, width, height,
     } = orderObject;
-    const row = items[itemY];
-    let item = null;
+    const item = Array.isArray(items[itemY]) ? items[itemY][itemX] : items[itemY];
 
-    if (row && Array.isArray(row)) {
-      item = row[itemX];
-    } else {
-      item = row;
+    // make sure item still exists before attempting to render
+    if (item) {
+    // wasPressed sets a higher zIndex for an item returning to
+    // its position, allowing it to float above resting items
+      const isPressed = this.state.isPressed && key === pressedItemKey;
+      const wasPressed = key === prevPressedItemKey;
+
+      styles.push({
+        key: `key-${key}`,
+        data: { item, itemsBool },
+        style: {
+          isPressed,
+          wasPressed,
+          width,
+          height,
+          ...(isPressed
+            ? {
+              x: mouseX,
+              y: mouseY,
+            }
+            : {
+              x: left,
+              y: top,
+            }),
+        },
+      });
     }
-
-    const isPressed = this.state.isPressed && key === pressedItemKey;
-    const wasPressed = key === prevPressedItemKey;
-
-    styles.push({
-      key: `key-${item.key}`,
-      data: {
-        item,
-        isPressed,
-        wasPressed,
-        width,
-        height,
-      },
-      style: {
-        ...(isPressed
-          ? {
-            x: mouseX,
-            y: mouseY,
-          }
-          : {
-            x: fixedWidthAll && fixedHeightAll ? orderX * (fixedWidthAll + gutterX) : left,
-            y: fixedWidthAll && fixedHeightAll ? orderY * (fixedHeightAll + gutterY) : top,
-          }),
-      },
-    });
   };
 
+  // generate an array of style objects, which will be passed to renderList
   generateStyles = () => {
-    const { keys, getVisibleItems } = this.props;
+    const { keys } = this.props;
     const { pressedItemKey, visibleOrder } = this.state;
     const styles = [];
     const pressedOrderObject = keys[pressedItemKey];
 
     if (pressedOrderObject) {
       this.handleStyle({
-        styles, orderObject: pressedOrderObject,
+        styles,
+        orderObject: pressedOrderObject,
       });
     }
 
-    if (typeof getVisibleItems === 'function') {
-      const { items } = this.props;
-
-      const visibleItems = visibleOrder.map(({ itemX, itemY }) => items[itemY][itemX]);
-
-      getVisibleItems(visibleItems);
+    if (visibleOrder && visibleOrder.length > 0) {
+      visibleOrder.forEach((orderObject) => {
+        if (orderObject.key !== pressedItemKey) {
+          this.handleStyle({
+            styles,
+            orderObject,
+          });
+        }
+      });
     }
-
-    visibleOrder.forEach((orderObject) => {
-      if (!pressedOrderObject || orderObject.key !== pressedOrderObject.key) {
-        this.handleStyle({
-          styles, orderObject,
-        });
-      }
-    });
 
     return styles;
   };
 
+  // render GridItems using style objects
   renderItem = ({ key, data, style }) => {
     const {
       fixedWidthAll,
@@ -486,7 +484,6 @@ class Grid extends React.Component {
       shadowSpreadRatio,
       shadowColor,
       GridItemStyles,
-      updateSize,
     } = this.props;
 
     return (
@@ -508,7 +505,6 @@ class Grid extends React.Component {
         shadowSpreadRatio={shadowSpreadRatio}
         shadowColor={shadowColor}
         GridItemStyles={GridItemStyles}
-        updateSize={updateSize}
         handleMouseDown={this.handleMouseDown}
         handleTouchStart={this.handleTouchStart}
         onDragStart={preventDrag}
@@ -516,6 +512,7 @@ class Grid extends React.Component {
     );
   };
 
+  // render an array of Grid Items inside a grid
   renderList = (styles) => {
     const {
       order,
@@ -533,43 +530,57 @@ class Grid extends React.Component {
     const transition = `width ${transitionSetup},
     height ${transitionSetup}`;
 
+    // find the width and height of the grid, by finding the largest
+    // left position plus width and top position plus height
+    // of any orderObject in the order 2D array
     const { maxRight, maxBottom } = findMaxPosition({
-      order, fixedWidthAll, fixedHeightAll, gutterX, gutterY,
+      order,
+      fixedWidthAll,
+      fixedHeightAll,
+      gutterX,
+      gutterY,
     });
 
     return (
       <div
+        className="rvdl-grid"
         ref={this.gridRef}
         style={{
-          position: 'absolute',
-          userSelect: 'none',
-          MozUserSelect: 'none',
           overflowX: 'auto',
           overflowY: 'auto',
-          outline: 'none',
           background: 'transparent',
           width: '100%',
           height: '100%',
           margin: 0,
           padding: 0,
           ...GridStyles,
-          WebkitTransform: 'translateZ(0)',
-          transform: 'translateZ(0)',
+          position: 'absolute',
+          userSelect: 'none',
+          MozUserSelect: 'none',
         }}
         onScroll={this.handleScroll}
         onDragStart={preventDrag}
       >
         <ul
-          className="rvdl-grid"
           style={{
-            position: 'absolute',
-            userSelect: 'none',
-            MozUserSelect: 'none',
             width: maxRight,
             height: maxBottom,
             margin: 0,
             padding: 0,
+            ...GridStyles,
+            position: 'absolute',
+            userSelect: 'none',
+            MozUserSelect: 'none',
+            MozTransition: transition,
+            WebkitTransition: transition,
+            msTransition: transition,
             transition,
+            WebkitBackfaceVisibility: 'hidden',
+            MozBackfaceVisibility: 'hidden',
+            backfaceVisibility: 'hidden',
+            WebkitPerspective: 1000,
+            MozPerspective: 1000,
+            perspective: 1000,
           }}
           onDragStart={preventDrag}
         >
@@ -580,10 +591,6 @@ class Grid extends React.Component {
   };
 
   render() {
-    if (this.props.initialSizeBool) {
-      return this.handleSizing();
-    }
-
     const styles = this.generateStyles();
 
     return this.renderList(styles);
@@ -594,25 +601,25 @@ Grid.propTypes = {
   items: PropTypes.array.isRequired,
   order: PropTypes.array.isRequired,
   keys: PropTypes.object.isRequired,
-  initialSizeBool: PropTypes.bool.isRequired,
-  itemsBool: PropTypes.bool.isRequired, // eslint-disable-line react/no-unused-prop-types
-  sizeBool: PropTypes.bool.isRequired, // eslint-disable-line react/no-unused-prop-types
+  itemsBool: PropTypes.bool.isRequired,
+  gutterX: PropTypes.number.isRequired,
+  gutterY: PropTypes.number.isRequired,
   fixedRows: PropTypes.bool.isRequired,
   fixedColumns: PropTypes.bool.isRequired,
   fixedWidthAll: PropTypes.number,
   fixedHeightAll: PropTypes.number,
+  onlyDragElements: PropTypes.array.isRequired,
+  onlyDragIds: PropTypes.array.isRequired,
   noDragElements: PropTypes.array.isRequired,
   noDragIds: PropTypes.array.isRequired,
-  gutterX: PropTypes.number.isRequired,
-  gutterY: PropTypes.number.isRequired,
   mouseUpdateTime: PropTypes.number.isRequired,
   mouseUpdateX: PropTypes.number.isRequired,
   mouseUpdateY: PropTypes.number.isRequired,
-  leeway: PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
-  scrollBufferX: PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
-  scrollBufferY: PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
-  scrollUpdateX: PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
-  scrollUpdateY: PropTypes.number.isRequired, // eslint-disable-line react/no-unused-prop-types
+  leeway: PropTypes.number.isRequired,
+  scrollBufferX: PropTypes.number.isRequired,
+  scrollBufferY: PropTypes.number.isRequired,
+  scrollUpdateX: PropTypes.number.isRequired,
+  scrollUpdateY: PropTypes.number.isRequired,
   transitionDuration: PropTypes.string.isRequired,
   transitionTimingFunction: PropTypes.string.isRequired,
   transitionDelay: PropTypes.string.isRequired,
@@ -626,10 +633,7 @@ Grid.propTypes = {
   shadowColor: PropTypes.string.isRequired,
   GridStyles: PropTypes.object.isRequired,
   GridItemStyles: PropTypes.object.isRequired,
-  toggleItemsBool: PropTypes.func.isRequired, // eslint-disable-line react/no-unused-prop-types
-  toggleSizeBool: PropTypes.func.isRequired, // eslint-disable-line react/no-unused-prop-types
-  getResizeChunk: PropTypes.func.isRequired,
-  updateSize: PropTypes.func.isRequired,
+  handleItemsBool: PropTypes.func.isRequired,
   updateOrderKeys: PropTypes.func.isRequired,
   updateItems: PropTypes.func.isRequired,
   getVisibleItems: PropTypes.func,

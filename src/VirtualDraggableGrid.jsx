@@ -4,66 +4,106 @@ import PropTypes from 'prop-types';
 import Grid from './Grid';
 
 import handleOrder from './Functions/handleOrder';
-import updatePositions from './Functions/updatePositions';
 import testItemsUpdate from './Functions/testItemsUpdate';
 import preventDrag from './Utilities/preventDrag';
 
+// entry component, handles the items 1D or 2D array;
+// produces and manages state for the order 2D array
+// and the keys object
 class VirtualDraggableGrid extends React.Component {
   constructor(props) {
     super(props);
 
-    const { items } = this.props;
+    const {
+      items,
+      fixedRows,
+      fixedColumns,
+      fixedWidthAll,
+      fixedHeightAll,
+      gutterX,
+      gutterY,
+      leeway,
+      scrollBufferX,
+      scrollBufferY,
+    } = this.props;
     let order = [];
     let keys = {};
 
     if (items && Array.isArray(items) && items.length > 0) {
-      const {
-        fixedRows,
-        fixedColumns,
-        fixedWidthAll,
-        fixedHeightAll,
-        gutterX,
-        gutterY,
-      } = this.props;
-
-      const result = handleOrder({
+      // create orderObjects, an order 2D array and a keys object
+      ({ order, keys } = handleOrder({
         items,
-        initialSizeBool: true,
         fixedRows,
         fixedColumns,
         fixedWidthAll,
         fixedHeightAll,
         gutterX,
         gutterY,
-      });
-
-      ({ order, keys } = result);
-      this.resizeNeededCount = result.resizeNeededCount;
-      this.resizeCount = 0;
+      }));
     }
-
-    const resizeNeededBool = this.resizeNeededCount > 0;
-    this.sizingOrder = resizeNeededBool && order;
-    this.sizingKeys = resizeNeededBool && keys;
-    this.chunkCount = -1;
-    this.resizeEnd = -1;
 
     this.state = {
       order,
       keys,
-      initialSizeBool: resizeNeededBool,
-      initialPositionsBool: !resizeNeededBool,
       itemsBool: true,
-      sizeBool: false,
+      fixedRows, // eslint-disable-line react/no-unused-state
+      fixedColumns, // eslint-disable-line react/no-unused-state
+      fixedWidthAll, // eslint-disable-line react/no-unused-state
+      fixedHeightAll, // eslint-disable-line react/no-unused-state
+      gutterX, // eslint-disable-line react/no-unused-state
+      gutterY, // eslint-disable-line react/no-unused-state
+      leeway, // eslint-disable-line react/no-unused-state
+      scrollBufferX, // eslint-disable-line react/no-unused-state
+      scrollBufferY, // eslint-disable-line react/no-unused-state
     };
   }
 
   static getDerivedStateFromProps(props, state) {
-    const { items } = props;
-    const { order, keys, initialPositionsBool } = state;
+    const {
+      items,
+      fixedRows,
+      fixedColumns,
+      fixedWidthAll,
+      fixedHeightAll,
+      gutterX,
+      gutterY,
+      leeway,
+      scrollBufferX,
+      scrollBufferY,
+    } = props;
+    const { order, keys } = state;
+    const update = {};
+
+    if (fixedRows !== state.fixedRows) {
+      update.fixedRows = fixedRows;
+    }
+    if (fixedColumns !== state.fixedColumns) {
+      update.fixedColumns = fixedColumns;
+    }
+    if (fixedWidthAll !== state.fixedWidthAll) {
+      update.fixedWidthAll = fixedWidthAll;
+    }
+    if (fixedHeightAll !== state.fixedHeightAll) {
+      update.fixedHeightAll = fixedHeightAll;
+    }
+    if (gutterX !== state.gutterX) {
+      update.gutterX = gutterX;
+    }
+    if (gutterY !== state.gutterY) {
+      update.gutterY = gutterY;
+    }
+    if (leeway !== state.leeway) {
+      update.leeway = leeway;
+    }
+    if (scrollBufferX !== state.scrollBufferX) {
+      update.scrollBufferX = scrollBufferX;
+    }
+    if (scrollBufferY !== state.scrollBufferY) {
+      update.scrollBufferY = scrollBufferY;
+    }
 
     if (
-      initialPositionsBool
+      Object.keys(update).length > 0
       || (items
         && Array.isArray(items)
         && items.length > 0
@@ -71,26 +111,17 @@ class VirtualDraggableGrid extends React.Component {
           items,
           order,
           keys,
+          fixedWidthAll,
+          fixedHeightAll,
         }))
     ) {
-      const {
-        fixedRows, fixedColumns, fixedWidthAll, fixedHeightAll, gutterX, gutterY,
-      } = props;
-      const { itemsBool } = state;
-      const update = {};
+      update.itemsBool = true;
 
-      if (initialPositionsBool) {
-        update.initialPositionsBool = false;
-      }
-      if (!itemsBool) {
-        update.itemsBool = true;
-      }
-
+      // if the items 1D or 2D array or any of the props above
+      // are updated, create new orderObjects, a new order 2D array
+      // and a new keys object
       const result = handleOrder({
         items,
-        order,
-        intialSizeBool: false,
-        keys,
         fixedRows,
         fixedColumns,
         fixedWidthAll,
@@ -99,97 +130,27 @@ class VirtualDraggableGrid extends React.Component {
         gutterY,
       });
 
-      return { order: result.order, keys: result.keys, ...update };
+      return {
+        ...update,
+        ...result,
+      };
     }
 
     return null;
   }
 
-  toggleItemsBool = () => {
-    const { itemsBool } = this.state;
-    this.setState({ itemsBool: !itemsBool });
+  handleItemsBool = () => {
+    this.setState({ itemsBool: false });
   };
 
-  toggleSizeBool = () => {
-    const { sizeBool } = this.state;
-    this.setState({ sizeBool: !sizeBool });
-  };
-
-  getResizeChunk = (end) => {
-    this.resizeEnd = end;
-  };
-
-  updateSize = ({ key, width, height }) => {
-    this.setState((prevState) => {
-      const { order, keys } = prevState;
-      const newOrderObject = { ...keys[key] };
-
-      if (newOrderObject) {
-        const {
-          fixedRows, fixedColumns, gutterX, gutterY,
-        } = this.props;
-        const { initialSizeBool } = this.state;
-        const newOrder = initialSizeBool ? this.sizingOrder : [...order];
-        const newKeys = initialSizeBool ? this.sizingKeys : { ...keys };
-        const { orderX, orderY } = newOrderObject;
-
-        newOrder[orderY][orderX] = newOrderObject;
-        newKeys[key] = newOrderObject;
-
-        newOrderObject.width = width;
-        newOrderObject.height = height;
-
-        if (!initialSizeBool) {
-          const orderKeysObject = updatePositions({
-            order: newOrder,
-            keys: newKeys,
-            orderX,
-            orderY,
-            fixedRows,
-            fixedColumns,
-            gutterX,
-            gutterY,
-          });
-
-          return {
-            ...prevState,
-            ...orderKeysObject,
-            sizeBool: true,
-          };
-        }
-
-        this.chunkCount += 1;
-        this.resizeCount += 1;
-
-        if (this.resizeNeededCount === this.resizeCount) {
-          const resizedOrder = this.sizingOrder;
-          const resizedKeys = this.sizingKeys;
-
-          this.sizingOrder = null;
-          this.sizingKeys = null;
-
-          return {
-            ...prevState,
-            order: resizedOrder,
-            keys: resizedKeys,
-            initialSizeBool: false,
-            initialPositionsBool: true,
-          };
-        }
-
-        if (this.chunkCount === this.resizeEnd) {
-          return prevState;
-        }
-      }
-
-      return null;
-    });
-  };
-
+  // callback to update order 2D array and keys object
   updateOrderKeys = ({ order, keys }) => {
     this.setState({ order, keys });
   };
 
+  // callback to return a 1D or 2D array of reordered items;
+  // some items may have been ignored when initially processed
+  // by handleOrder above, and these items will not be included below
   updateItems = () => {
     const { items, getItems } = this.props;
     const { order } = this.state;
@@ -200,14 +161,7 @@ class VirtualDraggableGrid extends React.Component {
 
       orderRow.forEach((orderObject, orderX) => {
         const { itemX, itemY } = orderObject;
-        const itemRow = items[itemY];
-        let item = null;
-
-        if (itemRow && Array.isArray(itemRow)) {
-          item = itemRow[itemX];
-        } else {
-          item = itemRow;
-        }
+        const item = Array.isArray(items[itemY]) ? items[itemY][itemX] : items[itemY];
 
         if (orderRowLen === 1) {
           newItems[orderY] = item;
@@ -235,6 +189,8 @@ class VirtualDraggableGrid extends React.Component {
         fixedColumns,
         fixedWidthAll,
         fixedHeightAll,
+        onlyDragElements,
+        onlyDragIds,
         noDragElements,
         noDragIds,
         gutterX,
@@ -262,24 +218,22 @@ class VirtualDraggableGrid extends React.Component {
         GridItemStyles,
         getVisibleItems,
       } = this.props;
-      const {
-        order, keys, initialSizeBool, itemsBool, sizeBool,
-      } = this.state;
+      const { order, keys, itemsBool } = this.state;
 
       return (
         <div
           className="rvdl-wrapper"
           style={{
-            position: 'relative',
-            display: 'block',
-            userSelect: 'none',
-            MozUserSelect: 'none',
-            boxSizing: 'border-box',
             height: '100%',
             width: '100%',
             margin: 0,
             padding: 0,
             ...WrapperStyles,
+            display: 'block',
+            position: 'relative',
+            userSelect: 'none',
+            MozUserSelect: 'none',
+            boxSizing: 'border-box',
           }}
           onDragStart={preventDrag}
         >
@@ -287,13 +241,13 @@ class VirtualDraggableGrid extends React.Component {
             items={items}
             order={order}
             keys={keys}
-            initialSizeBool={initialSizeBool}
             itemsBool={itemsBool}
-            sizeBool={sizeBool}
             fixedRows={fixedRows}
             fixedColumns={fixedColumns}
             fixedWidthAll={fixedWidthAll}
             fixedHeightAll={fixedHeightAll}
+            onlyDragElements={onlyDragElements}
+            onlyDragIds={onlyDragIds}
             noDragElements={noDragElements}
             noDragIds={noDragIds}
             gutterX={gutterX}
@@ -319,10 +273,7 @@ class VirtualDraggableGrid extends React.Component {
             shadowColor={shadowColor}
             GridStyles={GridStyles}
             GridItemStyles={GridItemStyles}
-            getResizeChunk={this.getResizeChunk}
-            toggleItemsBool={this.toggleItemsBool}
-            toggleSizeBool={this.toggleSizeBool}
-            updateSize={this.updateSize}
+            handleItemsBool={this.handleItemsBool}
             updateOrderKeys={this.updateOrderKeys}
             updateItems={this.updateItems}
             getVisibleItems={getVisibleItems}
@@ -337,14 +288,16 @@ class VirtualDraggableGrid extends React.Component {
 
 VirtualDraggableGrid.propTypes = {
   items: PropTypes.array,
+  gutterX: PropTypes.number,
+  gutterY: PropTypes.number,
   fixedRows: PropTypes.bool,
   fixedColumns: PropTypes.bool,
   fixedWidthAll: PropTypes.number,
   fixedHeightAll: PropTypes.number,
+  onlyDragElements: PropTypes.array,
+  onlyDragIds: PropTypes.array,
   noDragElements: PropTypes.array,
   noDragIds: PropTypes.array,
-  gutterX: PropTypes.number,
-  gutterY: PropTypes.number,
   mouseUpdateTime: PropTypes.number,
   mouseUpdateX: PropTypes.number,
   mouseUpdateY: PropTypes.number,
@@ -377,6 +330,8 @@ VirtualDraggableGrid.defaultProps = {
   fixedColumns: false,
   fixedWidthAll: null,
   fixedHeightAll: null,
+  onlyDragElements: [],
+  onlyDragIds: [],
   noDragElements: [],
   noDragIds: [],
   gutterX: 0,
@@ -385,12 +340,12 @@ VirtualDraggableGrid.defaultProps = {
   mouseUpdateX: 50,
   mouseUpdateY: 50,
   leeway: 0.1,
-  scrollBufferX: 200,
-  scrollBufferY: 200,
+  scrollBufferX: 100,
+  scrollBufferY: 100,
   scrollUpdateX: 100,
-  scrollUpdateY: 200,
-  transitionDuration: '0.2s',
-  transitionTimingFunction: 'ease-in-out',
+  scrollUpdateY: 100,
+  transitionDuration: '0.3s',
+  transitionTimingFunction: 'ease',
   transitionDelay: '0.2s',
   shadowMultiple: 16,
   shadowHRatio: 1,

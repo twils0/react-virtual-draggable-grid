@@ -1,3 +1,5 @@
+// find the max height value in an array of orderObjects
+// within the order 2D array
 const findMaxHeight = ({ order, indexY }) => {
   let maxHeight = -1;
   const row = order[indexY];

@@ -1,42 +1,35 @@
 const handleOrderObject = ({
-  keys, item, indexX, indexY, fixedWidthAll, fixedHeightAll,
+  item, indexX, indexY, fixedWidthAll, fixedHeightAll,
 }) => {
-  let orderObject = null;
+  let newOrderObject = null;
 
+  // ignore any item object missing an ItemComponent,
+  // key, fixedWidth, or fixedHeight prop
   if (
     item
     && typeof item === 'object'
     && typeof item.ItemComponent === 'function'
-    && item.key
     && typeof item.key === 'string'
+    && typeof item.fixedWidth === 'number'
+    && typeof item.fixedHeight === 'number'
   ) {
-    orderObject = keys && keys[item.key] ? { ...keys[item.key] } : null;
+    const { key, fixedWidth, fixedHeight } = item;
 
-    if (orderObject) {
-      orderObject.itemX = indexX;
-      orderObject.itemY = indexY;
-    } else {
-      const {
-        key, fixedWidth, fixedHeight, estimatedWidth, estimatedHeight,
-      } = item;
+    const width = fixedWidthAll || fixedWidth;
+    const height = fixedHeightAll || fixedHeight;
 
-      // use either fixed size, estimated size, or the default value: 100
-      const width = fixedWidthAll || fixedWidth || estimatedWidth || 100;
-      const height = fixedHeightAll || fixedHeight || estimatedHeight || 100;
-
-      orderObject = {
-        key,
-        itemX: indexX,
-        itemY: indexY,
-        orderX: indexX,
-        orderY: indexY,
-        width,
-        height,
-      };
-    }
+    newOrderObject = {
+      key,
+      itemX: indexX,
+      itemY: indexY,
+      orderX: indexX,
+      orderY: indexY,
+      width,
+      height,
+    };
   }
 
-  return orderObject;
+  return newOrderObject;
 };
 
 export default handleOrderObject;

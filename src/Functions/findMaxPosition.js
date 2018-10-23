@@ -1,3 +1,5 @@
+// find the largest right and bottom positions of any orderObject
+// in the order 2D array
 const findMaxPosition = ({
   order, fixedWidthAll, fixedHeightAll, gutterX, gutterY,
 }) => {
@@ -12,7 +14,11 @@ const findMaxPosition = ({
     const rowLen = row.length;
 
     if (fixedWidthAll) {
-      maxRight = rowLen * (fixedWidthAll + gutterX) - gutterX;
+      const right = rowLen * (fixedWidthAll + gutterX) - gutterX;
+
+      if (right > maxRight) {
+        maxRight = right;
+      }
     } else {
       const { left, width } = row[rowLen - 1];
       const right = left + width;
