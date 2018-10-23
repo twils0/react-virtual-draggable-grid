@@ -3,7 +3,6 @@ const config = {
   plugins: [
     'dynamic-import-node',
     '@babel/plugin-syntax-dynamic-import',
-    '@babel/plugin-syntax-import-meta',
     '@babel/plugin-transform-react-jsx-source',
     '@babel/plugin-proposal-class-properties',
     '@babel/plugin-proposal-object-rest-spread',

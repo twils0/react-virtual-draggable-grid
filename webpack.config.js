@@ -3,6 +3,7 @@ const path = require('path');
 
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const BundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const rootDir = path.resolve(__dirname);
 const binDir = path.resolve(__dirname, 'bin');
@@ -17,7 +18,6 @@ const config = {
     libraryTarget: 'umd',
     library: 'default',
   },
-  devtool: 'inline-source-map',
   devServer: {
     historyApiFallback: true,
     hotOnly: true,
@@ -41,12 +41,6 @@ const config = {
       amd: 'react',
       root: 'React',
     },
-    'react-dom': {
-      commonjs: 'react-dom',
-      commonjs2: 'react-dom',
-      amd: 'react-dom',
-      root: 'ReactDOM',
-    },
   },
   module: {
     rules: [
@@ -68,12 +62,12 @@ const config = {
         },
       },
     },
-    minimize: true,
+    // minimize: true,
     minimizer: [
       new UglifyJsPlugin({
         cache: true,
         parallel: true,
-        sourceMap: true,
+        // sourceMap: true,
         uglifyOptions: {
           compress: {
             warnings: false,
@@ -86,6 +80,7 @@ const config = {
     new CleanWebpackPlugin([binDir]),
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.NamedModulesPlugin(),
+    new BundleAnalyzer(),
   ],
 };
 
