@@ -21,7 +21,7 @@ class DemoItemComponent extends React.Component {
     this.setState(prevState => ({ imageNumber: prevState.imageNumber - 1 }));
   };
 
-  handleButtonClick = () => console.log('Clicked without initiating drag', this.props.name, '.');
+  handleButtonClick = () => console.log('clicked without initiating drag', this.props.name, '.');
 
   render() {
     const {

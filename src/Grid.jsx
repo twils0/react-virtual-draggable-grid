@@ -353,28 +353,39 @@ class Grid extends React.Component {
   // keep track of the scroll positions of the grid
   handleScroll = (event) => {
     if (event && event.target) {
-      const { scrollLeft, scrollTop } = event.target;
-      const { scrollUpdateX, scrollUpdateY } = this.props;
-      const { prevScrollLeft, prevScrollTop } = this.state;
-      const update = {};
+      if (this.state.isPressed) {
+        const { scrollTop, scrollLeft } = this.state;
+        // prevent unwanted scrolling when dragging
+        // grid item in chrome
+        this.gridRef.current.scrollTop = scrollTop;
+        this.gridRef.current.scrollLeft = scrollLeft;
+      } else {
+        const { scrollLeft, scrollTop } = event.target;
+        const { scrollUpdateX, scrollUpdateY } = this.props;
+        const { prevScrollLeft, prevScrollTop } = this.state;
+        const update = {};
 
-      if (scrollLeft > -1 && this.state.scrollLeft !== scrollLeft) {
-        update.scrollLeft = scrollLeft;
-      }
-      if (scrollTop > -1 && this.state.scrollTop !== scrollTop) {
-        update.scrollTop = scrollTop;
-      }
-      if (Math.abs(scrollLeft - prevScrollLeft) > scrollUpdateX) {
-        update.prevScrollLeft = scrollLeft;
-      }
-      if (Math.abs(scrollTop - prevScrollTop) > scrollUpdateY) {
-        update.prevScrollTop = scrollTop;
-      }
+        if (scrollLeft > -1 && this.state.scrollLeft !== scrollLeft) {
+          update.scrollLeft = scrollLeft;
+        }
+        if (scrollTop > -1 && this.state.scrollTop !== scrollTop) {
+          update.scrollTop = scrollTop;
+        }
 
-      if (Object.keys(update).length > 0) {
-        this.setState({ ...update });
+        if (Math.abs(scrollLeft - prevScrollLeft) > scrollUpdateX) {
+          update.prevScrollLeft = scrollLeft;
+        }
+        if (Math.abs(scrollTop - prevScrollTop) > scrollUpdateY) {
+          update.prevScrollTop = scrollTop;
+        }
+
+        if (Object.keys(update).length > 0) {
+          this.setState({ ...update });
+        }
       }
     }
+
+    return false;
   };
 
   // keep track of the size of the grid
@@ -546,8 +557,7 @@ class Grid extends React.Component {
         className="rvdl-grid"
         ref={this.gridRef}
         style={{
-          overflowX: 'auto',
-          overflowY: 'auto',
+          overflow: 'auto',
           background: 'transparent',
           width: '100%',
           height: '100%',
@@ -575,6 +585,10 @@ class Grid extends React.Component {
             WebkitTransition: transition,
             msTransition: transition,
             transition,
+            WebkitTransform: 'translateZ(0)',
+            MozTransform: 'translateZ(0)',
+            mxTransform: 'translateZ(0)',
+            transform: 'translateZ(0)',
             WebkitBackfaceVisibility: 'hidden',
             MozBackfaceVisibility: 'hidden',
             backfaceVisibility: 'hidden',

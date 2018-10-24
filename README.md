@@ -18,21 +18,61 @@ RVDG generally has no issue handling thousands of components. Tens of thousands 
 
 ```javascript
 import React from 'react';
+import PropTypes from 'prop-types';
 import VirtualDraggableGrid from 'react-virtual-draggable-grid';
 
-const ItemComponent = (props) => {
-  const { name } = props;
-  const styles = props.styles || {};
+const ItemComponent = props => {
+  const { name, styles } = props;
 
   return (
-    <div style={{ userSelect: 'none', border: '1px solid black', ...styles }}>
-      <h2 style={{ width: 100%, height: 60%}}>Draggable!</h2>
-      <button style={{ width: 100%, height: 40%, background: '#6b7782' }}
-      onClick={() => console.log('Clicked without initiating drag', name)}
-      {`Click ${name}`}
+    <div
+      style={{
+        userSelect: 'none',
+        border: '1px solid black',
+        fontFamily: 'sans-serif',
+        ...styles,
+      }}
+    >
+      <p
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          margin: 0,
+          width: '100%',
+          height: '60%',
+          fontSize: 18,
+        }}
+      >
+        Draggable!
+      </p>
+      <button
+        type="button"
+        style={{
+          cursor: 'pointer',
+          boxSizing: 'border-box',
+          width: '100%',
+          height: '40%',
+          boxShadow: 'none',
+          border: 0,
+          background: '#6b7782',
+          fontSize: 18,
+        }}
+        onClick={() => console.log('clicked without initiating drag', name)}
+      >
+        {`Click ${name}`}
       </button>
-    <div>
+    </div>
   );
+};
+
+ItemComponent.propTypes = {
+  name: PropTypes.string.isRequired,
+  styles: PropTypes.object,
+};
+
+ItemComponent.defaultProps = {
+  styles: {},
 };
 
 class Grid extends React.Component {
@@ -82,8 +122,8 @@ class Grid extends React.Component {
     this.state = { items };
   }
 
-  // optional; RVDG works just as well as a
-  // controlled or an uncontrolled component
+  // optional; RVDG works equally well as a controlled
+  // or an uncontrolled component
   getItems = items => {
     this.setState({ items });
   };
