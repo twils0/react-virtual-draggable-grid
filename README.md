@@ -106,13 +106,13 @@ class Grid extends React.Component {
       items.push(row);
       for (let iX = 0; iX < x; iX += 1) {
         const newItem = { ...item };
-        const incriment = iX + iY * x;
-        const key = `item-${incriment}`;
+        const increment = iX + iY * x;
+        const key = `item-${increment}`;
 
         newItem.key = key;
         newItem.itemProps = { ...item.itemProps, name: key };
-        newItem.fixedWidth = item.fixedWidth + 20 * incriment;
-        newItem.fixedHeight = item.fixedHeight + 20 * incriment;
+        newItem.fixedWidth = item.fixedWidth + 20 * increment;
+        newItem.fixedHeight = item.fixedHeight + 20 * increment;
 
         row.push(newItem);
       }
@@ -154,8 +154,6 @@ react-virtual-draggable-grid currently has no dependencies, but react-transition
 ```console
 npm i -S react-virtual-draggable-grid
 ```
-
-Import the react-virtual-draggable-grid module:
 
 ```javascript
 import VirtualDraggableGrid from 'react-virtual-draggable-grid';
