@@ -16,8 +16,11 @@ RVDG generally has no issue handling thousands of components. Tens of thousands 
 
 ### Getting Started
 
+[Getting Started Code Sandbox](https://codesandbox.io/s/1yljolm753)
+
 ```javascript
 import React from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import VirtualDraggableGrid from 'react-virtual-draggable-grid';
 
@@ -30,6 +33,7 @@ const ItemComponent = props => {
         userSelect: 'none',
         border: '1px solid black',
         fontFamily: 'sans-serif',
+        background: '#91c6a6',
         ...styles,
       }}
     >
@@ -44,7 +48,7 @@ const ItemComponent = props => {
           fontSize: 18,
         }}
       >
-        Draggable!
+        {`Draggable ${name}!`}
       </p>
       <button
         type="button"
@@ -54,13 +58,15 @@ const ItemComponent = props => {
           width: '100%',
           height: '40%',
           boxShadow: 'none',
-          border: 0,
-          background: '#6b7782',
+          borderWidth: '1px 0 0 0',
+          borderStyle: 'solid',
+          borderColor: 'black',
+          background: '#ccc',
           fontSize: 18,
         }}
-        onClick={() => console.log('clicked without initiating drag', name)}
+        onClick={() => console.log('Clicked without initiating drag', name)}
       >
-        {`Click ${name}`}
+        {`Prevent Button Drag`}
       </button>
     </div>
   );
@@ -79,50 +85,43 @@ class Grid extends React.Component {
   constructor(props) {
     super(props);
 
-    const items = [
-      [
-        {
-          key: 'item-1',
-          fixedWidth: 100,
-          fixedHeight: 100,
-          ItemComponent,
-          itemProps: {
-            name: 'Item 1',
-            styles: {
-              width: '100%',
-              height: '100%',
-            },
-          },
-        },
-        {
-          key: 'item-2',
-          fixedWidth: 200,
-          fixedHeight: 200,
-          ItemComponent,
-          itemProps: {
-            name: 'Item 2',
-          },
-        },
-      ],
-      {
-        key: 'item-3',
-        ItemComponent,
-        fixedWidth: 300,
-        fixedHeight: 300,
-        itemProps: {
-          name: 'Item 3',
-          styles: {
-            width: 300,
-            height: 300,
-          },
+    const item = {
+      fixedWidth: 200,
+      fixedHeight: 100,
+      ItemComponent,
+      itemProps: {
+        styles: {
+          width: 'calc(100% - 2px)',
+          height: 'calc(100% - 2px)',
         },
       },
-    ];
+    };
+
+    const x = 3;
+    const y = 2;
+    const items = [];
+
+    for (let iY = 0; iY < y; iY += 1) {
+      const row = [];
+      items.push(row);
+      for (let iX = 0; iX < x; iX += 1) {
+        const newItem = { ...item };
+        const incriment = iX + iY * x;
+        const key = `item-${incriment}`;
+
+        newItem.key = key;
+        newItem.itemProps = { ...item.itemProps, name: key };
+        newItem.fixedWidth = item.fixedWidth + 20 * incriment;
+        newItem.fixedHeight = item.fixedHeight + 20 * incriment;
+
+        row.push(newItem);
+      }
+    }
 
     this.state = { items };
   }
 
-  // optional; RVDG works equally well as a controlled
+  // optional; RVDG works as a controlled
   // or an uncontrolled component
   getItems = items => {
     this.setState({ items });
@@ -130,13 +129,17 @@ class Grid extends React.Component {
 
   render() {
     return (
-      <VirtualDraggableGrid
-        items={this.state.items}
-        noDragElements={['button']}
-        gutterX={10}
-        gutterY={10}
-        getItems={this.getItems}
-      />
+      <div style={{ width: '100vw', height: '100vh', margin: 20 }}>
+        <VirtualDraggableGrid
+          items={this.state.items}
+          noDragElements={['button']}
+          gutterX={10}
+          gutterY={10}
+          scrollBufferX={300}
+          scrollBufferY={300}
+          getItems={this.getItems}
+        />
+      </div>
     );
   }
 }

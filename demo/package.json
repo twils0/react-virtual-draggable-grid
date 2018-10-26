@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "demo for react-virtual-draggable-grid",
   "main": "./index.jsx",
+  "private": true,
   "scripts": {
     "webpack": "webpack --progress --colors --mode production",
     "dev": "webpack-dev-server --mode development --display-error-details",
@@ -11,7 +12,6 @@
     "test_coverage": "jest -- --coverage",
     "test_watch": "jest --watch"
   },
-  "private": true,
   "devDependencies": {
     "@babel/core": "^7.1.2",
     "@babel/plugin-proposal-class-properties": "^7.1.0",

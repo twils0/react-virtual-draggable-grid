@@ -1,12 +1,16 @@
 {
   "name": "react-virtual-draggable-grid",
-  "version": "0.7.3-alpha",
-  "description": "virtual, draggable grid component",
+  "version": "0.7.4-alpha",
+  "description": "virtual, draggable grid component for react",
+  "author": "twils0",
   "repository": {
     "type": "git",
     "url": "https://github.com/twils0/react-virtual-draggable-grid"
   },
-  "author": "twils0",
+  "bugs": {
+    "url": "https://github.com/twils0/react-virtual-draggable-grid/issues"
+  },
+  "homepage": "https://github.com/twils0/react-virtual-draggable-grid#readme",
   "keywords": [
     "grid",
     "list",
@@ -18,10 +22,6 @@
     "drop"
   ],
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/twils0/react-virtual-draggable-grid/issues"
-  },
-  "homepage": "https://github.com/twils0/react-virtual-draggable-grid#readme",
   "main": "bin/react-virtual-draggable-grid.min.js",
   "scripts": {
     "webpack": "webpack --progress --colors --mode production"
