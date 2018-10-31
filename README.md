@@ -1,6 +1,6 @@
 # react-virtual-draggable-grid
 
-react-virtual-draggable-grid is a heavily customizable, virtual, and draggable grid component. RVDG was inspired by the structure of react-motion, though it runs on pure CSS (inline styles) under the hood.
+react-virtual-draggable-grid is a heavily customizable, virtual, and draggable grid component. RVDG was inspired by the structure of react-motion, though it runs on pure CSS (inline styles) under the hood. In addition, it's only about 9 KB, when gzipped.
 
 RVDG generally has no issue handling thousands of components. Tens of thousands of components may cause performance issues. Please visit the [Performance](#performance) section for optimization tips.
 

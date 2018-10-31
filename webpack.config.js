@@ -18,10 +18,10 @@ const config = {
     libraryTarget: 'umd',
     library: 'default',
   },
+  devtool: 'inline-source-map',
   devServer: {
     historyApiFallback: true,
     hotOnly: true,
-    inline: true,
   },
   resolve: {
     modules: [rootDir, nodeModDir],
@@ -54,24 +54,22 @@ const config = {
   optimization: {
     runtimeChunk: false,
     splitChunks: {
+      chunks: 'all',
       cacheGroups: {
         vendors: {
           test: /[\\/]node_modules[\\/]/,
           name: 'vendors',
-          chunks: 'all',
         },
       },
     },
-    // minimize: true,
     minimizer: [
       new UglifyJsPlugin({
         cache: true,
         parallel: true,
-        // sourceMap: true,
         uglifyOptions: {
-          compress: {
-            warnings: false,
-          },
+          compress: false,
+          ecma: 6,
+          mangle: true,
         },
       }),
     ],

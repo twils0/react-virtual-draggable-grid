@@ -1,6 +1,6 @@
 {
   "name": "react-virtual-draggable-grid",
-  "version": "0.7.5-alpha",
+  "version": "0.7.6-alpha",
   "description": "virtual, draggable grid component for react",
   "author": "twils0",
   "repository": {

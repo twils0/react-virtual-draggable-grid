@@ -13,10 +13,10 @@ const render = (AppInstance) => {
   );
 };
 
+render(Demo);
+
 if (module.hot) {
   module.hot.accept('./src/Demo', () => {
     render(Demo);
   });
 }
-
-render(Demo);
