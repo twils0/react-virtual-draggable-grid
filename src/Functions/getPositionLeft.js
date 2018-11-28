@@ -1,5 +1,5 @@
-// get the left position of an orderObject, by recursively checking
-// the left position and width of the orderObject to the left
+// get the left position of an orderNode, by recursively checking
+// the left position and width of the orderNode to the left
 const getPositionLeft = ({
   order, orderX, orderY, gutterX,
 }) => {
@@ -9,9 +9,9 @@ const getPositionLeft = ({
 
   let left = -1;
   const orderRow = order[orderY];
-  const orderObject = orderRow && orderRow[orderX];
+  const orderNode = orderRow && orderRow[orderX];
 
-  if (orderObject) {
+  if (orderNode) {
     const prevObject = orderRow[orderX - 1];
     const prevWidth = prevObject ? prevObject.width : 0;
 

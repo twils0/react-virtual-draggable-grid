@@ -1,6 +1,5 @@
 const config = {
   verbose: true,
-  collectCoverage: true,
   testEnvironment: 'jsdom',
   rootDir: '../',
   roots: ['<rootDir>', '<rootDir>/demo'],

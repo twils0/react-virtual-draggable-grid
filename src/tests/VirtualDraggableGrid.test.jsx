@@ -357,7 +357,7 @@ describe('VirtualDraggableGrid', () => {
     });
   });
 
-  it('updateOrderKeys executes correctly', () => {
+  it('updateOrder executes correctly', () => {
     const { order, keys } = constructorState;
     const updatedState = {
       ...constructorState,
@@ -371,7 +371,7 @@ describe('VirtualDraggableGrid', () => {
     const instance = wrapper.instance();
     const instanceProps = instance.props;
 
-    instance.updateOrderKeys({ order: updatedOrder, keys: updatedKeys });
+    instance.updateOrder({ order: updatedOrder, keys: updatedKeys });
 
     const instanceState = instance.state;
 

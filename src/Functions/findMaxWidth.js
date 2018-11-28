@@ -4,10 +4,10 @@ const findMaxWidth = ({ order, indexX }) => {
   let maxWidth = -1;
 
   order.forEach((row) => {
-    const orderObject = row[indexX];
+    const orderNode = row[indexX];
 
-    if (orderObject) {
-      const { width } = orderObject;
+    if (orderNode) {
+      const { width } = orderNode;
 
       if (width > maxWidth) {
         maxWidth = width;

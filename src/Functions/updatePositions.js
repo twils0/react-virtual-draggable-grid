@@ -3,13 +3,12 @@ import findMaxWidth from './findMaxWidth';
 import getPositionLeft from './getPositionLeft';
 import getPositionTop from './getPositionTop';
 
-// update the left and top positions of orderObjects
+// update the left and top positions of orderNodes
 // in the order 2D array
 const updatePositions = ({
   order,
   keys,
   fixedRows,
-  fixedColumns,
   fixedWidthAll,
   fixedHeightAll,
   orderX,
@@ -21,11 +20,11 @@ const updatePositions = ({
   const newKeys = { ...keys };
   const limitedOrderY = orderY > 0 ? orderY - 1 : 0;
   const startingY = fixedRows ? 0 : limitedOrderY;
-  const firstStartingX = fixedColumns ? 0 : orderX;
+  const firstStartingX = fixedCols ? 0 : orderX;
   let maxBottom = null;
   const maxRightArray = [];
 
-  if (fixedColumns && !fixedWidthAll) {
+  if (fixedCols && !fixedWidthAll) {
     maxRightArray[0] = 0;
   }
   if (fixedRows && !fixedHeightAll) {
@@ -41,20 +40,20 @@ const updatePositions = ({
 
     // if fixedRows is true and fixedHeightAll is falsy,
     // set a maxBottom value from the previous row, to use
-    // as the top value for all orderObjects in the current row
+    // as the top value for all orderNodes in the current row
     if (fixedRows && !fixedHeightAll && iY > 0) {
       maxBottom += findMaxHeight({ order: newOrder, indexY: iY - 1 }) + gutterY;
     }
 
     for (let iX = startingX; iX < newOrderRow.length; iX += 1) {
-      const orderObject = newOrderRow[iX];
-      const newOrderObject = { ...orderObject };
+      const orderNode = newOrderRow[iX];
+      const newOrderObject = { ...orderNode };
 
-      // if fixedColumns is true and
+      // if fixedCols is true and
       // fixedWidthAll is falsy, set a maxRight value at the current
       // index in the maxRightArray, to use as the left value for all
-      // orderObjects at that index;
-      if (fixedColumns && !fixedWidthAll && typeof maxRightArray[iX] !== 'number') {
+      // orderNodes at that index;
+      if (fixedCols && !fixedWidthAll && typeof maxRightArray[iX] !== 'number') {
         maxRightArray[iX] = maxRightArray[iX - 1]
           + findMaxWidth({
             order: newOrder,
@@ -63,18 +62,18 @@ const updatePositions = ({
           + gutterX;
       }
 
-      // add new orderObject to the new order 2D array and
+      // add new orderNode to the new order 2D array and
       // to the new keys object
       newOrderRow[iX] = newOrderObject;
       newKeys[newOrderObject.key] = newOrderObject;
 
-      // update order indexes for new orderObject
+      // update order indexes for new orderNode
       newOrderObject.orderX = iX;
       newOrderObject.orderY = iY;
 
-      // quickly calculate left position if fixedColumns is true and
+      // quickly calculate left position if fixedCols is true and
       // fixedWidthAll is set to a number greater than 0;
-      if (fixedColumns && fixedWidthAll) {
+      if (fixedCols && fixedWidthAll) {
         newOrderObject.left = iX * (fixedWidthAll + gutterX);
       } else if (typeof maxRightArray[iX] === 'number') {
         newOrderObject.left = maxRightArray[iX];

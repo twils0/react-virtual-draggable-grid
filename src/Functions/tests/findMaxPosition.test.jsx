@@ -1,8 +1,5 @@
 import findMaxPosition from '../findMaxPosition';
 
-global.addEventListener = jest.fn();
-global.removeEventListener = jest.fn();
-
 const order = [
   [
     {

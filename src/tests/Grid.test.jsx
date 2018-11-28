@@ -144,7 +144,7 @@ const defaultProps = {
   GridStyles: {},
   GridItemStyles: {},
   handleItemsBool: jest.fn(),
-  updateOrderKeys: jest.fn(),
+  updateOrder: jest.fn(),
   updateItems: jest.fn(),
   getVisibleItems: jest.fn(),
 };
@@ -179,7 +179,7 @@ describe('Grid', () => {
     global.addEventListener.mockReset();
     global.removeEventListener.mockReset();
     defaultProps.handleItemsBool.mockReset();
-    defaultProps.updateOrderKeys.mockReset();
+    defaultProps.updateOrder.mockReset();
     defaultProps.updateItems.mockReset();
     defaultProps.getVisibleItems.mockReset();
     getMouseIndex.mockReset();

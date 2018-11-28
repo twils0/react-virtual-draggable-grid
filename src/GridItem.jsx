@@ -148,8 +148,6 @@ GridItem.propTypes = {
     width: PropTypes.number,
     height: PropTypes.number,
   }).isRequired,
-  fixedWidthAll: PropTypes.number,
-  fixedHeightAll: PropTypes.number,
   transitionDuration: PropTypes.string.isRequired,
   transitionTimingFunction: PropTypes.string.isRequired,
   transitionDelay: PropTypes.string,
@@ -167,8 +165,6 @@ GridItem.propTypes = {
 };
 
 GridItem.defaultProps = {
-  fixedWidthAll: null,
-  fixedHeightAll: null,
   transitionDelay: '',
   shadowBlur: null,
   shadowSpread: null,

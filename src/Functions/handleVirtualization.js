@@ -1,4 +1,6 @@
-// generate an array of orderObjects to render
+import binarySearchX from './binarySearchX';
+
+// generate an array of orderNodes to render
 const handleVirtualization = ({
   order,
   scrollLeft,
@@ -15,7 +17,6 @@ const handleVirtualization = ({
   const cleanedScrollTop = scrollTop > 0 ? scrollTop : 0;
   const cleanedContainerWidth = containerWidth > 0 ? containerWidth : 0;
   const cleanedContainerHeight = containerHeight > 0 ? containerHeight : 0;
-
   const scrollRight = cleanedScrollLeft + cleanedContainerWidth;
   const scrollBottom = cleanedScrollTop + cleanedContainerHeight;
 
@@ -25,35 +26,23 @@ const handleVirtualization = ({
     const rightCutoff = scrollRight + containerWidth * leeway + scrollBufferX;
     const bottomCutoff = scrollBottom + containerHeight * leeway + scrollBufferY;
 
-    // bottomBool is used to stop the first (y) for loop, after it is certain
-    // that orderObjects at higher indexes will not meet the bottomCutoff
-    let bottomBool = true;
+    for (let iY = 0; iY < order.length; iY += 1) {
+      const { leftIndex, rightIndex } = binarySearchX({
+        order,
+        indexY: iY,
+        leftCutoff,
+        rightCutoff,
+      });
 
-    for (let iY = 0; iY < order.length && bottomBool; iY += 1) {
-      const orderRow = order[iY];
-      // rightBool is used to stop the second (x) for loop, after it is certain
-      // that orderObjects at higher indexes will not meet the rightCutoff
-      let rightBool = true;
+      if (leftIndex > -1) {
+        for (let iX = leftIndex; iX <= rightIndex; iX += 1) {
+          const orderNode = order[iY][iX];
+          const { top, height } = orderNode;
+          const bottom = top + height;
 
-      for (let iX = 0; iX < orderRow.length && rightBool; iX += 1) {
-        const orderObject = orderRow[iX];
-        const {
-          left, top, width, height,
-        } = orderObject;
-        const right = left + width;
-        const bottom = top + height;
-
-        if (
-          left >= leftCutoff
-          && top >= topCutoff
-          && right <= rightCutoff
-          && bottom <= bottomCutoff
-        ) {
-          visibleOrder.push(orderObject);
-        } else if (right > rightCutoff) {
-          rightBool = false;
-        } else if (!bottomBool && bottom > bottomCutoff) {
-          bottomBool = false;
+          if (topCutoff <= top && bottomCutoff >= bottom) {
+            visibleOrder.push(orderNode);
+          }
         }
       }
     }

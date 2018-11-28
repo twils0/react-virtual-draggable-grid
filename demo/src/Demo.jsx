@@ -53,7 +53,6 @@ class Demo extends React.Component {
       onlyDragElements: '',
       noDragElements: 'button, a',
       fixedRows: false,
-      fixedColumns: false,
       fixedWidthAllBool: false,
       fixedHeightAllBool: false,
     };
@@ -208,7 +207,7 @@ class Demo extends React.Component {
       onlyDragElements,
       noDragElements,
       fixedRows,
-      fixedColumns,
+      fixedCols,
       fixedWidthAllBool,
       fixedHeightAllBool,
     } = this.state;
@@ -240,20 +239,6 @@ class Demo extends React.Component {
               id="y"
               label="Number of Columns (max: 100)"
               value={y}
-              onChange={this.handleInput}
-            />
-          </div>
-          <div style={{ flex: '0 0 auto', marginRight: buffer }}>
-            <Input
-              id="fixedWidthAll"
-              label="Fixed Width All"
-              value={fixedWidthAll}
-              onChange={this.handleInput}
-            />
-            <Input
-              id="fixedHeightAll"
-              label="Fixed Height All"
-              value={fixedHeightAll}
               onChange={this.handleInput}
             />
           </div>
@@ -299,26 +284,6 @@ class Demo extends React.Component {
               checked={fixedRows}
               onChange={this.toggleCheckbox}
             />
-            <Checkbox
-              id="fixedColumns"
-              label="Fixed Columns"
-              checked={fixedColumns}
-              onChange={this.toggleCheckbox}
-            />
-          </div>
-          <div style={{ flex: '0 0 auto', marginRight: buffer }}>
-            <Checkbox
-              id="fixedWidthAllBool"
-              label="Fixed Width All"
-              checked={fixedWidthAllBool}
-              onChange={this.toggleCheckbox}
-            />
-            <Checkbox
-              id="fixedHeightAllBool"
-              label="Fixed Height All"
-              checked={fixedHeightAllBool}
-              onChange={this.toggleCheckbox}
-            />
           </div>
         </div>
         <div>
@@ -362,7 +327,7 @@ class Demo extends React.Component {
         <VirtualDraggableGrid
           items={this.state.items}
           fixedRows={fixedRows}
-          fixedColumns={fixedColumns}
+          fixedCols={fixedCols}
           fixedWidthAll={fixedWidthAllBool ? fixedWidthAll : null}
           fixedHeightAll={fixedHeightAllBool ? fixedHeightAll : null}
           gutterX={gutterX}
