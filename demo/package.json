@@ -5,12 +5,12 @@
   "main": "./index.jsx",
   "private": true,
   "scripts": {
-    "webpack": "webpack --progress --colors --mode production",
-    "dev": "webpack-dev-server --mode development",
-    "prod": "webpack-dev-server --mode production --display-error-details",
+    "webpack": "webpack --progress --colors --mode production --env.prod=true",
+    "dev": "webpack-dev-server --mode development --env.prod=false",
+    "prod": "webpack-dev-server --display-error-details --mode production --env.prod=true",
     "test": "jest",
-    "test_coverage": "jest -- --coverage",
-    "test_watch": "jest --watch"
+    "test:coverage": "jest -- --coverage",
+    "test:watch": "jest --watch"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
