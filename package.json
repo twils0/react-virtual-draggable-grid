@@ -24,7 +24,7 @@
   "license": "Apache-2.0",
   "main": "bin/react-virtual-draggable-grid.min.js",
   "scripts": {
-    "webpack": "webpack --progress --colors --mode production"
+    "webpack": "webpack --progress --colors --env.prod=true --mode production"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
