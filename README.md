@@ -4,8 +4,6 @@ react-virtual-draggable-grid is a heavily customizable, virtual, and draggable g
 
 RVDG generally has no issue handling thousands of components. Tens of thousands of components may cause performance issues. Please visit the [Performance](#performance) section for optimization tips.
 
-** Currently in Alpha - please do not hesitate to submit an issue **
-
 - [Demo](https://twils0.github.io/react-virtual-draggable-grid/demo)
 - [Getting Started](#getting-started)
 - [Dependencies](#dependencies)
@@ -269,6 +267,7 @@ To combat performance issues, please consider the following options, in order of
 
 ### Pipeline
 
+- improve performance with non-naive implementation (currently considering red-black BST)
 - add enter and exit transitions for grid items, using react-transition-group
 
 ### License

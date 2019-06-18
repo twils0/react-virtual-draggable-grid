@@ -1,6 +1,6 @@
 {
   "name": "react-virtual-draggable-grid",
-  "version": "0.7.6-alpha",
+  "version": "0.7.7-alpha",
   "description": "virtual, draggable grid component for react",
   "author": "twils0",
   "repository": {
@@ -24,7 +24,7 @@
   "license": "Apache-2.0",
   "main": "bin/react-virtual-draggable-grid.min.js",
   "scripts": {
-    "webpack": "webpack --progress --colors --env.prod=true --mode production"
+    "webpack": "webpack --progress --colors --mode production --env.prod=true"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
@@ -46,7 +46,7 @@
     "react": "^16.5.2",
     "uglifyjs-webpack-plugin": "^2.0.1",
     "webpack": "^4.16.5",
-    "webpack-bundle-analyzer": "^3.0.2",
+    "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.1.0"
   },
   "peerDependencies": {

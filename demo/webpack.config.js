@@ -19,6 +19,8 @@ const config = (env) => {
       filename: chunkData => `[name].[${chunkData.chunk.name === 'runtime' ? 'hash' : 'contenthash'}]${prod
           && '.min'}.js`,
       chunkFilename: `[name].[contenthash]${prod && '.min'}.js`,
+      libraryTarget: 'umd',
+      library: 'default',
     },
     devtool: 'inline-source-map',
     devServer: {
