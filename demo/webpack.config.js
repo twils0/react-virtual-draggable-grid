@@ -1,7 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const rootDir = path.resolve(__dirname);
@@ -62,9 +62,14 @@ const config = (env) => {
         },
       },
       minimizer: [
-        new UglifyJsPlugin({
+        new TerserPlugin({
           cache: true,
           parallel: true,
+          sourceMap: !prod,
+          terserOptions: {
+            ecma: 6,
+            mangle: true,
+          },
         }),
       ],
     },

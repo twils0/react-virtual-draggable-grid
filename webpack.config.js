@@ -2,8 +2,8 @@ const webpack = require('webpack');
 const path = require('path');
 
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const BundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const TerserPlugin = require('terser-webpack-plugin');
+// const BundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const rootDir = path.resolve(__dirname);
 const binDir = path.resolve(__dirname, 'bin');
@@ -69,9 +69,14 @@ const config = (env) => {
         },
       },
       minimizer: [
-        new UglifyJsPlugin({
+        new TerserPlugin({
           cache: true,
           parallel: true,
+          sourceMap: !prod,
+          terserOptions: {
+            ecma: 6,
+            mangle: true,
+          },
         }),
       ],
     },
@@ -79,7 +84,7 @@ const config = (env) => {
       new CleanWebpackPlugin([binDir]),
       new webpack.optimize.OccurrenceOrderPlugin(),
       new webpack.NamedModulesPlugin(),
-      new BundleAnalyzer(),
+      // new BundleAnalyzer(),
     ],
   };
 };
