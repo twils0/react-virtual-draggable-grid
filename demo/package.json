@@ -7,10 +7,7 @@
   "scripts": {
     "webpack": "webpack --progress --colors --mode production --env.prod=true",
     "dev": "webpack-dev-server --mode development --env.prod=false",
-    "prod": "webpack-dev-server --display-error-details --mode production --env.prod=true",
-    "test": "jest",
-    "test:coverage": "jest -- --coverage",
-    "test:watch": "jest --watch"
+    "prod": "webpack-dev-server --display-error-details --mode production --env.prod=true"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
@@ -24,9 +21,6 @@
     "babel-jest": "^24.8.0",
     "babel-loader": "^8.0.0",
     "babel-plugin-dynamic-import-node": "^2.2.0",
-    "enzyme": "^3.7.0",
-    "enzyme-adapter-react-16": "^1.6.0",
-    "enzyme-to-json": "^3.3.4",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-babel": "^5.1.0",
@@ -35,9 +29,7 @@
     "eslint-plugin-react": "^7.11.1",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
-    "jest": "^24.8.0",
     "terser-webpack-plugin": "^1.3.0",
-    "uglifyjs-webpack-plugin": "^2.0.1",
     "webpack": "^4.16.5",
     "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.1.0",
