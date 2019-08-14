@@ -4,9 +4,6 @@ import { shallow } from 'enzyme';
 
 import VirtualDraggableGrid from '../VirtualDraggableGrid';
 
-import handleOrder from '../Functions/handleOrder';
-import updatePositions from '../Functions/updatePositions';
-import testItemsUpdate from '../Functions/testItemsUpdate';
 import preventDrag from '../Utilities/preventDrag';
 
 jest.mock('../Functions/handleOrder', () => jest.fn());
@@ -248,17 +245,12 @@ const updatedKeys = {
 describe('VirtualDraggableGrid', () => {
   afterEach(() => {
     defaultProps.getItems.mockReset();
-    handleOrder.mockReset();
-    updatePositions.mockReset();
-    testItemsUpdate.mockReset();
     preventDrag.mockReset();
   });
 
   it('renders correctly', () => {
     const { items } = defaultProps;
     const { order, keys } = constructorState;
-
-    handleOrder.mockReturnValue({ order, keys });
 
     const wrapper = shallowComponent(defaultProps);
     const instance = wrapper.instance();

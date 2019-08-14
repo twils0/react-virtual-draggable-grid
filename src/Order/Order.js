@@ -38,67 +38,99 @@ class Order {
     return this.hashTable ? Object.values(this.hashTable) : [];
   }
 
-  getCoordinates(x, y) {
-    return this.rbt.getCoordinates(x, y);
-  }
+  exchange = (intervalX, intervalY, fromNode) => {
+    if (intervalX && intervalY && fromNode) {
+      const {
+        itemX, itemY, item, left, top, width, height,
+      } = fromNode;
+      const toNode = new OrderNode(itemX, itemY, item);
 
-  exchange(intervalX, intervalY, fromValue) {
-    if (intervalX && intervalY && fromValue) {
-      const { left, top, width, height } = fromValue;
+      toNode.left = intervalX.min;
+      toNode.top = intervalY.min;
 
       const fromIntervalX = new Interval1D(left, left + width);
       const fromIntervalY = new Interval1D(top, top + height);
 
-      toValue.left = left;
-      toValue.top = top;
+      this.rbt.delete(fromIntervalX, fromIntervalY);
+      this.rbt.add(fromNode.intervalX, fromNode.intervalY, toNode);
 
-      this.rbt.delete(fromIntervalX);
-      this.rbt.add(fromValue.intervalX, fromValue.intervalY, toValue);
+      const toIntervalX = new Interval1D(toNode.left, toNode.left + toNode.width);
+      const toIntervalY = new Interval1D(toNode.top, toNode.top + toNode.height);
 
-      const toIntervalX = new Interval1D(toValue.left, toValue.left + toValue.width);
-      const toIntervalY = new Interval1D(toValue.top, toValue.top + toValue.height);
-
-      const fromXDiff = toValue.width - fromValue.width;
-      const fromYDiff = toValue.height - fromValue.height;
+      const fromXDiff = toNode.width - fromNode.width;
+      const fromYDiff = toNode.height - fromNode.height;
       const fromRowShift = -1;
-      const toXDiff = toValue.width - fromValue.width;
-      const toYDiff = toValue.height - fromValue.height;
+      const toXDiff = toNode.width - fromNode.width;
+      const toYDiff = toNode.height - fromNode.height;
       const toRowShift = 1;
 
       const { getIntervalsNodeValues } = this.rbt;
 
-      this.updateKeysValues(
+      this.shiftKeysValues(
         getIntervalsNodeValues(fromIntervalX, fromIntervalY),
         fromXDiff,
         fromYDiff,
         fromRowShift,
       );
-      this.updateKeysValues(getIntervalsNodeValues(toIntervalX, toIntervalY), toXDiff, toYDiff, toRowShift);
+      this.shiftKeysValues(
+        getIntervalsNodeValues(toIntervalX, toIntervalY),
+        toXDiff,
+        toYDiff,
+        toRowShift,
+      );
     }
   }
 
-  getKey(key) {
-    return this.hashTable && this.hashTable[key];
+  getKey = key => this.hashTable && this.hashTable[key];
+
+  getCoordinates = (x, y) => {
+    if (this.rbt) {
+      const { value } = this.rbt.getCoordinates(x, y);
+
+      return new OrderNode(value.itemX, value.itemY, value);
+    }
+
+    return new OrderNode();
   }
 
-  getCoordinates(x, y) {
-    return this.rbt && this.rbt.getCoordinates(x, y);
-  }
+  getIntervalsArray = (intervalX, intervalY) => (
+    this.rbt
+      ? this.rbt.getIntervalsNodeValues(intervalX, intervalY)
+      : []
+  );
 
-  getIntervalsArray(intervalX, intervalY) {
-    return this.rbt ? this.rbt.getIntervalsNodeValues(intervalX, intervalY) : [];
-  }
-
-  add(intervalX, intervalY, value) {
+  add = (intervalX, intervalY, value) => {
     if (intervalX && intervalY && value && value.key) {
       this.hashTable[value.key] = value;
       this.rbt.add(intervalX, intervalY, value);
     }
   }
 
+  shiftKeysValues = (valuesArray, xDiff, yDiff) => {
+    if (valuesArray && valuesArray.length > 0) {
+      valuesArray.forEach((value) => {
+        const {
+          left, top, width, height,
+        } = value;
+        const right = left + width;
+        const bottom = top + height;
+
+        value.left += xDiff;
+        value.top += yDiff;
+
+        const intervalX = new Interval1D(left, right);
+        const intervalY = new Interval1D(top, bottom);
+        // const newIntervalX = new Interval1D(value.left, right + xDiff);
+        // const newIntervalY = new Interval1D(value.top, bottom + yDiff);
+
+        this.rbt.shiftKeys(intervalX, intervalY, xDiff, yDiff);
+      });
+    }
+  }
+
   // adds items 1D or 2D array
   // to rbt and hash table
-  setItems(items) {
+  setItems = (items) => {
     if (items) {
       this.rbt = new RBT();
       this.hashTable = {};
@@ -170,7 +202,7 @@ class Order {
     }
   }
 
-  delete(intervalX, intervalY, value) {
+  delete = (intervalX, intervalY, value) => {
     if (intervalX && intervalY && value && value.key) {
       delete this.hashTable[value.key];
       this.rbt.delete(intervalX, intervalY);

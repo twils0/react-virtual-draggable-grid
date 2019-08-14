@@ -118,7 +118,7 @@ class Grid extends React.Component {
       const intervalX = new Interval1D(leftCutoff, rightCutoff);
       const intervalY = new Interval1D(topCutoff, bottomCutoff);
 
-      visibleOrder = order.getIntervalXY(intervalX, intervalY);
+      visibleOrder = order.getIntervalsArray(intervalX, intervalY);
     }
 
     return visibleOrder;
@@ -234,47 +234,18 @@ class Grid extends React.Component {
       // const { visibleOrder } = this.state;
       // const { orderX, orderY } = orderNode;
 
-      const toNode = order.getCoordinatesValue(mouseX, mouseY);
+      const toNode = order.getCoordinates(mouseX, mouseY);
+      const {
+        left, top, width, height,
+      } = toNode;
 
-      /*
-      const { toIndexX, toIndexY } = getMouseIndex({
-        order,
-        visibleOrder,
-        mouseX,
-        mouseY,
-      });
-      */
+      const toIntervalX = new Interval1D(left, left + width);
+      const toIntervalY = new Interval1D(top, top + height);
 
       // switch toNode and fromNode values
-
-      order.exchange(fromNode, toNode);
-
-      /*
-      if (toIndexX > -1 && toIndexY > -1 && (toIndexX !== orderX || toIndexY !== orderY)) {
-        const {
-          fixedRows,
-          gutterX,
-          gutterY,
-        } = this.props;
-
-        // changeOrder handles the actual repositioning;
-        // it updates only the orderNodes it must,
-        // based on the to and from indexes
-        const orderKeysObject = changeOrder({
-          order,
-          keys,
-          fixedRows,
-          gutterX,
-          gutterY,
-          fromIndexX: orderX,
-          fromIndexY: orderY,
-          toIndexX,
-          toIndexY,
-        });
-        */
+      order.exchange(toIntervalX, toIntervalY, fromNode);
 
       this.handleUpdate();
-      // }
     }
   };
 

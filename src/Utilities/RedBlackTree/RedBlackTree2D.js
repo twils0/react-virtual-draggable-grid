@@ -49,8 +49,8 @@ class RedBlackTree2D {
   }
 
   // if coordinates match a node, return left, right, top,
-  // and bottom positions and the value of that node; if coordinate,
-  // is below the grid, return null value and all positions except
+  // and bottom positions and the value of that node; if coordinates,
+  // are below the grid, return null value and all positions except
   // top; if no match within the grid, return null value and
   // no positions; and, so on
   getCoordinates(x, y) {
@@ -69,13 +69,15 @@ class RedBlackTree2D {
       intervalY.max = this.minY;
     }
 
+    console.log('1', intervalX, intervalY, this.root);
+
     if (
       (intervalY.min > -1 || intervalY.max > -1)
       && (intervalX.min === -1 && intervalX.max === -1)
     ) {
       let node = null;
 
-      if (top > -1) {
+      if (intervalY.min > -1) {
         node = findMaxNode(this.root);
       } else {
         node = findMinNode(this.root);
@@ -85,6 +87,8 @@ class RedBlackTree2D {
         const { interval } = node.value.getCoordinate(x);
 
         intervalX = interval;
+
+        console.log('2', intervalX, intervalY);
       }
     } else if (
       (intervalX.min > -1 || intervalX.max > -1)
@@ -93,13 +97,17 @@ class RedBlackTree2D {
       const { interval } = getCoordinate(y, this.root);
 
       intervalY = interval;
+
+      console.log('3', intervalX, intervalY);
     } else if (
       intervalX.min === -1
       && intervalX.max === -1
       && intervalY.min === -1
       && intervalY.max === -1
     ) {
-      ({ left, top, value } = getCoordinates(x, y, this.root));
+      ({ intervalX, intervalY, value } = getCoordinates(x, y, this.root));
+
+      console.log('4', intervalX, intervalY);
     }
 
     return {
@@ -109,34 +117,23 @@ class RedBlackTree2D {
     };
   }
 
-  getIntervalsNodes(intervalX, intervalY) {
-    return getValuesArray2D(intervalX, intervalY, this.root);
-  }
+  getIntervalsNodeValues = (intervalX, intervalY) => (
+    getValuesArray2D(intervalX, intervalY, this.root)
+  );
 
-  getIntervalsNodeValues(intervalX, intervalY) {
-    return getValuesArray2D(intervalX, intervalY, this.root);
-  }
+  findIntervalYMinX = intervalY => findIntervalYMinX(intervalY, this.root);
 
-  findIntervalYMinX(intervalY) {
-    return findIntervalYMinX(intervalY, this.root);
-  }
+  findIntervalYMaxX = intervalY => findIntervalYMaxX(intervalY, this.root);
 
-  findIntervalYMaxX(intervalY) {
-    return findIntervalYMaxX(intervalY, this.root);
-  }
+  findIntervalXMinY = intervalX => findIntervalXMinY(-1, intervalX, this.root);
 
-  findIntervalXMinY(intervalX) {
-    return findIntervalXMinY(-1, intervalX, this.root);
-  }
+  findIntervalXMaxY = intervalX => findIntervalXMaxY(-1, intervalX, this.root);
 
-  findIntervalXMaxY(intervalX) {
-    return findIntervalXMaxY(-1, intervalX, this.root);
-  }
 
   // shift all keys larger than node at intervalY;
   // along the way, on sub-trees, shift all the keys
   // larger than node at intervalX
-  shiftKeys(intervalX, intervalY, shiftX, shiftY) {
+  shiftKeys = (intervalX, intervalY, shiftX, shiftY) => {
     const node = this.getNode1D(intervalY, this.root);
 
     if (node) {
@@ -144,7 +141,7 @@ class RedBlackTree2D {
     }
   }
 
-  add(intervalX, intervalY, value) {
+  add = (intervalX, intervalY, value) => {
     this.root = addRBT(intervalX, intervalY, value, this.root);
 
     if (!this.isEmpty) {
@@ -159,7 +156,7 @@ class RedBlackTree2D {
     }
   }
 
-  delete(intervalX, intervalY) {
+  delete = (intervalX, intervalY) => {
     if (!this.isEmpty) {
       if (!isRed(this.root.left) && !isRed(this.root.right)) {
         this.root.color = true;

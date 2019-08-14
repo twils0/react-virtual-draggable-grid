@@ -10,11 +10,15 @@ const getCoordinate = (coord, node) => {
     while (node) {
       const comparison = node.interval.compareCoordinate(coord);
 
-      if (comparison === 1) {
+      console.log(comparison, node);
+
+      if (comparison === 1 && node.right) {
         node = node.right;
-      } else if (comparison === -1) {
+      } else if (comparison === -1 && node.left) {
         node = node.left;
       } else {
+        console.log('return node', { interval: node.interval, value: node.value });
+
         return { interval: node.interval, value: node.value };
       }
     }

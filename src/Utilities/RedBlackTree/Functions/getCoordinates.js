@@ -5,9 +5,13 @@ import Interval1D from '../Interval1D';
 // return the node containing, or the node closests to,
 // the coordinate provided
 const getCoordinates = (x, y, node) => {
+  console.log(x, y, node);
+
   if (x && y) {
     while (node) {
       const comparison = node.interval.compareCoordinate(y);
+
+      console.log('getCoord', comparison);
 
       if (comparison === 1) {
         node = node.right;
