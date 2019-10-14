@@ -229,8 +229,6 @@ class Order {
       order,
     } = this.getState();
 
-    console.log('test');
-
     return findMaxPosition({
       order,
       fixedWidthAll,
