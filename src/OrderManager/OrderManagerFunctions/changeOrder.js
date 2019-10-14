@@ -66,7 +66,7 @@ const changeOrder = ({
     return orderKeysObject;
   }
 
-  return null;
+  return {};
 };
 
 export default changeOrder;

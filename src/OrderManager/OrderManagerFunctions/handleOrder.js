@@ -125,7 +125,7 @@ const handleOrder = ({
   });
 
   // must run at end, to ensure width values have been set for all
-  // orderObjects in each column; if fixedColumns is true and
+  // orderObjects in each column; if fixedColumns is truthy and
   // fixedWidthAll is falsy, set a maxRight value at the current
   // index in the maxRightArray, to use as the left value for all
   // orderObjects at that index;

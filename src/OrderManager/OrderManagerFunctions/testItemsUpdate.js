@@ -1,6 +1,10 @@
 // test if items 1D or 2D array has changed
 const testItemsUpdate = ({
-  items, order, keys, fixedWidthAll, fixedHeightAll,
+  items,
+  order,
+  keys,
+  fixedWidthAll,
+  fixedHeightAll,
 }) => {
   if (!order || !keys) {
     return true;

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import handleOrder from '../handleOrder';
 
-// also tests handleOrderObject and handlePositions
+// also tests handleOrderObject
 
 const TestComp = (props) => {
   const { styles, name } = props;

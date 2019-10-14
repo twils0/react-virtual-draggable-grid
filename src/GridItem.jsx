@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import preventDrag from './Utilities/preventDrag';
+import preventDrag from './Functions/preventDrag';
 
 class GridItem extends React.Component {
   // prevent unnecessary re-renders; there could be many GridItem
@@ -28,9 +28,6 @@ class GridItem extends React.Component {
       return true;
     }
     if (y !== nextStyle.y) {
-      return true;
-    }
-    if (this.props.data.itemsBool !== nextProps.data.itemsBool) {
       return true;
     }
 
