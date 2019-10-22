@@ -16,6 +16,8 @@ class Grid extends React.Component {
     this.prevMouseX = -1;
     this.prevMouseY = -1;
 
+    this.props.orderManager.setGridStateCallback(this.getGridState);
+
     this.state = {
       containerWidth: -1,
       containerHeight: -1,
@@ -48,6 +50,7 @@ class Grid extends React.Component {
   // resize grid on update
   componentDidUpdate(prevProps, prevState) {
     const {
+      orderManager,
       fixedRows,
       fixedColumns,
       fixedWidthAll,
@@ -85,19 +88,10 @@ class Grid extends React.Component {
     // check for updates to the items 1D or 2D array,
     // container width and height, and scroll left and top;
     // call updateVisibleOrder only when an update occurs
-    if (wasContainerUpdated || werePropsUpdated) {
-      const { orderManager } = this.props;
-      const {
-        scrollLeft,
-        scrollTop,
-      } = this.state;
-
-      orderManager.updateVisibleOrder({
-        containerWidth,
-        containerHeight,
-        scrollLeft,
-        scrollTop,
-      });
+    if (wasContainerUpdated
+      || werePropsUpdated
+    ) {
+      orderManager.updateVisibleOrder();
     }
   }
 
@@ -110,10 +104,15 @@ class Grid extends React.Component {
     window.removeEventListener('resize', this.updateGridSize);
   }
 
+  getGridState = () => ({ ...this.state });
+
   // find liNode, get dataset information from it, and update state
   handleMouseDown = (event) => {
     const {
-      onlyDragElements, onlyDragIds, noDragElements, noDragIds,
+      onlyDragElements,
+      onlyDragIds,
+      noDragElements,
+      noDragIds,
     } = this.props;
     let { target } = event;
     const clickedElement = target.nodeName.toLowerCase();
@@ -203,24 +202,13 @@ class Grid extends React.Component {
         || Math.abs(mouseY - this.prevMouseY) > mouseUpdateY)
       ) {
         const { orderManager } = this.props;
-        const {
-          containerWidth,
-          containerHeight,
-          scrollLeft,
-          scrollTop,
-        } = this.state;
 
         this.updatingOrder = true;
 
         // update the order 2D array, to change the position of items
         orderManager.updateOrder({
-          pressedItemKey,
           mouseX,
           mouseY,
-          containerWidth,
-          containerHeight,
-          scrollLeft,
-          scrollTop,
         });
 
         this.updateTime = new Date();
@@ -290,23 +278,23 @@ class Grid extends React.Component {
         this.gridRef.current.scrollTop = scrollTop;
         this.gridRef.current.scrollLeft = scrollLeft;
       } else {
-        const { scrollLeft, scrollTop } = event.target;
+        const { scrollTop, scrollLeft } = event.target;
         const { scrollUpdateX, scrollUpdateY } = this.props;
         const { prevScrollLeft, prevScrollTop } = this.state;
         const update = {};
 
-        if (scrollLeft > -1 && this.state.scrollLeft !== scrollLeft) {
-          update.scrollLeft = scrollLeft;
-        }
         if (scrollTop > -1 && this.state.scrollTop !== scrollTop) {
           update.scrollTop = scrollTop;
         }
-
-        if (Math.abs(scrollLeft - prevScrollLeft) > scrollUpdateX) {
-          update.prevScrollLeft = scrollLeft;
+        if (scrollLeft > -1 && this.state.scrollLeft !== scrollLeft) {
+          update.scrollLeft = scrollLeft;
         }
+
         if (Math.abs(scrollTop - prevScrollTop) > scrollUpdateY) {
           update.prevScrollTop = scrollTop;
+        }
+        if (Math.abs(scrollLeft - prevScrollLeft) > scrollUpdateX) {
+          update.prevScrollLeft = scrollLeft;
         }
 
         if (Object.keys(update).length > 0) {

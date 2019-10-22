@@ -33,7 +33,7 @@ class VirtualDraggableGrid extends React.Component {
       // create orderObjects, an order 2D array and a keys object
       this.orderManager = new OrderManager(
         this.getProps,
-        this.getState,
+        this.getVDGState,
         this.updateState,
       );
       const { order, keys } = this.orderManager.setOrder({
@@ -92,7 +92,7 @@ class VirtualDraggableGrid extends React.Component {
   getProps = () => ({ ...this.props });
 
   // callback to provide state to child classes
-  getState = () => ({ ...this.state });
+  getVDGState = () => ({ ...this.state });
 
   // callback to update order 2D array and keys object
   updateState = (newStateObject) => {

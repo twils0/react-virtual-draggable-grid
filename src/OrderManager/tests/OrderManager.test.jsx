@@ -140,7 +140,7 @@ defaultProps.items = [
   },
 ];
 
-const constructorState = {
+const vgdState = {
   fixedColumns: false,
   fixedHeightAll: null,
   fixedRows: false,
@@ -152,7 +152,7 @@ const constructorState = {
   scrollBufferY: 200,
 };
 
-constructorState.order = [
+vgdState.order = [
   [
     {
       key: 'test-0',
@@ -216,33 +216,33 @@ constructorState.order = [
   ],
 ];
 
-constructorState.keys = {
-  'test-0': constructorState.order[0][0],
-  'test-1': constructorState.order[0][1],
-  'test-2': constructorState.order[1][0],
-  'test-3': constructorState.order[1][1],
-  'test-4': constructorState.order[2][0],
+vgdState.keys = {
+  'test-0': vgdState.order[0][0],
+  'test-1': vgdState.order[0][1],
+  'test-2': vgdState.order[1][0],
+  'test-3': vgdState.order[1][1],
+  'test-4': vgdState.order[2][0],
 };
 
-constructorState.visibleOrder = [
-  ...constructorState.order[0],
-  ...constructorState.order[1],
+vgdState.visibleOrder = [
+  ...vgdState.order[0],
+  ...vgdState.order[1],
 ];
 
 const updatedOrder = [
-  [constructorState.order[0][1], constructorState.order[0][0]],
-  constructorState.order[1],
-  constructorState.order[2],
+  [vgdState.order[0][1], vgdState.order[0][0]],
+  vgdState.order[1],
+  vgdState.order[2],
 ];
 const updatedKeys = {
-  ...constructorState.keys,
-  'test-0': constructorState.order[0][1],
-  'test-1': constructorState.order[0][0],
+  ...vgdState.keys,
+  'test-0': vgdState.order[0][1],
+  'test-1': vgdState.order[0][0],
 };
 const updatedVisibleOrder = [
-  constructorState.order[0][1],
-  constructorState.order[0][0],
-  ...constructorState.order[1],
+  vgdState.order[0][1],
+  vgdState.order[0][0],
+  ...vgdState.order[1],
 ];
 const updatedVisibleItems = [
   defaultProps.items[0][1],
@@ -255,33 +255,37 @@ const updatedItems = [
   defaultProps.items[2],
 ];
 
-const pressedItemKey = 'test-0';
-const orderX = 0;
-const orderY = 0;
-const mouseX = 555;
-const mouseY = 666;
-const containerWidth = 777;
-const containerHeight = 888;
-const toIndexX = 9;
-const toIndexY = 10;
-const scrollLeft = 111;
-const scrollTop = 112;
+const gridState = {
+  pressedItemKey: 'test-0',
+  orderX: 0,
+  orderY: 0,
+  mouseX: 555,
+  mouseY: 666,
+  containerWidth: 777,
+  containerHeight: 888,
+  toIndexX: 9,
+  toIndexY: 10,
+  scrollLeft: 111,
+  scrollTop: 112,
+};
 
 
 const getProps = jest.fn(() => defaultProps);
-const getState = jest.fn(() => constructorState);
+const getVDGState = jest.fn(() => vgdState);
+const getGridState = jest.fn(() => gridState);
 const updateState = jest.fn();
 
 const orderManager = new OrderManager(
   getProps,
-  getState,
+  getVDGState,
   updateState,
 );
+orderManager.setGridStateCallback(getGridState);
 
 describe('OrderManager', () => {
   afterEach(() => {
     getProps.mockClear();
-    getState.mockClear();
+    getVDGState.mockClear();
     updateState.mockClear();
 
     handleOrder.mockReset();
@@ -319,8 +323,8 @@ describe('OrderManager', () => {
   // also tests updateVisibleOrderNoState
   it('updateOrder executes correctly', () => {
     getMouseIndex.mockReturnValue({
-      toIndexX,
-      toIndexY,
+      toIndexX: gridState.toIndexX,
+      toIndexY: gridState.toIndexY,
     });
     changeOrder.mockReturnValue({
       order: updatedOrder,
@@ -329,34 +333,29 @@ describe('OrderManager', () => {
     handleVirtualization.mockReturnValue(updatedVisibleOrder);
 
     orderManager.updateOrder({
-      pressedItemKey,
-      mouseX,
-      mouseY,
-      containerWidth,
-      containerHeight,
-      scrollLeft,
-      scrollTop,
+      mouseX: gridState.mouseX,
+      mouseY: gridState.mouseY,
     });
 
     expect(getMouseIndex).toBeCalledWith({
-      order: constructorState.order,
-      visibleOrder: constructorState.visibleOrder,
-      mouseX,
-      mouseY,
+      order: vgdState.order,
+      visibleOrder: vgdState.visibleOrder,
+      mouseX: gridState.mouseX,
+      mouseY: gridState.mouseY,
     });
     expect(changeOrder).toBeCalledWith({
-      order: constructorState.order,
-      keys: constructorState.keys,
+      order: vgdState.order,
+      keys: vgdState.keys,
       fixedRows: defaultProps.fixedRows,
       fixedColumns: defaultProps.fixedColumns,
       fixedWidthAll: defaultProps.fixedWidthAll,
       fixedHeightAll: defaultProps.fixedHeightAll,
       gutterX: defaultProps.gutterX,
       gutterY: defaultProps.gutterY,
-      fromIndexX: orderX,
-      fromIndexY: orderY,
-      toIndexX,
-      toIndexY,
+      fromIndexX: gridState.orderX,
+      fromIndexY: gridState.orderY,
+      toIndexX: gridState.toIndexX,
+      toIndexY: gridState.toIndexY,
     });
     expect(updateState).toBeCalledWith({
       order: updatedOrder,
@@ -365,10 +364,10 @@ describe('OrderManager', () => {
     expect(handleVirtualization).toBeCalledWith({
       order: updatedOrder,
       keys: updatedKeys,
-      containerWidth,
-      containerHeight,
-      scrollLeft,
-      scrollTop,
+      containerWidth: gridState.containerWidth,
+      containerHeight: gridState.containerHeight,
+      scrollLeft: gridState.scrollLeft,
+      scrollTop: gridState.scrollTop,
       leeway: defaultProps.leeway,
       scrollBufferX: defaultProps.scrollBufferX,
       scrollBufferY: defaultProps.scrollBufferY,
@@ -385,41 +384,36 @@ describe('OrderManager', () => {
   it('updateOrder executes correctly; '
       + 'no order 2D array or keys object returned from changeOrder', () => {
     getMouseIndex.mockReturnValue({
-      toIndexX,
-      toIndexY,
+      toIndexX: gridState.toIndexX,
+      toIndexY: gridState.toIndexY,
     });
     changeOrder.mockReturnValue({});
     handleVirtualization.mockReturnValue(updatedVisibleOrder);
 
     orderManager.updateOrder({
-      pressedItemKey,
-      mouseX,
-      mouseY,
-      containerWidth,
-      containerHeight,
-      scrollLeft,
-      scrollTop,
+      mouseX: gridState.mouseX,
+      mouseY: gridState.mouseY,
     });
 
     expect(getMouseIndex).toBeCalledWith({
-      order: constructorState.order,
-      visibleOrder: constructorState.visibleOrder,
-      mouseX,
-      mouseY,
+      order: vgdState.order,
+      visibleOrder: vgdState.visibleOrder,
+      mouseX: gridState.mouseX,
+      mouseY: gridState.mouseY,
     });
     expect(changeOrder).toBeCalledWith({
-      order: constructorState.order,
-      keys: constructorState.keys,
+      order: vgdState.order,
+      keys: vgdState.keys,
       fixedRows: defaultProps.fixedRows,
       fixedColumns: defaultProps.fixedColumns,
       fixedWidthAll: defaultProps.fixedWidthAll,
       fixedHeightAll: defaultProps.fixedHeightAll,
       gutterX: defaultProps.gutterX,
       gutterY: defaultProps.gutterY,
-      fromIndexX: orderX,
-      fromIndexY: orderY,
-      toIndexX,
-      toIndexY,
+      fromIndexX: gridState.orderX,
+      fromIndexY: gridState.orderY,
+      toIndexX: gridState.toIndexX,
+      toIndexY: gridState.toIndexY,
     });
     expect(updateState).not.toBeCalledWith();
     expect(handleVirtualization).not.toBeCalledWith();
@@ -429,28 +423,23 @@ describe('OrderManager', () => {
 
   // also tests updateVisibleOrderNoState
   it('updateVisibleOrder executes correctly', () => {
-    getState.mockReturnValueOnce({
-      ...constructorState,
+    getVDGState.mockReturnValueOnce({
+      ...vgdState,
       order: updatedOrder,
       keys: updatedKeys,
     });
 
     handleVirtualization.mockReturnValue(updatedVisibleOrder);
 
-    orderManager.updateVisibleOrder({
-      containerWidth,
-      containerHeight,
-      scrollLeft,
-      scrollTop,
-    });
+    orderManager.updateVisibleOrder();
 
     expect(handleVirtualization).toBeCalledWith({
       order: updatedOrder,
       keys: updatedKeys,
-      containerWidth,
-      containerHeight,
-      scrollLeft,
-      scrollTop,
+      containerWidth: gridState.containerWidth,
+      containerHeight: gridState.containerHeight,
+      scrollLeft: gridState.scrollLeft,
+      scrollTop: gridState.scrollTop,
       leeway: defaultProps.leeway,
       scrollBufferX: defaultProps.scrollBufferX,
       scrollBufferY: defaultProps.scrollBufferY,
@@ -466,8 +455,8 @@ describe('OrderManager', () => {
   // also tests updateVisibleOrderNoState
   it('updateVisibleOrder executes correctly; '
       + 'items array is empty', () => {
-    getState.mockReturnValueOnce({
-      ...constructorState,
+    getVDGState.mockReturnValueOnce({
+      ...vgdState,
       order: updatedOrder,
       keys: updatedKeys,
     });
@@ -478,20 +467,15 @@ describe('OrderManager', () => {
 
     handleVirtualization.mockReturnValue(updatedVisibleOrder);
 
-    orderManager.updateVisibleOrder({
-      containerWidth,
-      containerHeight,
-      scrollLeft,
-      scrollTop,
-    });
+    orderManager.updateVisibleOrder();
 
     expect(handleVirtualization).toBeCalledWith({
       order: updatedOrder,
       keys: updatedKeys,
-      containerWidth,
-      containerHeight,
-      scrollLeft,
-      scrollTop,
+      containerWidth: gridState.containerWidth,
+      containerHeight: gridState.containerHeight,
+      scrollLeft: gridState.scrollLeft,
+      scrollTop: gridState.scrollTop,
       leeway: defaultProps.leeway,
       scrollBufferX: defaultProps.scrollBufferX,
       scrollBufferY: defaultProps.scrollBufferY,
@@ -511,7 +495,7 @@ describe('OrderManager', () => {
     const actualResult = orderManager.findMaxPosition();
 
     expect(findMaxPosition).toBeCalledWith({
-      order: constructorState.order,
+      order: vgdState.order,
       fixedWidthAll: defaultProps.fixedWidthAll,
       fixedHeightAll: defaultProps.fixedHeightAll,
       gutterX: defaultProps.gutterX,
@@ -522,8 +506,8 @@ describe('OrderManager', () => {
   });
 
   it('updateItems executes correctly', () => {
-    getState.mockReturnValueOnce({
-      ...constructorState,
+    getVDGState.mockReturnValueOnce({
+      ...vgdState,
       order: updatedOrder,
       keys: updatedKeys,
     });
@@ -535,8 +519,8 @@ describe('OrderManager', () => {
 
   it('updateItems executes correctly; '
       + 'order 2D array and keys object is empty', () => {
-    getState.mockReturnValueOnce({
-      ...constructorState,
+    getVDGState.mockReturnValueOnce({
+      ...vgdState,
       order: [],
       keys: {},
     });

@@ -150,6 +150,7 @@ defaultProps.visibleOrder = Object.keys(defaultProps.keys)
   .map(key => defaultProps.keys[key]);
 
 defaultProps.orderManager = {
+  setGridStateCallback: jest.fn(),
   updateVisibleOrder: jest.fn(),
   updateOrder: jest.fn(),
   updateItems: jest.fn(),
@@ -177,6 +178,7 @@ describe('Grid', () => {
   afterEach(() => {
     global.addEventListener.mockReset();
     global.removeEventListener.mockReset();
+    defaultProps.orderManager.setGridStateCallback.mockReset();
     defaultProps.orderManager.updateVisibleOrder.mockReset();
     defaultProps.orderManager.updateOrder.mockReset();
   });
@@ -203,6 +205,8 @@ describe('Grid', () => {
     const instanceProps = instance.props;
 
     expect(instanceProps).toEqual(defaultProps);
+    expect(defaultProps.orderManager.setGridStateCallback)
+      .toHaveBeenCalledWith(instance.getGridState);
     expect(defaultProps.orderManager.findMaxPosition)
       .toHaveBeenCalledWith({
         order,
@@ -282,13 +286,6 @@ describe('Grid', () => {
     expect(instance.updateGridSize).toHaveBeenCalledTimes(1);
     expect(defaultProps.orderManager.updateVisibleOrder)
       .toHaveBeenCalledTimes(1);
-    expect(defaultProps.orderManager.updateVisibleOrder)
-      .toBeCalledWith({
-        containerWidth,
-        containerHeight,
-        scrollLeft,
-        scrollTop,
-      });
   });
 
   it('handleMouseDown executes correctly', () => {
@@ -421,13 +418,8 @@ describe('Grid', () => {
       .toHaveBeenCalledTimes(1);
     expect(defaultProps.orderManager.updateOrder)
       .toBeCalledWith({
-        pressedItemKey: updatedState.pressedItemKey,
         mouseX: updatedState.mouseX,
         mouseY: updatedState.mouseY,
-        containerWidth,
-        containerHeight,
-        scrollLeft,
-        scrollTop,
       });
   });
 

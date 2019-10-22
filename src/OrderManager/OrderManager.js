@@ -9,12 +9,16 @@ import findMaxPosition from './OrderManagerFunctions/findMaxPosition';
 class Order {
   constructor(
     getPropsCallback,
-    getStateCallback,
+    getVDGStateCallback,
     updateStateCallback,
   ) {
     this.getProps = getPropsCallback;
-    this.getState = getStateCallback;
+    this.getVDGState = getVDGStateCallback;
     this.updateState = updateStateCallback;
+  }
+
+  setGridStateCallback = (getGridStateCallback) => {
+    this.getGridState = getGridStateCallback;
   }
 
   setOrder = () => {
@@ -50,7 +54,7 @@ class Order {
     const {
       order,
       keys,
-    } = this.getState();
+    } = this.getVDGState();
 
     return Array.isArray(items)
     && items.length > 0
@@ -65,13 +69,8 @@ class Order {
 
   // update the order 2D array, to change the position of items
   updateOrder = ({
-    pressedItemKey,
     mouseX,
     mouseY,
-    containerWidth,
-    containerHeight,
-    scrollLeft,
-    scrollTop,
   }) => {
     const {
       fixedRows,
@@ -85,7 +84,14 @@ class Order {
       visibleOrder,
       order,
       keys,
-    } = this.getState();
+    } = this.getVDGState();
+    const {
+      pressedItemKey,
+      containerWidth,
+      containerHeight,
+      scrollLeft,
+      scrollTop,
+    } = this.getGridState();
 
     const orderObject = keys[pressedItemKey];
 
@@ -142,16 +148,17 @@ class Order {
 
   // calls updateVisibleOrderNoState; provides order and keys
   // arguments from state
-  updateVisibleOrder = ({
-    containerWidth,
-    containerHeight,
-    scrollLeft,
-    scrollTop,
-  }) => {
+  updateVisibleOrder = () => {
     const {
       order,
       keys,
-    } = this.getState();
+    } = this.getVDGState();
+    const {
+      containerWidth,
+      containerHeight,
+      scrollLeft,
+      scrollTop,
+    } = this.getGridState();
 
     this.updateVisibleOrderNoState({
       containerWidth,
@@ -167,10 +174,6 @@ class Order {
   // provide visible and buffer grid items to getVisibleItems callback;
   // must provide order and keys as arguments
   updateVisibleOrderNoState = ({
-    containerWidth,
-    containerHeight,
-    scrollLeft,
-    scrollTop,
     order,
     keys,
   }) => {
@@ -181,6 +184,12 @@ class Order {
       scrollBufferY,
       getVisibleItems,
     } = this.getProps();
+    const {
+      containerWidth,
+      containerHeight,
+      scrollLeft,
+      scrollTop,
+    } = this.getGridState();
 
     // get only the orderObjects corresponding to visible grid items and
     // a limited number of unseen grid items, as a buffer for scrolling
@@ -227,7 +236,7 @@ class Order {
     } = this.getProps();
     const {
       order,
-    } = this.getState();
+    } = this.getVDGState();
 
     return findMaxPosition({
       order,
@@ -243,7 +252,7 @@ class Order {
   // by handleOrder above, and these items will not be included below
   updateItems = () => {
     const { items, getItems } = this.getProps();
-    const { order } = this.getState();
+    const { order } = this.getVDGState();
     const newItems = [];
 
     order.forEach((orderRow, orderY) => {
