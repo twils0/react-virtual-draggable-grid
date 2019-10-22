@@ -85,6 +85,11 @@ class VirtualDraggableGrid extends React.Component {
       const newOrderKeysObject = this.orderManager.setOrder();
 
       this.updateState(newOrderKeysObject);
+
+      this.orderManager.updateVisibleOrderNoState({
+        order: newOrderKeysObject.order,
+        keys: newOrderKeysObject.keys,
+      });
     }
   }
 
