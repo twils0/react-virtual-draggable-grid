@@ -17,10 +17,7 @@ const config = (env) => {
     entry: [path.resolve(srcDir, 'VirtualDraggableGrid.jsx')],
     output: {
       path: binDir,
-      // cannot use contenthash with runtime
-      filename: chunkData => `[name].[${chunkData.chunk.name === 'runtime' ? 'hash' : 'contenthash'}]${prod
-          && '.min'}.js`,
-      chunkFilename: `[name].[contenthash]${prod && '.min'}.js`,
+      filename: 'react-virtual-draggable-grid.min.js',
       libraryTarget: 'umd',
       library: 'default',
     },
@@ -58,7 +55,6 @@ const config = (env) => {
       ],
     },
     optimization: {
-      runtimeChunk: 'single',
       splitChunks: {
         chunks: 'all',
         cacheGroups: {
