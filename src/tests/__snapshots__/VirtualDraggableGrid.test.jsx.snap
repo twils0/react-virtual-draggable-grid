@@ -1,0 +1,481 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VirtualDraggableGrid renders correctly 1`] = `
+<div
+  className="rvdl-wrapper"
+  onDragStart={[MockFunction]}
+  style={
+    Object {
+      "MozUserSelect": "none",
+      "boxSizing": "border-box",
+      "display": "block",
+      "height": "100%",
+      "margin": 0,
+      "padding": 0,
+      "position": "relative",
+      "userSelect": "none",
+      "width": "100%",
+    }
+  }
+>
+  <Grid
+    GridItemStyles={Object {}}
+    GridStyles={Object {}}
+    fixedColumns={false}
+    fixedHeightAll={null}
+    fixedRows={false}
+    fixedWidthAll={null}
+    gutterX={0}
+    gutterY={0}
+    items={
+      Array [
+        Array [
+          Object {
+            "ItemComponent": [Function],
+            "fixedHeight": 100,
+            "fixedWidth": 100,
+            "itemProps": Object {
+              "name": "test-0",
+              "style": Object {
+                "height": 100,
+                "userSelect": "none",
+                "width": 100,
+              },
+            },
+            "key": "test-0",
+          },
+          Object {
+            "ItemComponent": [Function],
+            "fixedHeight": 200,
+            "fixedWidth": 200,
+            "itemProps": Object {
+              "name": "test-1",
+              "style": Object {
+                "height": 200,
+                "userSelect": "none",
+                "width": 200,
+              },
+            },
+            "key": "test-1",
+          },
+        ],
+        Array [
+          Object {
+            "ItemComponent": [Function],
+            "fixedHeight": 300,
+            "fixedWidth": 300,
+            "itemProps": Object {
+              "name": "test-2",
+              "style": Object {
+                "height": 300,
+                "userSelect": "none",
+                "width": 300,
+              },
+            },
+            "key": "test-2",
+          },
+          Object {
+            "ItemComponent": [Function],
+            "fixedHeight": 400,
+            "fixedWidth": 400,
+            "itemProps": Object {
+              "name": "test-3",
+              "style": Object {
+                "height": 400,
+                "userSelect": "none",
+                "width": 400,
+              },
+            },
+            "key": "test-3",
+          },
+        ],
+        Object {
+          "ItemComponent": [Function],
+          "fixedHeight": 500,
+          "fixedWidth": 500,
+          "itemProps": Object {
+            "name": "test-4",
+            "style": Object {
+              "height": 500,
+              "userSelect": "none",
+              "width": 500,
+            },
+          },
+          "key": "test-4",
+        },
+      ]
+    }
+    keys={
+      Object {
+        "test-0": Object {
+          "height": 100,
+          "itemX": 0,
+          "itemY": 0,
+          "key": "test-0",
+          "left": 0,
+          "orderX": 0,
+          "orderY": 0,
+          "top": 0,
+          "width": 100,
+        },
+        "test-1": Object {
+          "height": 200,
+          "itemX": 1,
+          "itemY": 0,
+          "key": "test-1",
+          "left": 100,
+          "orderX": 1,
+          "orderY": 0,
+          "top": 0,
+          "width": 200,
+        },
+        "test-2": Object {
+          "height": 300,
+          "itemX": 0,
+          "itemY": 1,
+          "key": "test-2",
+          "left": 0,
+          "orderX": 0,
+          "orderY": 1,
+          "top": 200,
+          "width": 300,
+        },
+        "test-3": Object {
+          "height": 400,
+          "itemX": 1,
+          "itemY": 1,
+          "key": "test-3",
+          "left": 300,
+          "orderX": 1,
+          "orderY": 1,
+          "top": 0,
+          "width": 400,
+        },
+        "test-4": Object {
+          "height": 500,
+          "itemX": 0,
+          "itemY": 2,
+          "key": "test-4",
+          "left": 0,
+          "orderX": 0,
+          "orderY": 2,
+          "top": 500,
+          "width": 500,
+        },
+      }
+    }
+    leeway={0.1}
+    mouseUpdateTime={100}
+    mouseUpdateX={50}
+    mouseUpdateY={50}
+    noDragElements={Array []}
+    noDragIds={Array []}
+    onDragStart={[MockFunction]}
+    onlyDragElements={Array []}
+    onlyDragIds={Array []}
+    order={
+      Array [
+        Array [
+          Object {
+            "height": 100,
+            "itemX": 0,
+            "itemY": 0,
+            "key": "test-0",
+            "left": 0,
+            "orderX": 0,
+            "orderY": 0,
+            "top": 0,
+            "width": 100,
+          },
+          Object {
+            "height": 200,
+            "itemX": 1,
+            "itemY": 0,
+            "key": "test-1",
+            "left": 100,
+            "orderX": 1,
+            "orderY": 0,
+            "top": 0,
+            "width": 200,
+          },
+        ],
+        Array [
+          Object {
+            "height": 300,
+            "itemX": 0,
+            "itemY": 1,
+            "key": "test-2",
+            "left": 0,
+            "orderX": 0,
+            "orderY": 1,
+            "top": 200,
+            "width": 300,
+          },
+          Object {
+            "height": 400,
+            "itemX": 1,
+            "itemY": 1,
+            "key": "test-3",
+            "left": 300,
+            "orderX": 1,
+            "orderY": 1,
+            "top": 0,
+            "width": 400,
+          },
+        ],
+        Array [
+          Object {
+            "height": 500,
+            "itemX": 0,
+            "itemY": 2,
+            "key": "test-4",
+            "left": 0,
+            "orderX": 0,
+            "orderY": 2,
+            "top": 500,
+            "width": 500,
+          },
+        ],
+      ]
+    }
+    orderManager={
+      Object {
+        "setOrder": [MockFunction] {
+          "calls": Array [
+            Array [
+              Object {
+                "fixedColumns": false,
+                "fixedHeightAll": null,
+                "fixedRows": false,
+                "fixedWidthAll": null,
+                "gutterX": 0,
+                "gutterY": 0,
+                "items": Array [
+                  Array [
+                    Object {
+                      "ItemComponent": [Function],
+                      "fixedHeight": 100,
+                      "fixedWidth": 100,
+                      "itemProps": Object {
+                        "name": "test-0",
+                        "style": Object {
+                          "height": 100,
+                          "userSelect": "none",
+                          "width": 100,
+                        },
+                      },
+                      "key": "test-0",
+                    },
+                    Object {
+                      "ItemComponent": [Function],
+                      "fixedHeight": 200,
+                      "fixedWidth": 200,
+                      "itemProps": Object {
+                        "name": "test-1",
+                        "style": Object {
+                          "height": 200,
+                          "userSelect": "none",
+                          "width": 200,
+                        },
+                      },
+                      "key": "test-1",
+                    },
+                  ],
+                  Array [
+                    Object {
+                      "ItemComponent": [Function],
+                      "fixedHeight": 300,
+                      "fixedWidth": 300,
+                      "itemProps": Object {
+                        "name": "test-2",
+                        "style": Object {
+                          "height": 300,
+                          "userSelect": "none",
+                          "width": 300,
+                        },
+                      },
+                      "key": "test-2",
+                    },
+                    Object {
+                      "ItemComponent": [Function],
+                      "fixedHeight": 400,
+                      "fixedWidth": 400,
+                      "itemProps": Object {
+                        "name": "test-3",
+                        "style": Object {
+                          "height": 400,
+                          "userSelect": "none",
+                          "width": 400,
+                        },
+                      },
+                      "key": "test-3",
+                    },
+                  ],
+                  Object {
+                    "ItemComponent": [Function],
+                    "fixedHeight": 500,
+                    "fixedWidth": 500,
+                    "itemProps": Object {
+                      "name": "test-4",
+                      "style": Object {
+                        "height": 500,
+                        "userSelect": "none",
+                        "width": 500,
+                      },
+                    },
+                    "key": "test-4",
+                  },
+                ],
+              },
+            ],
+          ],
+          "results": Array [
+            Object {
+              "type": "return",
+              "value": Object {
+                "keys": Object {
+                  "test-0": Object {
+                    "height": 100,
+                    "itemX": 0,
+                    "itemY": 0,
+                    "key": "test-0",
+                    "left": 0,
+                    "orderX": 0,
+                    "orderY": 0,
+                    "top": 0,
+                    "width": 100,
+                  },
+                  "test-1": Object {
+                    "height": 200,
+                    "itemX": 1,
+                    "itemY": 0,
+                    "key": "test-1",
+                    "left": 100,
+                    "orderX": 1,
+                    "orderY": 0,
+                    "top": 0,
+                    "width": 200,
+                  },
+                  "test-2": Object {
+                    "height": 300,
+                    "itemX": 0,
+                    "itemY": 1,
+                    "key": "test-2",
+                    "left": 0,
+                    "orderX": 0,
+                    "orderY": 1,
+                    "top": 200,
+                    "width": 300,
+                  },
+                  "test-3": Object {
+                    "height": 400,
+                    "itemX": 1,
+                    "itemY": 1,
+                    "key": "test-3",
+                    "left": 300,
+                    "orderX": 1,
+                    "orderY": 1,
+                    "top": 0,
+                    "width": 400,
+                  },
+                  "test-4": Object {
+                    "height": 500,
+                    "itemX": 0,
+                    "itemY": 2,
+                    "key": "test-4",
+                    "left": 0,
+                    "orderX": 0,
+                    "orderY": 2,
+                    "top": 500,
+                    "width": 500,
+                  },
+                },
+                "order": Array [
+                  Array [
+                    Object {
+                      "height": 100,
+                      "itemX": 0,
+                      "itemY": 0,
+                      "key": "test-0",
+                      "left": 0,
+                      "orderX": 0,
+                      "orderY": 0,
+                      "top": 0,
+                      "width": 100,
+                    },
+                    Object {
+                      "height": 200,
+                      "itemX": 1,
+                      "itemY": 0,
+                      "key": "test-1",
+                      "left": 100,
+                      "orderX": 1,
+                      "orderY": 0,
+                      "top": 0,
+                      "width": 200,
+                    },
+                  ],
+                  Array [
+                    Object {
+                      "height": 300,
+                      "itemX": 0,
+                      "itemY": 1,
+                      "key": "test-2",
+                      "left": 0,
+                      "orderX": 0,
+                      "orderY": 1,
+                      "top": 200,
+                      "width": 300,
+                    },
+                    Object {
+                      "height": 400,
+                      "itemX": 1,
+                      "itemY": 1,
+                      "key": "test-3",
+                      "left": 300,
+                      "orderX": 1,
+                      "orderY": 1,
+                      "top": 0,
+                      "width": 400,
+                    },
+                  ],
+                  Array [
+                    Object {
+                      "height": 500,
+                      "itemX": 0,
+                      "itemY": 2,
+                      "key": "test-4",
+                      "left": 0,
+                      "orderX": 0,
+                      "orderY": 2,
+                      "top": 500,
+                      "width": 500,
+                    },
+                  ],
+                ],
+              },
+            },
+          ],
+        },
+        "testItemsUpdate": [MockFunction],
+      }
+    }
+    scrollBufferX={200}
+    scrollBufferY={200}
+    scrollUpdateX={100}
+    scrollUpdateY={200}
+    shadowBlur={null}
+    shadowBlurRatio={1.2}
+    shadowColor="rgba(0, 0, 0, 0.2)"
+    shadowHRatio={1}
+    shadowMultiple={16}
+    shadowSpread={null}
+    shadowSpreadRatio={0}
+    shadowVRatio={1}
+    transitionDelay="0.2s"
+    transitionDuration="0.3s"
+    transitionTimingFunction="ease"
+    visibleOrder={Array []}
+  />
+</div>
+`;

@@ -1,5 +1,4 @@
 .vscode
-node_modules
-bin
-coverage
-__snapshots__
+**/node_modules
+**/bin
+**/coverage
