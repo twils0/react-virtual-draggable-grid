@@ -21,30 +21,13 @@ class VirtualDraggableGrid extends React.Component {
     };
 
     if (Array.isArray(items) && items.length > 0) {
-      const {
-        fixedRows,
-        fixedColumns,
-        fixedWidthAll,
-        fixedHeightAll,
-        gutterX,
-        gutterY,
-      } = this.props;
-
       // create orderObjects, an order 2D array and a keys object
       this.orderManager = new OrderManager(
         this.getProps,
         this.getVDGState,
         this.updateState,
       );
-      const { order, keys } = this.orderManager.setOrder({
-        items,
-        fixedRows,
-        fixedColumns,
-        fixedWidthAll,
-        fixedHeightAll,
-        gutterX,
-        gutterY,
-      });
+      const { order, keys } = this.orderManager.setOrder();
 
       newState.order = order;
       newState.keys = keys;

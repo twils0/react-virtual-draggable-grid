@@ -56,7 +56,7 @@ const handleOrder = ({
           newKeys[item.key] = orderObject;
 
           // quickly calculate left position if fixedColumns is true and
-          // fixedWidthAll is set to a number greater than 0;
+          // fixedWidthAll is set to a number greater than 0
           if (fixedColumns && fixedWidthAll) {
             orderObject.left = iX * (fixedWidthAll + gutterX);
             // if fixedColumns is true and fixedWidthAll is falsy,
@@ -128,7 +128,7 @@ const handleOrder = ({
   // orderObjects in each column; if fixedColumns is truthy and
   // fixedWidthAll is falsy, set a maxRight value at the current
   // index in the maxRightArray, to use as the left value for all
-  // orderObjects at that index;
+  // orderObjects at that index
   if (fixedColumns && !fixedWidthAll) {
     newOrder.forEach((orderRow) => {
       orderRow.forEach((orderObject, iX) => {

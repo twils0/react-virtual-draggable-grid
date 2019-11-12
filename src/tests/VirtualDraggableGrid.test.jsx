@@ -9,6 +9,7 @@ import preventDrag from '../Functions/preventDrag';
 const orderManager = {
   testItemsUpdate: jest.fn(),
   setOrder: jest.fn(),
+  updateVisibleOrderNoState: jest.fn(),
 };
 
 require('../Functions/preventDrag').default = jest.fn();
@@ -239,15 +240,6 @@ describe('VirtualDraggableGrid', () => {
 
   it('renders correctly', () => {
     const {
-      items,
-      fixedRows,
-      fixedColumns,
-      fixedWidthAll,
-      fixedHeightAll,
-      gutterX,
-      gutterY,
-    } = defaultProps;
-    const {
       order,
       keys,
     } = constructorState;
@@ -264,28 +256,10 @@ describe('VirtualDraggableGrid', () => {
     expect(instanceProps).toEqual(defaultProps);
     expect(instanceState).toEqual(constructorState);
     expect(orderManager.setOrder).toHaveBeenCalledTimes(1);
-    expect(orderManager.setOrder).toBeCalledWith({
-      items,
-      fixedRows,
-      fixedColumns,
-      fixedWidthAll,
-      fixedHeightAll,
-      gutterX,
-      gutterY,
-    });
     expect(wrapper).toMatchSnapshot();
   });
 
   it('componentDidUpdate executes correctly, items not updated', () => {
-    const {
-      items,
-      fixedRows,
-      fixedColumns,
-      fixedWidthAll,
-      fixedHeightAll,
-      gutterX,
-      gutterY,
-    } = defaultProps;
     const { order, keys } = constructorState;
 
     orderManager.testItemsUpdate.mockReturnValue(false);
@@ -300,27 +274,9 @@ describe('VirtualDraggableGrid', () => {
     expect(instanceProps).toEqual(defaultProps);
     expect(instanceState).toEqual(constructorState);
     expect(orderManager.setOrder).toHaveBeenCalledTimes(1);
-    expect(orderManager.setOrder).toBeCalledWith({
-      items,
-      fixedRows,
-      fixedColumns,
-      fixedWidthAll,
-      fixedHeightAll,
-      gutterX,
-      gutterY,
-    });
   });
 
   it('componentDidUpdate executes correctly; items updated', () => {
-    const {
-      items,
-      fixedRows,
-      fixedColumns,
-      fixedWidthAll,
-      fixedHeightAll,
-      gutterX,
-      gutterY,
-    } = defaultProps;
     const { order, keys } = constructorState;
     const updatedState = {
       ...constructorState,
@@ -349,14 +305,5 @@ describe('VirtualDraggableGrid', () => {
     expect(instanceState).toEqual(updatedState);
     expect(orderManager.testItemsUpdate).toHaveBeenCalledTimes(2);
     expect(orderManager.setOrder).toHaveBeenCalledTimes(2);
-    expect(orderManager.setOrder).toHaveBeenCalledWith({
-      items,
-      fixedRows,
-      fixedColumns,
-      fixedWidthAll,
-      fixedHeightAll,
-      gutterX,
-      gutterY,
-    });
   });
 });

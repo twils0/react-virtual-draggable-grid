@@ -242,92 +242,7 @@ exports[`VirtualDraggableGrid renders correctly 1`] = `
       Object {
         "setOrder": [MockFunction] {
           "calls": Array [
-            Array [
-              Object {
-                "fixedColumns": false,
-                "fixedHeightAll": null,
-                "fixedRows": false,
-                "fixedWidthAll": null,
-                "gutterX": 0,
-                "gutterY": 0,
-                "items": Array [
-                  Array [
-                    Object {
-                      "ItemComponent": [Function],
-                      "fixedHeight": 100,
-                      "fixedWidth": 100,
-                      "itemProps": Object {
-                        "name": "test-0",
-                        "style": Object {
-                          "height": 100,
-                          "userSelect": "none",
-                          "width": 100,
-                        },
-                      },
-                      "key": "test-0",
-                    },
-                    Object {
-                      "ItemComponent": [Function],
-                      "fixedHeight": 200,
-                      "fixedWidth": 200,
-                      "itemProps": Object {
-                        "name": "test-1",
-                        "style": Object {
-                          "height": 200,
-                          "userSelect": "none",
-                          "width": 200,
-                        },
-                      },
-                      "key": "test-1",
-                    },
-                  ],
-                  Array [
-                    Object {
-                      "ItemComponent": [Function],
-                      "fixedHeight": 300,
-                      "fixedWidth": 300,
-                      "itemProps": Object {
-                        "name": "test-2",
-                        "style": Object {
-                          "height": 300,
-                          "userSelect": "none",
-                          "width": 300,
-                        },
-                      },
-                      "key": "test-2",
-                    },
-                    Object {
-                      "ItemComponent": [Function],
-                      "fixedHeight": 400,
-                      "fixedWidth": 400,
-                      "itemProps": Object {
-                        "name": "test-3",
-                        "style": Object {
-                          "height": 400,
-                          "userSelect": "none",
-                          "width": 400,
-                        },
-                      },
-                      "key": "test-3",
-                    },
-                  ],
-                  Object {
-                    "ItemComponent": [Function],
-                    "fixedHeight": 500,
-                    "fixedWidth": 500,
-                    "itemProps": Object {
-                      "name": "test-4",
-                      "style": Object {
-                        "height": 500,
-                        "userSelect": "none",
-                        "width": 500,
-                      },
-                    },
-                    "key": "test-4",
-                  },
-                ],
-              },
-            ],
+            Array [],
           ],
           "results": Array [
             Object {
@@ -458,6 +373,7 @@ exports[`VirtualDraggableGrid renders correctly 1`] = `
           ],
         },
         "testItemsUpdate": [MockFunction],
+        "updateVisibleOrderNoState": [MockFunction],
       }
     }
     scrollBufferX={200}
