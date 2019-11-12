@@ -239,6 +239,11 @@ class Grid extends React.Component {
     if (this.state.isPressed) {
       const { orderManager } = this.props;
       const { pressedItemKey } = this.state;
+
+      // must be called before state is updated below
+      // to avoid unanimated return to position of pressedItem
+      orderManager.updateItems();
+
       // prevPressedItemKey prevents an item from disappearing
       // when moving off-screen after release, out of the purview of
       // the visibleOrder array, and sets a higher zIndex for an item
@@ -249,8 +254,6 @@ class Grid extends React.Component {
         topDeltaY: 0,
         prevPressedItemKey: pressedItemKey,
       });
-
-      orderManager.updateItems();
     }
   };
 
@@ -341,9 +344,9 @@ class Grid extends React.Component {
 
     // make sure item still exists before attempting to render
     if (item) {
-    // wasPressed sets a higher zIndex for an item returning to
-    // its position, allowing it to float above resting items
       const isPressed = this.state.isPressed && key === pressedItemKey;
+      // wasPressed sets a higher zIndex for an item returning to
+      // its position, allowing it to float above resting items
       const wasPressed = key === prevPressedItemKey;
 
       styles.push({
