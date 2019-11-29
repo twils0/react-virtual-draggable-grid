@@ -6,6 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const rootDir = path.resolve(__dirname);
 const nodeModDir = path.resolve(__dirname, 'node_modules');
+const demoBinDir = path.resolve(__dirname, 'bin');
 const appSrcDir = path.resolve(__dirname, '../src');
 
 const config = (env) => {
@@ -14,7 +15,7 @@ const config = (env) => {
   return {
     entry: [path.resolve(rootDir, 'index.jsx')],
     output: {
-      path: rootDir,
+      path: demoBinDir,
       // cannot use contenthash with runtime
       filename: chunkData => `[name].[${chunkData.chunk.name === 'runtime' ? 'hash' : 'contenthash'}]${prod
           && '.min'}.js`,

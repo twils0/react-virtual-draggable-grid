@@ -1,5 +1,7 @@
 .vscode
+bin
 **/node_modules
-**/bin
 **/coverage
 **/package-lock.json
+
+!demo/bin
