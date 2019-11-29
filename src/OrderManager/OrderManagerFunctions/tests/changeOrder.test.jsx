@@ -99,7 +99,7 @@ describe('changeOrder', () => {
       toIndexY: 0,
     });
 
-    expect(result).toEqual(null);
+    expect(result).toEqual({});
   });
 
   it('changeOrder executes correctly, fromIndexX references undefined', () => {
@@ -126,7 +126,7 @@ describe('changeOrder', () => {
       toIndexY: 0,
     });
 
-    expect(result).toEqual(null);
+    expect(result).toEqual({});
   });
 
   it('changeOrder executes correctly 1', () => {

@@ -4,16 +4,9 @@ import { shallow } from 'enzyme';
 
 import Grid from '../Grid';
 
-import getMouseIndex from '../Functions/getMouseIndex';
-import changeOrder from '../Functions/changeOrder';
-import handleVirtualization from '../Functions/handleVirtualization';
 
 global.addEventListener = jest.fn();
 global.removeEventListener = jest.fn();
-
-jest.mock('../Functions/getMouseIndex', () => jest.fn());
-jest.mock('../Functions/changeOrder', () => jest.fn());
-jest.mock('../Functions/handleVirtualization', () => jest.fn());
 
 const shallowComponent = (props, options) => shallow(<Grid {...props} />, options);
 
@@ -50,68 +43,6 @@ TestComp.defaultProps = {
 };
 
 const defaultProps = {
-  items: [[
-    {
-      key: 'test-0',
-      ItemComponent: TestComp,
-      itemProps: {
-        name: 'test-0',
-        style: { userSelect: 'none', width: 100, height: 100 },
-      },
-    },
-    {
-      key: 'test-1',
-      ItemComponent: TestComp,
-      itemProps: {
-        name: 'test-1',
-        style: { userSelect: 'none', width: 200, height: 200 },
-      },
-    },
-  ], [
-    {
-      key: 'test-2',
-      ItemComponent: TestComp,
-      itemProps: {
-        name: 'test-2',
-        style: { userSelect: 'none', width: 300, height: 300 },
-      },
-    },
-    {
-      key: 'test-3',
-      ItemComponent: TestComp,
-      itemProps: {
-        name: 'test-3',
-        style: { userSelect: 'none', width: 400, height: 400 },
-      },
-    },
-  ],
-  {
-    key: 'test-4',
-    ItemComponent: TestComp,
-    itemProps: {
-      name: 'test-4',
-      style: { userSelect: 'none', width: 500, height: 500 },
-    },
-  }],
-  order: [[
-    {
-      key: 'test-0', itemX: 0, itemY: 0, orderX: 0, orderY: 0, width: 100, height: 100, left: 0, top: 0,
-    },
-    {
-      key: 'test-1', itemX: 1, itemY: 0, orderX: 1, orderY: 0, width: 200, height: 200, left: 100, top: 0,
-    },
-  ], [
-    {
-      key: 'test-2', itemX: 0, itemY: 1, orderX: 0, orderY: 1, width: 300, height: 300, left: 0, top: 200,
-    },
-    {
-      key: 'test-3', itemX: 1, itemY: 1, orderX: 1, orderY: 1, width: 400, height: 400, left: 300, top: 0,
-    },
-  ], [{
-    key: 'test-4', itemX: 0, itemY: 2, orderX: 0, orderY: 2, width: 500, height: 500, left: 0, top: 500,
-  }]],
-  initialSizeBool: false,
-  itemsBool: false,
   fixedRows: false,
   fixedColumns: false,
   fixedWidthAll: null,
@@ -143,11 +74,69 @@ const defaultProps = {
   shadowColor: 'rgba(0, 0, 0, 0.2)',
   GridStyles: {},
   GridItemStyles: {},
-  handleItemsBool: jest.fn(),
-  updateOrderKeys: jest.fn(),
-  updateItems: jest.fn(),
-  getVisibleItems: jest.fn(),
 };
+
+defaultProps.items = [[
+  {
+    key: 'test-0',
+    ItemComponent: TestComp,
+    itemProps: {
+      name: 'test-0',
+      style: { userSelect: 'none', width: 100, height: 100 },
+    },
+  },
+  {
+    key: 'test-1',
+    ItemComponent: TestComp,
+    itemProps: {
+      name: 'test-1',
+      style: { userSelect: 'none', width: 200, height: 200 },
+    },
+  },
+], [
+  {
+    key: 'test-2',
+    ItemComponent: TestComp,
+    itemProps: {
+      name: 'test-2',
+      style: { userSelect: 'none', width: 300, height: 300 },
+    },
+  },
+  {
+    key: 'test-3',
+    ItemComponent: TestComp,
+    itemProps: {
+      name: 'test-3',
+      style: { userSelect: 'none', width: 400, height: 400 },
+    },
+  },
+],
+{
+  key: 'test-4',
+  ItemComponent: TestComp,
+  itemProps: {
+    name: 'test-4',
+    style: { userSelect: 'none', width: 500, height: 500 },
+  },
+}];
+
+defaultProps.order = [[
+  {
+    key: 'test-0', itemX: 0, itemY: 0, orderX: 0, orderY: 0, width: 100, height: 100, left: 0, top: 0,
+  },
+  {
+    key: 'test-1', itemX: 1, itemY: 0, orderX: 1, orderY: 0, width: 200, height: 200, left: 100, top: 0,
+  },
+], [
+  {
+    key: 'test-2', itemX: 0, itemY: 1, orderX: 0, orderY: 1, width: 300, height: 300, left: 0, top: 200,
+  },
+  {
+    key: 'test-3', itemX: 1, itemY: 1, orderX: 1, orderY: 1, width: 400, height: 400, left: 300, top: 0,
+  },
+], [{
+  key: 'test-4', itemX: 0, itemY: 2, orderX: 0, orderY: 2, width: 500, height: 500, left: 0, top: 500,
+}]];
 
 defaultProps.keys = {
   'test-0': defaultProps.order[0][0],
@@ -157,8 +146,19 @@ defaultProps.keys = {
   'test-4': defaultProps.order[2][0],
 };
 
+defaultProps.visibleOrder = Object.keys(defaultProps.keys)
+  .map(key => defaultProps.keys[key]);
+
+defaultProps.orderManager = {
+  setGridStateCallback: jest.fn(),
+  updateVisibleOrder: jest.fn(),
+  updateOrder: jest.fn(),
+  updateItems: jest.fn(),
+  findMaxPosition: jest.fn(),
+};
+
+
 const defaultState = {
-  visibleOrder: [],
   containerWidth: -1,
   containerHeight: -1,
   scrollLeft: -1,
@@ -178,21 +178,43 @@ describe('Grid', () => {
   afterEach(() => {
     global.addEventListener.mockReset();
     global.removeEventListener.mockReset();
-    defaultProps.handleItemsBool.mockReset();
-    defaultProps.updateOrderKeys.mockReset();
-    defaultProps.updateItems.mockReset();
-    defaultProps.getVisibleItems.mockReset();
-    getMouseIndex.mockReset();
-    changeOrder.mockReset();
-    handleVirtualization.mockReset();
+    defaultProps.orderManager.setGridStateCallback.mockReset();
+    defaultProps.orderManager.updateVisibleOrder.mockReset();
+    defaultProps.orderManager.updateOrder.mockReset();
   });
 
   it('renders correctly', () => {
+    const {
+      order,
+      fixedWidthAll,
+      fixedHeightAll,
+      gutterX,
+      gutterY,
+    } = defaultProps;
+    const maxRight = 700;
+    const maxBottom = 1000;
+
+    defaultProps.orderManager.findMaxPosition
+      .mockReturnValue({
+        maxRight,
+        maxBottom,
+      });
+
     const wrapper = shallowComponent(defaultProps);
     const instance = wrapper.instance();
     const instanceProps = instance.props;
 
     expect(instanceProps).toEqual(defaultProps);
+    expect(defaultProps.orderManager.setGridStateCallback)
+      .toHaveBeenCalledWith(instance.getGridState);
+    expect(defaultProps.orderManager.findMaxPosition)
+      .toHaveBeenCalledWith({
+        order,
+        fixedWidthAll,
+        fixedHeightAll,
+        gutterX,
+        gutterY,
+      });
     expect(wrapper).toMatchSnapshot();
   });
 
@@ -212,7 +234,6 @@ describe('Grid', () => {
 
     const instanceProps = instance.props;
     const instanceState = instance.state;
-
 
     expect(instanceProps).toEqual(defaultProps);
     expect(instanceState).toEqual(defaultState);
@@ -234,14 +255,6 @@ describe('Grid', () => {
 
   it('componentDidUpdate executes correctly, update needed', () => {
     const {
-      items,
-      order,
-      keys,
-      leeway,
-      scrollBufferX,
-      scrollBufferY,
-    } = defaultProps;
-    const {
       scrollLeft,
       scrollTop,
     } = defaultState;
@@ -250,24 +263,18 @@ describe('Grid', () => {
     const prevScrollLeft = 300;
     const prevScrollTop = 400;
 
-    const visibleOrder = [...order[0], ...order[1]];
-    const visibleItems = visibleOrder.map(
-      ({ itemX, itemY }) => (Array.isArray(items[itemY]) ? items[itemY][itemX] : items[itemY]),
-    );
-
     const updatedState = {
       ...defaultState,
       containerWidth,
       containerHeight,
       prevScrollLeft,
       prevScrollTop,
-      visibleOrder,
     };
-
-    handleVirtualization.mockReturnValue(visibleOrder);
 
     const wrapper = shallowComponent(defaultProps);
     const instance = wrapper.instance();
+
+    instance.updateGridSize = jest.fn();
 
     instance.setState(updatedState);
 
@@ -276,24 +283,12 @@ describe('Grid', () => {
 
     expect(instanceProps).toEqual(defaultProps);
     expect(instanceState).toEqual(updatedState);
-    expect(handleVirtualization).toHaveBeenCalledTimes(1);
-    expect(handleVirtualization).toBeCalledWith({
-      order,
-      keys,
-      containerWidth,
-      containerHeight,
-      scrollLeft,
-      scrollTop,
-      leeway,
-      scrollBufferX,
-      scrollBufferY,
-    });
-    expect(defaultProps.getVisibleItems).toHaveBeenCalledTimes(1);
-    expect(defaultProps.getVisibleItems).toBeCalledWith(visibleItems);
+    expect(instance.updateGridSize).toHaveBeenCalledTimes(1);
+    expect(defaultProps.orderManager.updateVisibleOrder)
+      .toHaveBeenCalledTimes(1);
   });
 
   it('handleMouseDown executes correctly', () => {
-    const { order } = defaultProps;
     const id = defaultProps.items[0][0].key;
     const dataset = { x: '400', y: '500' };
     const mouseDownEvent = {
@@ -326,10 +321,6 @@ describe('Grid', () => {
       mouseY: y,
     };
 
-    const visibleOrder = [...order[0], ...order[1], ...order[2]];
-
-    handleVirtualization.mockReturnValueOnce(visibleOrder);
-
     const wrapper = shallowComponent(defaultProps);
     const instance = wrapper.instance();
     const instanceProps = instance.props;
@@ -343,16 +334,11 @@ describe('Grid', () => {
   });
 
   it('handleTouchStart executes correctly', () => {
-    const { order } = defaultProps;
     const touch = { test: 'touch' };
     const touchEvent = {
       preventDefault: jest.fn(),
       changedTouches: [touch],
     };
-
-    const visibleOrder = [...order[0], ...order[1], ...order[2]];
-
-    handleVirtualization.mockReturnValueOnce(visibleOrder);
 
     const wrapper = shallowComponent(defaultProps);
     const instance = wrapper.instance();
@@ -369,18 +355,7 @@ describe('Grid', () => {
   });
 
   it('handleMouseMove executes correctly', () => {
-    const {
-      fixedRows,
-      fixedColumns,
-      fixedWidthAll,
-      fixedHeightAll,
-      gutterX,
-      gutterY,
-    } = defaultProps;
     const id = defaultProps.items[0][0].key;
-    const keyObject = defaultProps.keys[id];
-    const toIndexX = 1;
-    const toIndexY = 1;
     const scrollLeft = 0;
     const scrollTop = 0;
     const containerWidth = 1000;
@@ -417,20 +392,15 @@ describe('Grid', () => {
         'test-4': defaultProps.order[2][0],
       },
     };
-    const { keys } = orderKeysObject;
-
-    const visibleOrder = Object.keys(keys).map(key => keys[key]);
 
     const updatedState = {
       ...startingState,
       mouseX: mouseMoveEvent.pageX - startingState.leftDeltaX,
       mouseY: mouseMoveEvent.pageY - startingState.topDeltaY,
-      visibleOrder,
     };
 
-    handleVirtualization.mockReturnValue(visibleOrder);
-    getMouseIndex.mockReturnValue({ toIndexX, toIndexY });
-    changeOrder.mockReturnValue(orderKeysObject);
+    defaultProps.orderManager.updateOrder
+      .mockReturnValue(orderKeysObject);
 
     const wrapper = shallowComponent(defaultProps);
     const instance = wrapper.instance();
@@ -444,32 +414,16 @@ describe('Grid', () => {
 
     expect(instanceProps).toEqual(defaultProps);
     expect(instanceState).toEqual(updatedState);
-    expect(getMouseIndex).toHaveBeenCalledTimes(1);
-    expect(getMouseIndex).toBeCalledWith({
-      order: defaultProps.order,
-      visibleOrder,
-      mouseX: updatedState.mouseX,
-      mouseY: updatedState.mouseY,
-    });
-    expect(changeOrder).toHaveBeenCalledTimes(1);
-    expect(changeOrder).toBeCalledWith({
-      order: defaultProps.order,
-      keys: defaultProps.keys,
-      fixedRows,
-      fixedColumns,
-      fixedWidthAll,
-      fixedHeightAll,
-      gutterX,
-      gutterY,
-      fromIndexX: keyObject.orderX,
-      fromIndexY: keyObject.orderY,
-      toIndexX,
-      toIndexY,
-    });
+    expect(defaultProps.orderManager.updateOrder)
+      .toHaveBeenCalledTimes(1);
+    expect(defaultProps.orderManager.updateOrder)
+      .toBeCalledWith({
+        mouseX: updatedState.mouseX,
+        mouseY: updatedState.mouseY,
+      });
   });
 
   it('handleTouchMove executes correctly, when isPressed is true', () => {
-    const { order } = defaultProps;
     const touch = { test: 'touch' };
     const touchEvent = {
       preventDefault: jest.fn(),
@@ -480,10 +434,6 @@ describe('Grid', () => {
       ...defaultState,
       isPressed: true,
     };
-
-    const visibleOrder = [...order[0], ...order[1], ...order[2]];
-
-    handleVirtualization.mockReturnValueOnce(visibleOrder);
 
     const wrapper = shallowComponent(defaultProps);
     const instance = wrapper.instance();
@@ -503,7 +453,6 @@ describe('Grid', () => {
   });
 
   it('handleTouchMove executes correctly, when isPressed is false', () => {
-    const { order } = defaultProps;
     const touch = { test: 'touch' };
     const touchEvent = {
       preventDefault: jest.fn(),
@@ -514,10 +463,6 @@ describe('Grid', () => {
       ...defaultState,
       isPressed: false,
     };
-
-    const visibleOrder = [...order[0], ...order[1], ...order[2]];
-
-    handleVirtualization.mockReturnValueOnce(visibleOrder);
 
     const wrapper = shallowComponent(defaultProps);
     const instance = wrapper.instance();
@@ -534,7 +479,6 @@ describe('Grid', () => {
   });
 
   it('handleMouseUp executes correctly', () => {
-    const { order } = defaultProps;
     const id = defaultProps.items[0][0].key;
     const scrollLeft = 0;
     const scrollTop = 0;
@@ -553,18 +497,13 @@ describe('Grid', () => {
       containerHeight,
     };
 
-    const visibleOrder = [...order[0], ...order[1], ...order[2]];
-
     const updatedState = {
       ...startingState,
       isPressed: false,
       leftDeltaX: 0,
       topDeltaY: 0,
-      visibleOrder,
       prevPressedItemKey: 'test-0',
     };
-
-    handleVirtualization.mockReturnValueOnce(visibleOrder);
 
     const wrapper = shallowComponent(defaultProps);
     const instance = wrapper.instance();
@@ -578,11 +517,11 @@ describe('Grid', () => {
 
     expect(instanceProps).toEqual(defaultProps);
     expect(instanceState).toEqual(updatedState);
-    expect(defaultProps.updateItems).toHaveBeenCalledTimes(1);
+    expect(defaultProps.orderManager.updateItems)
+      .toHaveBeenCalledTimes(1);
   });
 
   it('handleTouchEnd executes correctly, when isPressed is true', () => {
-    const { order } = defaultProps;
     const touch = { test: 'touch' };
     const touchEvent = {
       preventDefault: jest.fn(),
@@ -593,10 +532,6 @@ describe('Grid', () => {
       ...defaultState,
       isPressed: true,
     };
-
-    const visibleOrder = [...order[0], ...order[1], ...order[2]];
-
-    handleVirtualization.mockReturnValueOnce(visibleOrder);
 
     const wrapper = shallowComponent(defaultProps);
     const instance = wrapper.instance();
@@ -615,7 +550,6 @@ describe('Grid', () => {
   });
 
   it('handleTouchEnd executes correctly, when isPressed is false', () => {
-    const { order } = defaultProps;
     const touchEvent = {
       preventDefault: jest.fn(),
     };
@@ -624,10 +558,6 @@ describe('Grid', () => {
       ...defaultState,
       isPressed: false,
     };
-
-    const visibleOrder = [...order[0], ...order[1], ...order[2]];
-
-    handleVirtualization.mockReturnValueOnce(visibleOrder);
 
     const wrapper = shallowComponent(defaultProps);
     const instance = wrapper.instance();
@@ -675,7 +605,6 @@ describe('Grid', () => {
   });
 
   it('updateGridSize executes correctly', () => {
-    const { order } = defaultProps;
     const offsetWidth = 100;
     const offsetHeight = 200;
     const update = {
@@ -683,16 +612,10 @@ describe('Grid', () => {
       containerHeight: offsetHeight,
     };
 
-    const visibleOrder = [...order[0], ...order[1], ...order[2]];
-
     const expectedState = {
       ...defaultState,
       ...update,
-      visibleOrder,
     };
-
-
-    handleVirtualization.mockReturnValueOnce(visibleOrder);
 
     const wrapper = shallowComponent(defaultProps);
     const instance = wrapper.instance();
@@ -727,7 +650,6 @@ describe('Grid', () => {
       key: `key-${item.key}`,
       data: {
         item,
-        itemsBool: false,
       },
       style: {
         isPressed: false,
@@ -770,7 +692,6 @@ describe('Grid', () => {
       key: `key-${item.key}`,
       data: {
         item,
-        itemsBool: false,
       },
       style: {
         isPressed,
@@ -787,12 +708,10 @@ describe('Grid', () => {
     const { items, keys } = defaultProps;
     const item = items[2];
     const pressedItemKey = item.key;
-    const visibleOrder = Object.keys(keys).map(key => keys[key]);
 
     const startingState = {
       ...defaultState,
       pressedItemKey,
-      visibleOrder,
     };
 
     const expectedStyles = Object.keys(keys).map(key => key);

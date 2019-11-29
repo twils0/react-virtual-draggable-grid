@@ -51,7 +51,6 @@ const defaultProps = {
   },
   data: {
     item: { key, ItemComponent: TestComp, itemProps },
-    itemsBool: false,
   },
   fixedWidthAll: null,
   fixedHeightAll: null,
@@ -183,23 +182,6 @@ describe('GridItem', () => {
       style: {
         ...defaultProps.style,
         y: 300,
-      },
-    });
-
-    expect(instanceProps).toEqual(defaultProps);
-    expect(result).toEqual(true);
-  });
-
-  it('shouldComponentUpdate executes correctly, different itemsBool prop', () => {
-    const wrapper = shallowComponent(defaultProps);
-    const instance = wrapper.instance();
-    const instanceProps = instance.props;
-
-    const result = instance.shouldComponentUpdate({
-      ...defaultProps,
-      data: {
-        ...defaultProps.data,
-        itemsBool: true,
       },
     });
 
