@@ -38,7 +38,7 @@ TestComp.defaultProps = {
 };
 
 const key = 'test-1';
-const itemProps = { test: 'prop' };
+const itemProps = { name: key };
 
 const defaultProps = {
   style: {
