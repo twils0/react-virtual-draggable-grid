@@ -169,13 +169,13 @@ Generally, virtual scrolling is not an issue. The dragging and repositioning of 
 
 To combat performance issues, please consider the following options, in order of effectiveness:
 
-- Mark fixedRows and fixedColumns props as true and set fixedWidthAll and fixedHeightAll props to a number greater than 0 - by far the most effective performance boost available;
+- Mark fixedRows prop as true and set fixedWidthAll and fixedHeightAll props to a number greater than 0 - by far the most effective performance boost available;
 
 - Use the production build of React;
 
 - Reduce the average number of grid items rendered at one time, using leeway, scrollBufferX, and/or scrollBufferY - use getVisibleItems callback to check the number of grid items rendered at any given time;
 
-- Mark fixedRows and fixedColumns props as true;
+- Mark fixedRows prop as true;
 
 - Set fixedWidthAll and fixedHeightAll props;
 
@@ -202,8 +202,6 @@ To combat performance issues, please consider the following options, in order of
 - gutterY: (number; default: 0) add a space between the bottom and top of each grid item; a space is not added between grid items and the edge of the grid;
 
 - fixedRows: (boolean; default: false) row height will be determined by the grid item with the greatest height in each row; grid items will no longer gravitate toward the top of the screen;
-
-- fixedColumns: (boolean; default: false) column width will be determined by the grid item with the greatest width in each column;
 
 - fixedWidthAll: (number) set a fixed width for all grid items;
 

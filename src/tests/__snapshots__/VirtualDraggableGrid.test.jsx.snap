@@ -21,7 +21,6 @@ exports[`VirtualDraggableGrid renders correctly 1`] = `
   <Grid
     GridItemStyles={Object {}}
     GridStyles={Object {}}
-    fixedColumns={false}
     fixedHeightAll={null}
     fixedRows={false}
     fixedWidthAll={null}
