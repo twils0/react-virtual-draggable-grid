@@ -43,6 +43,8 @@ class Demo extends React.Component {
       items: [],
       x,
       y,
+      rowLimit: 0,
+      columnLimit: 0,
       fixedWidthAll: 250,
       fixedHeightAll: 325,
       gutterX: 20,
@@ -162,6 +164,8 @@ class Demo extends React.Component {
         const convertNumbers = [
           'x',
           'y',
+          'rowLimit',
+          'columnLimit',
           'fixedWidthAll',
           'fixedHeightAll',
           'gutterX',
@@ -198,6 +202,8 @@ class Demo extends React.Component {
     const {
       x,
       y,
+      rowLimit,
+      columnLimit,
       fixedWidthAll,
       fixedHeightAll,
       gutterX,
@@ -219,6 +225,8 @@ class Demo extends React.Component {
     return (
       <div
         style={{
+          display: 'flex',
+          flexDirection: 'column',
           width: `calc(${width} - ${buffer * 2}px`,
           height: `calc(${height} - ${buffer * 2}px`,
           margin: buffer,
@@ -235,11 +243,25 @@ class Demo extends React.Component {
           }}
         >
           <div style={{ flex: '0 0 auto', marginRight: buffer }}>
-            <Input id="x" label="Number of Rows (max: 100)" value={x} onChange={this.handleInput} />
+            <Input id="y" label="Number of Rows (max: 100)" value={y} onChange={this.handleInput} />
             <Input
-              id="y"
+              id="x"
               label="Number of Columns (max: 100)"
-              value={y}
+              value={x}
+              onChange={this.handleInput}
+            />
+          </div>
+          <div style={{ flex: '0 0 auto', marginRight: buffer }}>
+            <Input
+              id="rowLimit"
+              label="Row Limit (no effect at: 0)"
+              value={rowLimit}
+              onChange={this.handleInput}
+            />
+            <Input
+              id="columnLimit"
+              label="Column Limit (no effect at: 0)"
+              value={columnLimit}
               onChange={this.handleInput}
             />
           </div>
@@ -361,6 +383,8 @@ class Demo extends React.Component {
         </div>
         <VirtualDraggableGrid
           items={this.state.items}
+          rowLimit={rowLimit}
+          columnLimit={columnLimit}
           fixedRows={fixedRows}
           // fixedColumns={fixedColumns}
           fixedWidthAll={fixedWidthAllBool ? fixedWidthAll : null}
