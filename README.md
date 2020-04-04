@@ -145,7 +145,7 @@ class Grid extends React.Component {
 
 ### Dependencies
 
-react-virtual-draggable-grid currently has no dependencies, but react-transition-group may be added as a dependency, in the near future. It relies on React 16.3, or higher, and prop-types as peer dependencies.
+react-virtual-draggable-grid currently has no dependencies. It relies on React 16.3, or higher, and prop-types as peer dependencies.
 
 ### Installation
 
@@ -197,23 +197,29 @@ To combat performance issues, please consider the following options, in order of
   - ItemComponent: (required; React function or class component) this component will be rendered as a grid item;
   - itemProps: (object) this object will be passed as props to ItemComponent;
 
-- gutterX (number; default: 0): add a space between the right and left of each grid items; a space is not added between grid items and the edge of the grid;
+- rowLimit: (number; default: 0) limit the maximum number of rows to which the grid can expand; any number equal to or less than zero will provide no row limit; if the items prop provides rows in excess of the limit, these rows will not be included in the grid
 
-- gutterY: (number; default: 0) add a space between the bottom and top of each grid item; a space is not added between grid items and the edge of the grid;
+- columnLimit: (number; default: 0) limit the maximum number of columns to which the grid can expand; any number equal to or less than zero will provide no column limit; if the items prop provides columns in excess of the limit, these columns will not be included in the grid
 
 - fixedRows: (boolean; default: false) row height will be determined by the grid item with the greatest height in each row; grid items will no longer gravitate toward the top of the screen;
+
+- fixedColumns: (**DISABLED**) this prop has caused issues from the beginning; as such, it will remain disabled until a proper implementation can be determined
 
 - fixedWidthAll: (number) set a fixed width for all grid items;
 
 - fixedHeightAll: (number) set a fixed height for all grid items;
 
-- onlyDragElements: (array of strings) an array of HTML element names; only elements listed in this array will be allows to initiate drag events; in other words, these elements will act as drag handles for all grid items
+- onlyDragElements: (array of strings) an array of HTML element names; only elements listed in this array will be allowed to initiate drag events; in other words, these elements will act as drag handles for all grid items
 
 - onlyDragIds: (array of strings) an array of ids; only components with an id prop listed in this array will be allowed to initiate drag events; in other words, these components will act as drag handles for all grid items
 
-- noDragElements: (array of strings) an array of HTML element names; elements listed in this array will not be allows to initiate drag events; this prop helps prevent unwanted drag events, accidentally initiated when the user clicks a button on a grid item, for instance;
+- noDragElements: (array of strings) an array of HTML element names; elements listed in this array will not be allowed to initiate drag events; this prop helps prevent unwanted drag events, accidentally initiated when the user clicks a button on a grid item, for instance;
 
-- noDragIds: (array of strings) an array of HTML element names; elements listed in this array will not be allows to initiate drag events; this prop helps prevent unwanted drag events, accidentally initiated when the user clicks a button on a grid item, for instance;
+- noDragIds: (array of strings) an array of HTML element names; elements listed in this array will not be allowed to initiate drag events; this prop helps prevent unwanted drag events, accidentally initiated when the user clicks a button on a grid item, for instance;
+
+- gutterX (number; default: 0): add a space between the right and left of each grid items; a space is not added between grid items and the edge of the grid;
+
+- gutterY: (number; default: 0) add a space between the bottom and top of each grid item; a space is not added between grid items and the edge of the grid;
 
 - mouseUpdateTime: (number; default: 100) set a minimum, millisecond time interval for how often mouse or touch drag events can update the grid;
 
