@@ -38,6 +38,8 @@ class VirtualDraggableGrid extends React.Component {
 
   componentDidUpdate(prevProps) {
     const {
+      rowLimit,
+      columnLimit,
       fixedRows,
       // fixedColumns,
       fixedWidthAll,
@@ -49,7 +51,9 @@ class VirtualDraggableGrid extends React.Component {
       scrollBufferY,
     } = this.props;
 
-    const werePropsUpdated = fixedRows !== prevProps.fixedRows
+    const werePropsUpdated = rowLimit !== prevProps.rowLimit
+      || columnLimit !== prevProps.columnLimit
+      || fixedRows !== prevProps.fixedRows
       // || fixedColumns !== prevProps.fixedColumns
       || fixedWidthAll !== prevProps.fixedWidthAll
       || fixedHeightAll !== prevProps.fixedHeightAll
@@ -93,6 +97,8 @@ class VirtualDraggableGrid extends React.Component {
     if (Array.isArray(items) && items.length > 0) {
       const {
         WrapperStyles,
+        rowLimit,
+        columnLimit,
         fixedRows,
         // fixedColumns,
         fixedWidthAll,
@@ -157,6 +163,8 @@ class VirtualDraggableGrid extends React.Component {
             visibleOrder={visibleOrder}
             keys={keys}
             orderManager={orderManager}
+            rowLimit={rowLimit}
+            columnLimit={columnLimit}
             fixedRows={fixedRows}
             // fixedColumns={fixedColumns}
             fixedWidthAll={fixedWidthAll}
@@ -201,6 +209,8 @@ VirtualDraggableGrid.propTypes = {
   items: PropTypes.array,
   gutterX: PropTypes.number,
   gutterY: PropTypes.number,
+  rowLimit: PropTypes.number,
+  columnLimit: PropTypes.number,
   fixedRows: PropTypes.bool,
   // fixedColumns: PropTypes.bool,
   fixedWidthAll: PropTypes.number,
@@ -235,6 +245,8 @@ VirtualDraggableGrid.propTypes = {
 
 VirtualDraggableGrid.defaultProps = {
   items: [],
+  rowLimit: 0,
+  columnLimit: 0,
   fixedRows: false,
   // fixedColumns: false,
   fixedWidthAll: null,

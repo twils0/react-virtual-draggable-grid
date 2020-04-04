@@ -203,10 +203,55 @@ describe('handleOrder', () => {
     expect(result).toEqual(expectedResult);
   });
 
+  it('handleOrder executes correctly, with fixedWidth and fixedHeight and with rowLimit and columnLimit', () => {
+    const copyOrder = order.map(orderRow => [...orderRow]);
+    const copyKeys = { ...keys };
+    const rowLimit = 2;
+    const columnLimit = 1;
+    const fixedRows = null;
+    const fixedColumns = null;
+    const fixedWidthAll = null;
+    const fixedHeightAll = null;
+    const gutterX = 0;
+    const gutterY = 0;
+
+    const copyItems = [...items];
+    const expectedOrder = copyOrder.slice(0, 2);
+    expectedOrder[0].splice(1);
+    expectedOrder[1].splice(1);
+    expectedOrder[1][0] = { ...copyOrder[1][0], top: 100 };
+    delete copyKeys['test-1'];
+    delete copyKeys['test-3'];
+    delete copyKeys['test-4'];
+    copyKeys['test-2'] = { ...copyKeys['test-2'], top: 100 };
+
+    const expectedResult = {
+      order: expectedOrder,
+      keys: copyKeys,
+    };
+
+    const result = handleOrder({
+      items: copyItems,
+      order: copyOrder,
+      keys: copyKeys,
+      rowLimit,
+      columnLimit,
+      fixedRows,
+      fixedColumns,
+      fixedWidthAll,
+      fixedHeightAll,
+      gutterX,
+      gutterY,
+    });
+
+    expect(result).toEqual(expectedResult);
+  });
+
   it('handleOrder executes correctly, with fixedWidth and fixedHeight and new item, order, and keys', () => {
     const copyOrder = order.map(orderRow => [...orderRow]);
     const copyKeys = { ...keys };
-    const initialSizeBool = true;
+    const rowLimit = -1;
+    const columnLimit = -1;
     const fixedRows = null;
     const fixedColumns = null;
     const fixedWidthAll = null;
@@ -256,7 +301,8 @@ describe('handleOrder', () => {
       items: updatedItems,
       order: copyOrder,
       keys: copyKeys,
-      initialSizeBool,
+      rowLimit,
+      columnLimit,
       fixedRows,
       fixedColumns,
       fixedWidthAll,
@@ -271,7 +317,8 @@ describe('handleOrder', () => {
   it('handleOrder executes correctly, with fixedWidth, fixedHeight, fixedRows, and fixedColumns new item, order, and keys', () => {
     const copyOrder = order.map(orderRow => [...orderRow]);
     const copyKeys = { ...keys };
-    const initialSizeBool = true;
+    const rowLimit = -1;
+    const columnLimit = -1;
     const fixedRows = true;
     const fixedColumns = true;
     const fixedWidthAll = null;
@@ -335,7 +382,8 @@ describe('handleOrder', () => {
       items: updatedItems,
       order: copyOrder,
       keys: copyKeys,
-      initialSizeBool,
+      rowLimit,
+      columnLimit,
       fixedRows,
       fixedColumns,
       fixedWidthAll,
@@ -350,7 +398,8 @@ describe('handleOrder', () => {
   it('handleOrder executes correctly, with fixedWidthAll, fixedHeightAll, fixedRows, and fixedColumns new item, order, and keys', () => {
     const copyOrder = order.map(orderRow => [...orderRow]);
     const copyKeys = { ...keys };
-    const initialSizeBool = true;
+    const rowLimit = -1;
+    const columnLimit = -1;
     const fixedRows = true;
     const fixedColumns = true;
     const fixedWidthAll = 100;
@@ -413,7 +462,8 @@ describe('handleOrder', () => {
       items: updatedItems,
       order: copyOrder,
       keys: copyKeys,
-      initialSizeBool,
+      rowLimit,
+      columnLimit,
       fixedRows,
       fixedColumns,
       fixedWidthAll,
@@ -428,7 +478,8 @@ describe('handleOrder', () => {
   it('handleOrder executes correctly, with fixedWidthAll, fixedHeightAll, fixedRows, fixedColumns, gutterX, and gutterY', () => {
     const copyOrder = order.map(orderRow => [...orderRow]);
     const copyKeys = { ...keys };
-    const initialSizeBool = true;
+    const rowLimit = -1;
+    const columnLimit = -1;
     const fixedRows = true;
     const fixedColumns = true;
     const fixedWidthAll = 100;
@@ -461,7 +512,8 @@ describe('handleOrder', () => {
       items,
       order: copyOrder,
       keys: copyKeys,
-      initialSizeBool,
+      rowLimit,
+      columnLimit,
       fixedRows,
       fixedColumns,
       fixedWidthAll,
@@ -476,7 +528,8 @@ describe('handleOrder', () => {
   it('handleOrder executes correctly, with fixedRows, fixedColumns, gutterX, and gutterY', () => {
     const copyOrder = order.map(orderRow => [...orderRow]);
     const copyKeys = { ...keys };
-    const initialSizeBool = true;
+    const rowLimit = -1;
+    const columnLimit = -1;
     const fixedRows = true;
     const fixedColumns = true;
     const fixedWidthAll = null;
@@ -510,7 +563,8 @@ describe('handleOrder', () => {
       items,
       order: copyOrder,
       keys: copyKeys,
-      initialSizeBool,
+      rowLimit,
+      columnLimit,
       fixedRows,
       fixedColumns,
       fixedWidthAll,
@@ -525,7 +579,8 @@ describe('handleOrder', () => {
   it('handleOrder executes correctly, with gutterX and gutterY', () => {
     const copyOrder = order.map(orderRow => [...orderRow]);
     const copyKeys = { ...keys };
-    const initialSizeBool = true;
+    const rowLimit = -1;
+    const columnLimit = -1;
     const fixedRows = false;
     const fixedColumns = false;
     const fixedWidthAll = null;
@@ -561,7 +616,8 @@ describe('handleOrder', () => {
       items,
       order: copyOrder,
       keys: copyKeys,
-      initialSizeBool,
+      rowLimit,
+      columnLimit,
       fixedRows,
       fixedColumns,
       fixedWidthAll,

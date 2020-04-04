@@ -51,6 +51,8 @@ class Grid extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     const {
       orderManager,
+      rowLimit,
+      columnLimit,
       fixedRows,
       // fixedColumns,
       fixedWidthAll,
@@ -73,7 +75,9 @@ class Grid extends React.Component {
       || prevScrollLeft !== prevState.prevScrollLeft
       || prevScrollTop !== prevState.prevScrollTop;
 
-    const werePropsUpdated = fixedRows !== prevProps.fixedRows
+    const werePropsUpdated = rowLimit !== prevProps.rowLimit
+      || columnLimit !== prevProps.columnLimit
+      || fixedRows !== prevProps.fixedRows
       // || fixedColumns !== prevProps.fixedColumns
       || fixedWidthAll !== prevProps.fixedWidthAll
       || fixedHeightAll !== prevProps.fixedHeightAll
@@ -540,6 +544,8 @@ Grid.propTypes = {
   keys: PropTypes.object.isRequired,
   gutterX: PropTypes.number.isRequired,
   gutterY: PropTypes.number.isRequired,
+  rowLimit: PropTypes.number,
+  columnLimit: PropTypes.number,
   fixedRows: PropTypes.bool.isRequired,
   // fixedColumns: PropTypes.bool.isRequired,
   fixedWidthAll: PropTypes.number,

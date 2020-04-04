@@ -49,6 +49,8 @@ TestComp.defaultProps = {
 };
 
 const defaultProps = {
+  rowLimit: -1,
+  columnLimit: -1,
   fixedRows: false,
   fixedColumns: false,
   fixedWidthAll: null,

@@ -48,7 +48,7 @@ TestComp.defaultProps = {
 
 const defaultProps = {
   fixedRows: false,
-  fixedColumns: false,
+  // fixedColumns: false,
   fixedWidthAll: null,
   fixedHeightAll: null,
   onlyDragElements: [],
@@ -381,8 +381,7 @@ describe('OrderManager', () => {
   });
 
   // also tests updateVisibleOrderNoState
-  it('updateOrder executes correctly; '
-      + 'no order 2D array or keys object returned from changeOrder', () => {
+  it('updateOrder executes correctly; no order 2D array or keys object returned from changeOrder', () => {
     getMouseIndex.mockReturnValue({
       toIndexX: gridState.toIndexX,
       toIndexY: gridState.toIndexY,
@@ -453,8 +452,7 @@ describe('OrderManager', () => {
   });
 
   // also tests updateVisibleOrderNoState
-  it('updateVisibleOrder executes correctly; '
-      + 'items array is empty', () => {
+  it('updateVisibleOrder executes correctly; items array is empty', () => {
     getVDGState.mockReturnValueOnce({
       ...vgdState,
       order: updatedOrder,
@@ -517,8 +515,7 @@ describe('OrderManager', () => {
     expect(defaultProps.getItems).toBeCalledWith(updatedItems);
   });
 
-  it('updateItems executes correctly; '
-      + 'order 2D array and keys object is empty', () => {
+  it('updateItems executes correctly; order 2D array and keys object is empty', () => {
     getVDGState.mockReturnValueOnce({
       ...vgdState,
       order: [],

@@ -21,6 +21,7 @@ exports[`VirtualDraggableGrid renders correctly 1`] = `
   <Grid
     GridItemStyles={Object {}}
     GridStyles={Object {}}
+    columnLimit={-1}
     fixedHeightAll={null}
     fixedRows={false}
     fixedWidthAll={null}
@@ -375,6 +376,7 @@ exports[`VirtualDraggableGrid renders correctly 1`] = `
         "updateVisibleOrderNoState": [MockFunction],
       }
     }
+    rowLimit={-1}
     scrollBufferX={200}
     scrollBufferY={200}
     scrollUpdateX={100}

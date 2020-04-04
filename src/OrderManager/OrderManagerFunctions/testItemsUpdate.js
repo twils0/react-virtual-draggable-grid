@@ -3,6 +3,8 @@ const testItemsUpdate = ({
   items,
   order,
   keys,
+  rowLimit,
+  columnLimit,
   fixedWidthAll,
   fixedHeightAll,
 }) => {
@@ -10,12 +12,15 @@ const testItemsUpdate = ({
     return true;
   }
 
+  const limitedItems = rowLimit > 0 ? items.slice(0, rowLimit) : items;
   const keysLen = Object.keys(keys).length;
   let count = 0;
 
-  const someBoolItems = items.some((itemsRow, indexY) => {
+  const someBoolItems = limitedItems.some((itemsRow, indexY) => {
     if (itemsRow && Array.isArray(itemsRow)) {
-      const someBoolRow = itemsRow.some((item, indexX) => {
+      const limitedItemsRow = columnLimit > 0 ? itemsRow.slice(0, columnLimit) : itemsRow;
+
+      const someBoolRow = limitedItemsRow.some((item, indexX) => {
         // ignore any item object missing an ItemComponent,
         // key, fixedWidth, or fixedHeight prop
         if (
@@ -89,7 +94,7 @@ const testItemsUpdate = ({
   // if the number of items provided doesn't match the
   // current number of object keys in the keys object, something
   // has changed
-  if (!someBoolItems && count !== keysLen) {
+  if (count !== keysLen) {
     return true;
   }
 

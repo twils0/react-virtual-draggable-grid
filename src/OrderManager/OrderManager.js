@@ -24,8 +24,10 @@ class Order {
   setOrder = () => {
     const {
       items,
+      rowLimit,
+      columnLimit,
       fixedRows,
-      fixedColumns,
+      // fixedColumns,
       fixedWidthAll,
       fixedHeightAll,
       gutterX,
@@ -34,8 +36,10 @@ class Order {
 
     const { order, keys } = handleOrder({
       items,
+      rowLimit,
+      columnLimit,
       fixedRows,
-      fixedColumns,
+      // fixedColumns,
       fixedWidthAll,
       fixedHeightAll,
       gutterX,
@@ -48,6 +52,8 @@ class Order {
   testItemsUpdate = () => {
     const {
       items,
+      rowLimit,
+      columnLimit,
       fixedWidthAll,
       fixedHeightAll,
     } = this.getProps();
@@ -62,6 +68,8 @@ class Order {
       items,
       order,
       keys,
+      rowLimit,
+      columnLimit,
       fixedWidthAll,
       fixedHeightAll,
     });
@@ -73,8 +81,10 @@ class Order {
     mouseY,
   }) => {
     const {
+      rowLimit,
+      columnLimit,
       fixedRows,
-      fixedColumns,
+      // fixedColumns,
       fixedWidthAll,
       fixedHeightAll,
       gutterX,
@@ -115,8 +125,10 @@ class Order {
         const newOrderKeysObject = changeOrder({
           order,
           keys,
+          rowLimit,
+          columnLimit,
           fixedRows,
-          fixedColumns,
+          // fixedColumns,
           fixedWidthAll,
           fixedHeightAll,
           gutterX,

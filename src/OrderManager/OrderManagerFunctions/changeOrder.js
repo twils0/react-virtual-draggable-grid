@@ -5,6 +5,8 @@ import updatePositions from './updatePositions';
 const changeOrder = ({
   order,
   keys,
+  rowLimit,
+  columnLimit,
   fixedRows,
   fixedColumns,
   fixedWidthAll,
@@ -18,9 +20,26 @@ const changeOrder = ({
 }) => {
   const newOrder = [...order];
   const fromRow = newOrder[fromIndexY] && [...newOrder[fromIndexY]];
+
   newOrder[fromIndexY] = fromRow;
 
   if (fromRow && fromRow[fromIndexX]) {
+    const toRow = newOrder[toIndexY];
+    const newOrderLen = newOrder.length;
+
+    console.log(newOrderLen, rowLimit, columnLimit, toRow && toRow.length);
+    console.log('test 2', fromIndexX, toIndexX);
+    console.log('test 2', fromIndexY, toIndexY);
+
+    // prevent order change if it would cause rowLimit or columnLimit
+    // to be exceeded; movement of an item within the same row or column
+    // does not increase the total number of items in that row or column
+    if ((rowLimit > 0 && !toRow && newOrderLen >= rowLimit && fromIndexX !== toIndexX)
+      || (columnLimit > 0 && toRow && toRow.length >= columnLimit && fromIndexY !== toIndexY)
+    ) {
+      return {};
+    }
+
     const orderObject = { ...fromRow[fromIndexX] };
 
     if (fromRow.length === 1) {
@@ -29,11 +48,7 @@ const changeOrder = ({
       fromRow.splice(fromIndexX, 1);
     }
 
-    const toRow = newOrder[toIndexY];
-
     if (!toRow) {
-      const newOrderLen = newOrder.length;
-
       newOrder[newOrderLen] = [orderObject];
     } else {
       const newToRow = [...toRow];
