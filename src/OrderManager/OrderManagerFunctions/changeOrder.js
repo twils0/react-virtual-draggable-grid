@@ -30,7 +30,7 @@ const changeOrder = ({
     // prevent order change if it would cause rowLimit or columnLimit
     // to be exceeded; movement of an item within the same row or column
     // does not increase the total number of items in that row or column
-    if ((rowLimit > 0 && !toRow && newOrderLen >= rowLimit && fromIndexX !== toIndexX)
+    if ((rowLimit > 0 && !toRow && newOrderLen >= rowLimit)
       || (columnLimit > 0 && toRow && toRow.length >= columnLimit && fromIndexY !== toIndexY)
     ) {
       return {};

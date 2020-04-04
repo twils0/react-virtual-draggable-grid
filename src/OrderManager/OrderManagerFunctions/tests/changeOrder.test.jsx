@@ -423,6 +423,72 @@ describe('changeOrder', () => {
     expect(result).toEqual({});
   });
 
+  it('changeOrder executes correctly; can move item within the same row without violating the row limit', () => {
+    const copyOrder = order.map(orderRow => [...orderRow]);
+    const rowLimit = 2;
+    const columnLimit = -1;
+    const fixedRows = null;
+    const fixedColumns = null;
+    const fixedWidthAll = null;
+    const fixedHeightAll = null;
+    const gutterX = 0;
+    const gutterY = 0;
+
+    const expectedOrder = order.map(orderRow => [...orderRow]);
+    const expectedKeys = { ...keys };
+
+    const orderObject10 = {
+      ...order[1][0],
+      orderX: 1,
+      orderY: 1,
+      left: 400,
+      top: 0,
+    };
+    const orderObject11 = {
+      ...order[1][1],
+      orderX: 0,
+      orderY: 1,
+      left: 0,
+      top: 200,
+    };
+    const orderObject20 = {
+      ...order[2][0],
+      top: 600,
+    };
+
+    expectedOrder[1][1] = orderObject10;
+    expectedOrder[1][0] = orderObject11;
+    expectedOrder[2][0] = orderObject20;
+
+    expectedKeys[orderObject10.key] = orderObject10;
+    expectedKeys[orderObject11.key] = orderObject11;
+    expectedKeys[orderObject20.key] = orderObject20;
+
+    const expectedResult = {
+      order: expectedOrder,
+      keys: expectedKeys,
+    };
+
+    const result = changeOrder({
+      order: copyOrder,
+      keys,
+      rowLimit,
+      columnLimit,
+      fixedRows,
+      fixedColumns,
+      fixedWidthAll,
+      fixedHeightAll,
+      gutterX,
+      gutterY,
+      fromIndexX: 0,
+      fromIndexY: 1,
+      toIndexX: 1,
+      toIndexY: 1,
+    });
+
+    expect(result).toEqual(expectedResult);
+  });
+
   it('changeOrder executes correctly; does not expand past column limit', () => {
     const copyOrder = order.map(orderRow => [...orderRow]);
     const rowLimit = -1;
