@@ -3,6 +3,7 @@
 bin
 **/node_modules
 **/coverage
+package-lock.json
 **/package-lock.json
 
 !demo/bin
