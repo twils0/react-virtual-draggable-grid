@@ -54,7 +54,7 @@ class Grid extends React.Component {
       rowLimit,
       columnLimit,
       fixedRows,
-      // fixedColumns,
+      fixedColumns,
       fixedWidthAll,
       fixedHeightAll,
       gutterX,
@@ -78,7 +78,7 @@ class Grid extends React.Component {
     const werePropsUpdated = rowLimit !== prevProps.rowLimit
       || columnLimit !== prevProps.columnLimit
       || fixedRows !== prevProps.fixedRows
-      // || fixedColumns !== prevProps.fixedColumns
+      || fixedColumns !== prevProps.fixedColumns
       || fixedWidthAll !== prevProps.fixedWidthAll
       || fixedHeightAll !== prevProps.fixedHeightAll
       || gutterX !== prevProps.gutterX
@@ -547,7 +547,7 @@ Grid.propTypes = {
   rowLimit: PropTypes.number,
   columnLimit: PropTypes.number,
   fixedRows: PropTypes.bool.isRequired,
-  // fixedColumns: PropTypes.bool.isRequired,
+  fixedColumns: PropTypes.bool.isRequired,
   fixedWidthAll: PropTypes.number,
   fixedHeightAll: PropTypes.number,
   onlyDragElements: PropTypes.array.isRequired,
@@ -578,6 +578,8 @@ Grid.propTypes = {
 };
 
 Grid.defaultProps = {
+  rowLimit: 0,
+  columnLimit: 0,
   fixedWidthAll: null,
   fixedHeightAll: null,
   shadowBlur: null,

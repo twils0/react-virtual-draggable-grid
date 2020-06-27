@@ -1,5 +1,3 @@
-import findMaxHeight from './findMaxHeight';
-import findMaxWidth from './findMaxWidth';
 import handleOrderObject from './handleOrderObject';
 import getPositionLeft from './getPositionLeft';
 import getPositionTop from './getPositionTop';
@@ -17,139 +15,120 @@ const handleOrder = ({
   gutterX,
   gutterY,
 }) => {
-  const newOrder = [];
+  const limitedRowLen = rowLimit > 0 ? rowLimit : items.length;
+  const newOrder = new Array(limitedRowLen);
   const newKeys = {};
-  let maxBottom = null;
-  const maxRightArray = [];
-  const limitedItems = rowLimit > 0 ? items.slice(0, rowLimit) : items;
+  const maxWidthArr = [];
+  let maxBottom = 0;
 
-  if (fixedColumns && !fixedWidthAll) {
-    maxRightArray[0] = 0;
-  }
-  if (fixedRows && !fixedHeightAll) {
-    maxBottom = 0;
-  }
+  for (let iY = 0; iY < limitedRowLen; iY += 1) {
+    const itemsRow = Array.isArray(items[iY]) ? items[iY] : [items[iY]];
+    const limitedColLen = columnLimit > 0 ? columnLimit : itemsRow.length;
+    const orderRow = new Array(limitedColLen);
+    let maxHeight = 0;
 
-  limitedItems
-    .forEach((itemsRow, iY) => {
-    // if fixedRows is true and fixedHeightAll is falsy,
-    // set a maxBottom value from the previous row, to use
-    // as the top value for all orderObjects in the current row
-      if (fixedRows && !fixedHeightAll && iY > 0) {
-        maxBottom += findMaxHeight({ order: newOrder, indexY: iY - 1 }) + gutterY;
-      }
+    newOrder[iY] = orderRow;
 
-      // test if itemsRow is an array, or simply a solitary item
-      if (itemsRow && Array.isArray(itemsRow)) {
-        const row = [];
-        const limitedItemsRow = columnLimit > 0 ? itemsRow.slice(0, columnLimit) : itemsRow;
-
-        newOrder.push(row);
-
-        limitedItemsRow
-          .forEach((item, iX) => {
-            // generate a new orderObject
-            const orderObject = handleOrderObject({
-              item,
-              indexX: iX,
-              indexY: iY,
-              fixedWidthAll,
-              fixedHeightAll,
-            });
-
-            if (orderObject) {
-              row.push(orderObject);
-              newKeys[item.key] = orderObject;
-
-              // quickly calculate left position if fixedColumns is true and
-              // fixedWidthAll is set to a number greater than 0
-              if (fixedColumns && fixedWidthAll) {
-                orderObject.left = iX * (fixedWidthAll + gutterX);
-                // if fixedColumns is true and fixedWidthAll is falsy,
-                // do nothing here; wait until all orderObjects have
-                // width values
-              } else if (!fixedColumns || fixedWidthAll) {
-                orderObject.left = getPositionLeft({
-                  order: newOrder,
-                  orderX: iX,
-                  orderY: iY,
-                  gutterX,
-                });
-              }
-
-              // quickly calculate top position if fixedRows is true and
-              // fixedHeightAll is set to a number greater than 0
-              if (fixedRows && fixedHeightAll) {
-                orderObject.top = iY * (fixedHeightAll + gutterY);
-              } else if (typeof maxBottom === 'number') {
-                orderObject.top = maxBottom;
-              } else {
-                orderObject.top = getPositionTop({
-                  order: newOrder,
-                  orderX: iX,
-                  orderY: iY,
-                  gutterX,
-                  gutterY,
-                });
-              }
-            }
-          });
-      } else {
-      // generate a new orderObject
-        const orderObject = handleOrderObject({
-          item: itemsRow,
-          indexX: 0,
-          indexY: iY,
-          fixedWidthAll,
-          fixedHeightAll,
-        });
-
-        if (orderObject) {
-          newOrder.push([orderObject]);
-          newKeys[itemsRow.key] = orderObject;
-
-          // when only one item is present in a row,
-          // its left position is always 0
-          orderObject.left = 0;
-
-          if (fixedRows && fixedHeightAll) {
-            orderObject.top = iY * (fixedHeightAll + gutterY);
-          } else if (typeof maxBottom === 'number') {
-            orderObject.top = maxBottom;
-          } else {
-            orderObject.top = getPositionTop({
-              order: newOrder,
-              keys: newKeys,
-              orderX: 0,
-              orderY: iY,
-              gutterX,
-              gutterY,
-            });
-          }
-        }
-      }
-    });
-
-  // must run at end, to ensure width values have been set for all
-  // orderObjects in each column; if fixedColumns is truthy and
-  // fixedWidthAll is falsy, set a maxRight value at the current
-  // index in the maxRightArray, to use as the left value for all
-  // orderObjects at that index
-  if (fixedColumns && !fixedWidthAll) {
-    newOrder.forEach((orderRow) => {
-      orderRow.forEach((orderObject, iX) => {
-        if (typeof maxRightArray[iX] !== 'number') {
-          maxRightArray[iX] = maxRightArray[iX - 1]
-            + findMaxWidth({
-              order: newOrder,
-              indexX: iX - 1,
-            })
-            + gutterX;
-        }
-
-        orderObject.left = maxRightArray[iX]; // eslint-disable-line no-param-reassign
+    for (let iX = 0; iX < limitedColLen; iX += 1) {
+      const item = itemsRow[iX];
+      const orderObject = handleOrderObject({
+        item,
+        indexX: iX,
+        indexY: iY,
+        fixedWidthAll,
+        fixedHeightAll,
       });
-    });
+
+      if (orderObject) {
+        orderRow[iX] = orderObject;
+        newKeys[item.key] = orderObject;
+
+        // === Columns === //
+
+        if (fixedColumns) {
+          if (fixedWidthAll) {
+            orderObject.left = iX * (fixedWidthAll + gutterX);
+          } else {
+            if (!maxWidthArr[iX]) maxWidthArr[iX] = 0;
+            if (orderObject.width > maxWidthArr[iX]) maxWidthArr[iX] = orderObject.width;
+          }
+        } else {
+          orderObject.left = getPositionLeft({
+            order: newOrder,
+            orderX: iX,
+            orderY: iY,
+            gutterX,
+          });
+        }
+
+        // === Rows === //
+
+        if (fixedRows) {
+          if (fixedHeightAll) {
+            orderObject.top = iY * (fixedHeightAll + gutterY);
+          } else {
+            if (orderObject.height > maxHeight) maxHeight = orderObject.height;
+
+            orderObject.top = maxBottom;
+          }
+          // objectObject.left may not be set, if fixedColumns and !fixedWidthAll
+        } else if (typeof orderObject.left === 'number') {
+          orderObject.top = getPositionTop({
+            order: newOrder,
+            orderX: iX,
+            orderY: iY,
+            gutterX,
+            gutterY,
+          });
+        }
+      }
+    }
+
+    if (fixedRows && !fixedHeightAll) {
+      maxBottom += maxHeight + gutterY;
+    }
+  }
+  // unfortunately, need to loop through again in this case
+  // to set orderObject.left
+  if (fixedColumns && !fixedWidthAll) {
+    const leftArr = [0];
+    maxBottom = 0;
+
+    for (let iY = 0; iY < newOrder.length; iY += 1) {
+      const orderRow = newOrder[iY];
+      let maxHeight = 0;
+
+      for (let iX = 0; iX < orderRow.length; iX += 1) {
+        const orderObject = orderRow[iX];
+
+        if (!leftArr[iX] && iX > 0) leftArr[iX] = leftArr[iX - 1] + maxWidthArr[iX - 1] + gutterX;
+
+        orderObject.left = leftArr[iX];
+
+        if (fixedRows) {
+          if (fixedHeightAll) {
+            orderObject.top = iY * (fixedHeightAll + gutterY);
+          } else {
+            if (orderObject.height > maxHeight) maxHeight = orderObject.height;
+
+            orderObject.top = maxBottom;
+          }
+          // objectObject.left may not be set, if fixedColumns and !fixedWidthAll
+        } else if (typeof orderObject.left === 'number') {
+          orderObject.top = getPositionTop({
+            order: newOrder,
+            orderX: iX,
+            orderY: iY,
+            gutterX,
+            gutterY,
+          });
+        }
+      }
+
+      if (fixedRows && !fixedHeightAll) {
+        maxBottom += maxHeight + gutterY;
+      }
+    }
   }
 
   return {

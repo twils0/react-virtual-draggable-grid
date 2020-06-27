@@ -133,14 +133,17 @@ class Grid extends React.Component {
           noDragElements={['button']}
           gutterX={10}
           gutterY={10}
-          scrollBufferX={300}
-          scrollBufferY={300}
+          scrollBufferX={400}
+          scrollBufferY={400}
           getItems={this.getItems}
         />
       </div>
     );
   }
 }
+
+const rootElement = document.getElementById('root');
+ReactDOM.render(<Grid />, rootElement);
 ```
 
 ### Dependencies
@@ -203,7 +206,7 @@ To combat performance issues, please consider the following options, in order of
 
 - fixedRows: (boolean; default: false) row height will be determined by the grid item with the greatest height in each row; grid items will no longer gravitate toward the top of the screen;
 
-- fixedColumns: (**DISABLED**) this prop has caused issues from the beginning; as such, it will remain disabled until a proper implementation can be determined
+- fixedColumns: (boolean; default: false) column height will be determined by the grid item with the greatest width in each column; grid items will no longer gravitate toward the top of the screen;
 
 - fixedWidthAll: (number) set a fixed width for all grid items;
 

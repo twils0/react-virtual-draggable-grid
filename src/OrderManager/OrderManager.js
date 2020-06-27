@@ -6,7 +6,7 @@ import handleVirtualization from './OrderManagerFunctions/handleVirtualization';
 import testItemsUpdate from './OrderManagerFunctions/testItemsUpdate';
 import findMaxPosition from './OrderManagerFunctions/findMaxPosition';
 
-class Order {
+class OrderManager {
   constructor(
     getPropsCallback,
     getVDGStateCallback,
@@ -27,7 +27,7 @@ class Order {
       rowLimit,
       columnLimit,
       fixedRows,
-      // fixedColumns,
+      fixedColumns,
       fixedWidthAll,
       fixedHeightAll,
       gutterX,
@@ -39,7 +39,7 @@ class Order {
       rowLimit,
       columnLimit,
       fixedRows,
-      // fixedColumns,
+      fixedColumns,
       fixedWidthAll,
       fixedHeightAll,
       gutterX,
@@ -84,7 +84,7 @@ class Order {
       rowLimit,
       columnLimit,
       fixedRows,
-      // fixedColumns,
+      fixedColumns,
       fixedWidthAll,
       fixedHeightAll,
       gutterX,
@@ -128,7 +128,7 @@ class Order {
           rowLimit,
           columnLimit,
           fixedRows,
-          // fixedColumns,
+          fixedColumns,
           fixedWidthAll,
           fixedHeightAll,
           gutterX,
@@ -293,4 +293,4 @@ class Order {
   };
 }
 
-export default Order;
+export default OrderManager;

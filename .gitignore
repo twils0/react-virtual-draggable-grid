@@ -1,4 +1,5 @@
 .vscode
+.idea
 bin
 **/node_modules
 **/coverage

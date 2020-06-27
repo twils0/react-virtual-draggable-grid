@@ -3,82 +3,86 @@ import findMaxPosition from '../findMaxPosition';
 global.addEventListener = jest.fn();
 global.removeEventListener = jest.fn();
 
-const order = [
-  [
-    {
-      key: 'test-0',
-      itemX: 0,
-      itemY: 0,
-      orderX: 0,
-      orderY: 0,
-      width: 100,
-      height: 100,
-      left: 0,
-      top: 0,
-    },
-    {
-      key: 'test-1',
-      itemX: 1,
-      itemY: 0,
-      orderX: 1,
-      orderY: 0,
-      width: 200,
-      height: 200,
-      left: 100,
-      top: 0,
-    },
-  ],
-  [
-    {
-      key: 'test-2',
-      itemX: 0,
-      itemY: 1,
-      orderX: 0,
-      orderY: 1,
-      width: 300,
-      height: 300,
-      left: 0,
-      top: 200,
-    },
-    {
-      key: 'test-3',
-      itemX: 1,
-      itemY: 1,
-      orderX: 1,
-      orderY: 1,
-      width: 400,
-      height: 400,
-      left: 300,
-      top: 0,
-    },
-    {
-      key: 'test-4',
-      itemX: 2,
-      itemY: 1,
-      orderX: 2,
-      orderY: 1,
-      width: 500,
-      height: 500,
-      left: 700,
-      top: 0,
-    },
-  ],
-  [
-    {
-      key: 'test-5',
-      itemX: 0,
-      itemY: 2,
-      orderX: 0,
-      orderY: 2,
-      width: 600,
-      height: 600,
-      left: 0,
-      top: 500,
-    },
-  ],
-];
-
 describe('findMaxPosition', () => {
+  let order;
+
+  beforeEach(() => {
+    order = [
+      [
+        {
+          key: 'test-0',
+          itemX: 0,
+          itemY: 0,
+          orderX: 0,
+          orderY: 0,
+          width: 100,
+          height: 100,
+          left: 0,
+          top: 0,
+        },
+        {
+          key: 'test-1',
+          itemX: 1,
+          itemY: 0,
+          orderX: 1,
+          orderY: 0,
+          width: 200,
+          height: 200,
+          left: 100,
+          top: 0,
+        },
+      ],
+      [
+        {
+          key: 'test-2',
+          itemX: 0,
+          itemY: 1,
+          orderX: 0,
+          orderY: 1,
+          width: 300,
+          height: 300,
+          left: 0,
+          top: 200,
+        },
+        {
+          key: 'test-3',
+          itemX: 1,
+          itemY: 1,
+          orderX: 1,
+          orderY: 1,
+          width: 400,
+          height: 400,
+          left: 300,
+          top: 0,
+        },
+        {
+          key: 'test-4',
+          itemX: 2,
+          itemY: 1,
+          orderX: 2,
+          orderY: 1,
+          width: 500,
+          height: 500,
+          left: 700,
+          top: 0,
+        },
+      ],
+      [
+        {
+          key: 'test-5',
+          itemX: 0,
+          itemY: 2,
+          orderX: 0,
+          orderY: 2,
+          width: 600,
+          height: 600,
+          left: 0,
+          top: 500,
+        },
+      ],
+    ];
+  });
+
   it('findMaxPosition executes correctly 1', () => {
     const copyOrder = order.map(orderRow => [...orderRow]);
     const fixedWidthAll = null;

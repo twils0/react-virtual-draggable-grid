@@ -55,14 +55,12 @@ class Demo extends React.Component {
       onlyDragElements: '',
       noDragElements: 'button, a',
       fixedRows: false,
-      // fixedColumns: false,
+      fixedColumns: false,
       fixedWidthAllBool: false,
       fixedHeightAllBool: false,
     };
 
-    const items = this.generateItems({ x, y });
-
-    this.state.items = items;
+    this.state.items = this.generateItems({ x, y });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -122,8 +120,7 @@ class Demo extends React.Component {
   addItem = () => {
     const { items } = this.state;
     const newItem = this.itemObject();
-    const firstRow = [newItem, ...items[0]];
-    items[0] = firstRow;
+    items[0] = [newItem, ...items[0]];
 
     this.setState({ items });
   };
@@ -214,7 +211,7 @@ class Demo extends React.Component {
       onlyDragElements,
       noDragElements,
       fixedRows,
-      // fixedColumns,
+      fixedColumns,
       fixedWidthAllBool,
       fixedHeightAllBool,
     } = this.state;
@@ -321,12 +318,12 @@ class Demo extends React.Component {
               checked={fixedRows}
               onChange={this.toggleCheckbox}
             />
-            {/* <Checkbox
+            <Checkbox
               id="fixedColumns"
               label="Fixed Columns"
               checked={fixedColumns}
               onChange={this.toggleCheckbox}
-            /> */}
+            />
           </div>
           <div style={{ flex: '0 0 auto', marginRight: buffer }}>
             <Checkbox
@@ -386,7 +383,7 @@ class Demo extends React.Component {
           rowLimit={rowLimit}
           columnLimit={columnLimit}
           fixedRows={fixedRows}
-          // fixedColumns={fixedColumns}
+          fixedColumns={fixedColumns}
           fixedWidthAll={fixedWidthAllBool ? fixedWidthAll : null}
           fixedHeightAll={fixedHeightAllBool ? fixedHeightAll : null}
           gutterX={gutterX}

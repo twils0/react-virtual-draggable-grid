@@ -41,7 +41,7 @@ class VirtualDraggableGrid extends React.Component {
       rowLimit,
       columnLimit,
       fixedRows,
-      // fixedColumns,
+      fixedColumns,
       fixedWidthAll,
       fixedHeightAll,
       gutterX,
@@ -54,7 +54,7 @@ class VirtualDraggableGrid extends React.Component {
     const werePropsUpdated = rowLimit !== prevProps.rowLimit
       || columnLimit !== prevProps.columnLimit
       || fixedRows !== prevProps.fixedRows
-      // || fixedColumns !== prevProps.fixedColumns
+      || fixedColumns !== prevProps.fixedColumns
       || fixedWidthAll !== prevProps.fixedWidthAll
       || fixedHeightAll !== prevProps.fixedHeightAll
       || gutterX !== prevProps.gutterX
@@ -100,7 +100,7 @@ class VirtualDraggableGrid extends React.Component {
         rowLimit,
         columnLimit,
         fixedRows,
-        // fixedColumns,
+        fixedColumns,
         fixedWidthAll,
         fixedHeightAll,
         onlyDragElements,
@@ -166,7 +166,7 @@ class VirtualDraggableGrid extends React.Component {
             rowLimit={rowLimit}
             columnLimit={columnLimit}
             fixedRows={fixedRows}
-            // fixedColumns={fixedColumns}
+            fixedColumns={fixedColumns}
             fixedWidthAll={fixedWidthAll}
             fixedHeightAll={fixedHeightAll}
             onlyDragElements={onlyDragElements}
@@ -212,7 +212,7 @@ VirtualDraggableGrid.propTypes = {
   rowLimit: PropTypes.number,
   columnLimit: PropTypes.number,
   fixedRows: PropTypes.bool,
-  // fixedColumns: PropTypes.bool,
+  fixedColumns: PropTypes.bool,
   fixedWidthAll: PropTypes.number,
   fixedHeightAll: PropTypes.number,
   onlyDragElements: PropTypes.array,
@@ -248,7 +248,7 @@ VirtualDraggableGrid.defaultProps = {
   rowLimit: 0,
   columnLimit: 0,
   fixedRows: false,
-  // fixedColumns: false,
+  fixedColumns: false,
   fixedWidthAll: null,
   fixedHeightAll: null,
   onlyDragElements: [],

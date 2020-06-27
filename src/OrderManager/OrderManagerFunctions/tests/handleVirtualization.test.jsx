@@ -1,63 +1,68 @@
 import handleVirtualization from '../handleVirtualization';
 
-const order = [
-  [
-    {
-      key: 'test-0',
-      itemX: 0,
-      itemY: 0,
-      width: 100,
-      height: 100,
-      left: 0,
-      top: 0,
-    },
-    {
-      key: 'test-1',
-      itemX: 1,
-      itemY: 0,
-      width: 200,
-      height: 200,
-      left: 100,
-      top: 0,
-    },
-  ],
-  [
-    {
-      key: 'test-2',
-      itemX: 0,
-      itemY: 1,
-      width: 300,
-      height: 300,
-      left: 0,
-      top: 200,
-    },
-    {
-      key: 'test-3',
-      itemX: 1,
-      itemY: 1,
-      width: 400,
-      height: 400,
-      left: 300,
-      top: 0,
-    },
-  ],
-  [
-    {
-      key: 'test-4',
-      itemX: 0,
-      itemY: 2,
-      width: 500,
-      height: 500,
-      left: 0,
-      top: 500,
-    },
-  ],
-];
-
-const defaultVisibleOrder = [];
-order.forEach(row => row.forEach(orderObject => defaultVisibleOrder.push(orderObject)));
-
 describe('handleVirtualization', () => {
+  let order;
+  let defaultVisibleOrder;
+
+  beforeEach(() => {
+    order = [
+      [
+        {
+          key: 'test-0',
+          itemX: 0,
+          itemY: 0,
+          width: 100,
+          height: 100,
+          left: 0,
+          top: 0,
+        },
+        {
+          key: 'test-1',
+          itemX: 1,
+          itemY: 0,
+          width: 200,
+          height: 200,
+          left: 100,
+          top: 0,
+        },
+      ],
+      [
+        {
+          key: 'test-2',
+          itemX: 0,
+          itemY: 1,
+          width: 300,
+          height: 300,
+          left: 0,
+          top: 200,
+        },
+        {
+          key: 'test-3',
+          itemX: 1,
+          itemY: 1,
+          width: 400,
+          height: 400,
+          left: 300,
+          top: 0,
+        },
+      ],
+      [
+        {
+          key: 'test-4',
+          itemX: 0,
+          itemY: 2,
+          width: 500,
+          height: 500,
+          left: 0,
+          top: 500,
+        },
+      ],
+    ];
+
+    defaultVisibleOrder = [];
+    order.forEach(row => row.forEach(orderObject => defaultVisibleOrder.push(orderObject)));
+  });
+
   it('handleVirtualization executes correctly, no visibleOrder', () => {
     const scrollLeft = 0;
     const scrollTop = 0;
@@ -72,7 +77,6 @@ describe('handleVirtualization', () => {
     const fixedColumns = null;
     const fixedWidthAll = null;
     const fixedHeightAll = null;
-
     const visibleOrder = [];
 
     const result = handleVirtualization({
@@ -109,7 +113,6 @@ describe('handleVirtualization', () => {
     const fixedColumns = null;
     const fixedWidthAll = null;
     const fixedHeightAll = null;
-
     const visibleOrder = [];
 
     const result = handleVirtualization({
@@ -140,7 +143,6 @@ describe('handleVirtualization', () => {
     const leeway = 0;
     const scrollBufferX = 0;
     const scrollBufferY = 0;
-
     const visibleOrder = [...defaultVisibleOrder];
     visibleOrder.splice(2, 3);
 
@@ -166,7 +168,6 @@ describe('handleVirtualization', () => {
     const leeway = 0.1;
     const scrollBufferX = 0;
     const scrollBufferY = 0;
-
     const visibleOrder = [...defaultVisibleOrder];
     visibleOrder.splice(3, 2);
 
@@ -192,7 +193,6 @@ describe('handleVirtualization', () => {
     const leeway = 0;
     const scrollBufferX = 300;
     const scrollBufferY = 300;
-
     const visibleOrder = [...defaultVisibleOrder];
     visibleOrder.splice(3, 2);
 

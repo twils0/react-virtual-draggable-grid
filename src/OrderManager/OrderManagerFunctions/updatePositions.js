@@ -1,5 +1,3 @@
-import findMaxHeight from './findMaxHeight';
-import findMaxWidth from './findMaxWidth';
 import getPositionLeft from './getPositionLeft';
 import getPositionTop from './getPositionTop';
 
@@ -19,65 +17,38 @@ const updatePositions = ({
 }) => {
   const newOrder = [...order];
   const newKeys = { ...keys };
-  const limitedOrderY = orderY > 0 ? orderY - 1 : 0;
-  const startingY = fixedRows ? 0 : limitedOrderY;
+  const cleanedOrderY = orderY > 0 ? orderY - 1 : 0;
+  const startingY = fixedRows ? 0 : cleanedOrderY;
   const firstStartingX = fixedColumns ? 0 : orderX;
-  let maxBottom = null;
-  const maxRightArray = [];
-
-  if (fixedColumns && !fixedWidthAll) {
-    maxRightArray[0] = 0;
-  }
-  if (fixedRows && !fixedHeightAll) {
-    maxBottom = 0;
-  }
+  const maxWidthArr = [];
+  let maxBottom = 0;
 
   for (let iY = startingY; iY < newOrder.length; iY += 1) {
     const orderRow = newOrder[iY];
-    const newOrderRow = [...orderRow];
     const startingX = iY === startingY ? firstStartingX : 0;
+    const newOrderRow = [...orderRow];
+    let maxHeight = 0;
 
     newOrder[iY] = newOrderRow;
-
-    // if fixedRows is true and fixedHeightAll is falsy,
-    // set a maxBottom value from the previous row, to use
-    // as the top value for all orderObjects in the current row
-    if (fixedRows && !fixedHeightAll && iY > 0) {
-      maxBottom += findMaxHeight({ order: newOrder, indexY: iY - 1 }) + gutterY;
-    }
 
     for (let iX = startingX; iX < newOrderRow.length; iX += 1) {
       const orderObject = newOrderRow[iX];
       const newOrderObject = { ...orderObject };
 
-      // if fixedColumns is true and
-      // fixedWidthAll is falsy, set a maxRight value at the current
-      // index in the maxRightArray, to use as the left value for all
-      // orderObjects at that index;
-      if (fixedColumns && !fixedWidthAll && typeof maxRightArray[iX] !== 'number') {
-        maxRightArray[iX] = maxRightArray[iX - 1]
-          + findMaxWidth({
-            order: newOrder,
-            indexX: iX - 1,
-          })
-          + gutterX;
-      }
-
-      // add new orderObject to the new order 2D array and
-      // to the new keys object
       newOrderRow[iX] = newOrderObject;
       newKeys[newOrderObject.key] = newOrderObject;
-
-      // update order indexes for new orderObject
       newOrderObject.orderX = iX;
       newOrderObject.orderY = iY;
 
-      // quickly calculate left position if fixedColumns is true and
-      // fixedWidthAll is set to a number greater than 0;
-      if (fixedColumns && fixedWidthAll) {
-        newOrderObject.left = iX * (fixedWidthAll + gutterX);
-      } else if (typeof maxRightArray[iX] === 'number') {
-        newOrderObject.left = maxRightArray[iX];
+      // === Columns === //
+
+      if (fixedColumns) {
+        if (fixedWidthAll) {
+          newOrderObject.left = iX * (fixedWidthAll + gutterX);
+        } else {
+          if (!maxWidthArr[iX]) maxWidthArr[iX] = 0;
+          if (newOrderObject.width > maxWidthArr[iX]) maxWidthArr[iX] = orderObject.width;
+        }
       } else {
         newOrderObject.left = getPositionLeft({
           order: newOrder,
@@ -87,14 +58,18 @@ const updatePositions = ({
         });
       }
 
-      // quickly calculate top position if fixedRows is true and
-      // fixedHeightAll is set to a number greater than 0
-      if (fixedRows && fixedHeightAll) {
-        newOrderObject.top = iY * (fixedHeightAll + gutterY);
-        // otherwise, use maxBottom, if set
-      } else if (typeof maxBottom === 'number') {
-        newOrderObject.top = maxBottom;
-      } else {
+      // === Rows === //
+
+      if (fixedRows) {
+        if (fixedHeightAll) {
+          newOrderObject.top = iY * (fixedHeightAll + gutterY);
+        } else {
+          if (orderObject.height > maxHeight) maxHeight = orderObject.height;
+
+          newOrderObject.top = maxBottom;
+        }
+        // newOrderObject.left may not be set, if fixedColumns and !fixedWidthAll
+      } else if (typeof orderObject.left === 'number') {
         newOrderObject.top = getPositionTop({
           order: newOrder,
           orderX: iX,
@@ -102,6 +77,53 @@ const updatePositions = ({
           gutterX,
           gutterY,
         });
+      }
+    }
+
+    if (fixedRows && !fixedHeightAll) {
+      maxBottom += maxHeight + gutterY;
+    }
+  }
+
+  if (fixedColumns && !fixedWidthAll) {
+    const leftArr = [0];
+    maxBottom = 0;
+
+    // unfortunately, need to loop through again
+    // to set orderObject.left
+    for (let iY = 0; iY < newOrder.length; iY += 1) {
+      const newOrderRow = newOrder[iY];
+      let maxHeight = 0;
+
+      for (let iX = 0; iX < newOrderRow.length; iX += 1) {
+        const newOrderObject = newOrderRow[iX];
+
+        if (!leftArr[iX] && iX > 0) leftArr[iX] = leftArr[iX - 1] + maxWidthArr[iX - 1] + gutterX;
+
+        newOrderObject.left = leftArr[iX];
+
+        if (fixedRows) {
+          if (fixedHeightAll) {
+            newOrderObject.top = iY * (fixedHeightAll + gutterY);
+          } else {
+            if (newOrderObject.height > maxHeight) maxHeight = newOrderObject.height;
+
+            newOrderObject.top = maxBottom;
+          }
+          // newOrderObject.left may not be set, if fixedColumns and !fixedWidthAll
+        } else if (typeof newOrderObject.left === 'number') {
+          newOrderObject.top = getPositionTop({
+            order: newOrder,
+            orderX: iX,
+            orderY: iY,
+            gutterX,
+            gutterY,
+          });
+        }
+      }
+
+      if (fixedRows && !fixedHeightAll) {
+        maxBottom += maxHeight + gutterY;
       }
     }
   }

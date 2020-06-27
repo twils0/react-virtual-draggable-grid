@@ -1,76 +1,70 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { shallow } from 'enzyme';
 
 import GridItem from '../GridItem';
 
 const shallowComponent = (props, options) => shallow(<GridItem {...props} />, options);
 
-const TestComp = (props) => {
-  const { styles, name } = props;
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignText: 'center',
-        userSelect: 'none',
-        width: '50px',
-        height: '50px',
-        backgroundColor: 'lightblue',
-        border: '1px solid black',
-        ...styles,
-      }}
-    >
-      {`Test ${name}`}
-    </div>
-  );
-};
-
-TestComp.propTypes = {
-  styles: PropTypes.object,
-  name: PropTypes.string.isRequired,
-};
-
-TestComp.defaultProps = {
-  styles: {},
-};
-
-const key = 'test-1';
-const itemProps = { name: key };
-
-const defaultProps = {
-  style: {
-    isPressed: false,
-    wasPressed: false,
-    width: 200,
-    height: 250,
-    x: 100,
-    y: 100,
-  },
-  data: {
-    item: { key, ItemComponent: TestComp, itemProps },
-  },
-  fixedWidthAll: null,
-  fixedHeightAll: null,
-  transitionDuration: '0.3s',
-  transitionTimingFunction: 'ease',
-  transitionDelay: '0.2s',
-  shadowMultiple: 16,
-  shadowHRatio: 1,
-  shadowVRatio: 1,
-  shadowBlur: null,
-  shadowBlurRatio: 1.2,
-  shadowSpread: null,
-  shadowSpreadRatio: 0,
-  shadowColor: 'rgba(0, 0, 0, 0.2)',
-  GridItemStyles: {},
-  handleMouseDown: jest.fn(),
-  handleTouchStart: jest.fn(),
-};
-
 describe('GridItem', () => {
+  let TestComp;
+  let key;
+  let itemProps;
+  let defaultProps;
+
+  beforeEach(() => {
+    // eslint-disable-next-line react/prop-types
+    TestComp = ({ styles, name }) => (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignText: 'center',
+          userSelect: 'none',
+          width: '50px',
+          height: '50px',
+          backgroundColor: 'lightblue',
+          border: '1px solid black',
+          ...styles,
+        }}
+      >
+        {`Test ${name}`}
+      </div>
+    );
+
+    key = 'test-1';
+    itemProps = { name: key };
+
+    defaultProps = {
+      style: {
+        isPressed: false,
+        wasPressed: false,
+        width: 200,
+        height: 250,
+        x: 100,
+        y: 100,
+      },
+      data: {
+        item: { key, ItemComponent: TestComp, itemProps },
+      },
+      fixedWidthAll: null,
+      fixedHeightAll: null,
+      transitionDuration: '0.3s',
+      transitionTimingFunction: 'ease',
+      transitionDelay: '0.2s',
+      shadowMultiple: 16,
+      shadowHRatio: 1,
+      shadowVRatio: 1,
+      shadowBlur: null,
+      shadowBlurRatio: 1.2,
+      shadowSpread: null,
+      shadowSpreadRatio: 0,
+      shadowColor: 'rgba(0, 0, 0, 0.2)',
+      GridItemStyles: {},
+      handleMouseDown: jest.fn(),
+      handleTouchStart: jest.fn(),
+    };
+  });
+
   afterEach(() => {
     defaultProps.handleMouseDown.mockReset();
     defaultProps.handleTouchStart.mockReset();
