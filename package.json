@@ -25,6 +25,7 @@
   "main": "bin/react-virtual-draggable-grid.min.js",
   "scripts": {
     "webpack": "webpack --progress --colors --mode production --env.prod=true",
+    "webpack:publish": "npm run webpack && npm publish",
     "test": "jest",
     "test:coverage": "jest -- --coverage",
     "test:watch": "jest --watch"
